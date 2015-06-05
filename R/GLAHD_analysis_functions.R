@@ -21,12 +21,7 @@ predict_mass <- function(Taxa,Treat,Diameter,Height,model_flag="simple"){
   #-----------------------------------
   #-- allometry ANCOVA for all taxa
   lm.taxa_complex <- lm(logTM~logd2h*Taxa,data=allom)
-#   anova(lm.taxa)
-#   summary(lm.taxa)
-
-  
-  # simple model
-  lm.taxa_simple <- lm(logTM~logd2h+Taxa,data=allom)
+  lm.taxa_simple  <- lm(logTM~logd2h+Taxa,data=allom)
   # -----------------------------------
 
   newdat.s <- data.frame(Taxa=Taxa,Treat=Treat,Diameter=Diameter,Height=Height)
@@ -51,7 +46,6 @@ predict_LA <- function(Taxa,Treat,Diameter,Height){
   allom$d2h <- with(allom,(Diameter/10)^2*(Height)) #calculate d2h in cm3
   allom$logd2h <- log10(allom$d2h)
   allom$logLA <- log10(allom$Leafarea)
-  
   allom$Treat <- as.factor(ifelse(allom$Pot < 20, "Home",
                                   ifelse(allom$Pot>=40,"Pre","Warmed")))
   allom$Taxa <- factor(allom$Taxa,levels=c("ATER","BTER","ACAM","BCAM","CCAM","BOT","LONG","SMIT",
