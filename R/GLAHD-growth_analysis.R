@@ -300,19 +300,24 @@ dev.copy2pdf(file="Output/RGR_decomposition_north.pdf")
 ##############################################################################################
 ##############################################################################################
 ##############################################################################################
-dat5 <- merge(dat3,full.output.df,by=c("Species","Treatment","Location","Taxa","Code","Range"))
+# dat5 <- merge(dat3,full.output.df,by=c("Species","Treatment","Location","Taxa","Code","Range"))
+# 
+# 
+# dat4 <- merge(dat3,output2,by=c("Species","Treatment","Location","Taxa","Code","Range"))
+# dat4$RGR <- with(dat4,r*TotMass^(beta-1)) # calculate RGR on mass basis. See Paine et al. 2012.
+# dat4$AGR <- with(dat4,r*(0.5^(1-beta)+r*Time*(1-beta))^(beta/(1-beta))  )
+# # use function to predict total plant leaf area from information on taxa, treatment, height, and diameter. Takes a series of vectors, returns a vector
+# dat4$leafarea <- predict_LA(Taxa=dat4$Taxa,Treat=dat4$Treatment,Diameter=dat4$Diameter,Height=dat4$Height)
+# dat4$LAR <- with(dat4,leafarea/TotMass)
+# #dat4$ULR <- with(dat4,AGR/leafarea)
+# dat4$ULR <- with(dat4,RGR/LAR)
+# 
+# dat4.m <- summaryBy(TotMass+RGR+AGR+LAR+ULR~Treatment+Location+Range+Time,FUN=c(mean,standard.error),data=dat4)
+# 
+# full.output.df$leafarea <- predict_LA(Taxa=full.output.df$Taxa,Treat=full.output.df$Treatment,Diameter=full.output.df$Diameter,Height=full.output.df$Height)
 
+# #make nice table of growth parameters
+# library(xtable)
+# print(xtable(anova(fm2)),floating=FALSE)
 
-dat4 <- merge(dat3,output2,by=c("Species","Treatment","Location","Taxa","Code","Range"))
-dat4$RGR <- with(dat4,r*TotMass^(beta-1)) # calculate RGR on mass basis. See Paine et al. 2012.
-dat4$AGR <- with(dat4,r*(0.5^(1-beta)+r*Time*(1-beta))^(beta/(1-beta))  )
-# use function to predict total plant leaf area from information on taxa, treatment, height, and diameter. Takes a series of vectors, returns a vector
-dat4$leafarea <- predict_LA(Taxa=dat4$Taxa,Treat=dat4$Treatment,Diameter=dat4$Diameter,Height=dat4$Height)
-dat4$LAR <- with(dat4,leafarea/TotMass)
-#dat4$ULR <- with(dat4,AGR/leafarea)
-dat4$ULR <- with(dat4,RGR/LAR)
-
-dat4.m <- summaryBy(TotMass+RGR+AGR+LAR+ULR~Treatment+Location+Range+Time,FUN=c(mean,standard.error),data=dat4)
-
-full.output.df$leafarea <- predict_LA(Taxa=full.output.df$Taxa,Treat=full.output.df$Treatment,Diameter=full.output.df$Diameter,Height=full.output.df$Height)
 
