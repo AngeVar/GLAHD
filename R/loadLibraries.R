@@ -14,6 +14,6 @@ suppressMessages(require(dplyr))
 suppressMessages(require(car))
 
 
-source(file="W:/WorkingData/GHS39/GLAHD/Share/R/generic_functions.R")
-source(file="W:/WorkingData/GHS39/GLAHD/Share/R/adderrorbars.R")
-source(file="W:/WorkingData/GHS39/GLAHD/Share/R/GLAHD_analysis_functions.R")
+source(file="C:/Repos/GLAHD/R/generic_functions.R")
+source(file="C:/Repos/GLAHD/R/adderrorbars.R")
+source(file="C:/Repos/GLAHD/R/GLAHD_analysis_functions.R")

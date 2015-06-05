@@ -4,12 +4,12 @@
 
 
 #- load libraries from script
-source("W:/WorkingData/GHS39/GLAHD/Share/R/loadLibraries.R")
+source("C:/Repos/GLAHD/R/loadLibraries.R")
 
 
 #------------------------------------------------------------------------------------------------------------------------------s
 #- read in the "fast" datasets (airT, RH, and PAR)
-files <- list.files(path="W:/WorkingData/GHS39/GLAHD/Share/Data/Climate/heatwave climate data/",pattern="fast",full.names=T)
+files <- list.files(path="C:/Repos/GLAHD/Data/Climate/heatwave climate data/",pattern="fast",full.names=T)
 
 dat <- list()
 for (i in 1:length(files)){
