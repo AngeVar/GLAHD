@@ -8,7 +8,7 @@ source("R/loadLibraries.R")
 
 #- read in the data, do a few conversions
 dat2 <- return_size_mass(model_flag="simple") # use common slope allometry ("simple") or taxa-specific slope ("complex")
-dat2$Time <- as.numeric(dat2$Date-(min(dat2$Date)-7))
+dat2$Time <- as.numeric(dat2$Date-(min(dat2$Date)-1))#first date is date when treatment started
 
 #- remove data with fewer than 6 observations through time
 obs <- unname(table(dat2$Code)) # get the frequency of observations for each pot
