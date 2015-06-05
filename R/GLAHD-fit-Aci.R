@@ -1,15 +1,17 @@
 #- to install the newest version of plantecophys
-#library(devtools)
-#install_bitbucket("remkoduursma/plantecophys")
+library(devtools)
+install_bitbucket("remkoduursma/plantecophys")
 
 #- load libraries from script
-source("W:/WorkingData/GHS39/GLAHD/Share/R/loadLibraries.R")
+source("C:/Repos/GLAHD/R/loadLibraries.R")
+library(nlme)
+library(effects)
 
 #- read data from csv files. These are rawish- they are the files right off the machine, but manually processed to remove remarks
 #- and code which points to exclude from the A:Ci curve fitting.
-aci1 <- read.csv(file="W:/WorkingData/GHS39/GLAHD/Share/Data/GasEx/Aci/Aci_day1_compiled.csv")
-aci2 <- read.csv(file="W:/WorkingData/GHS39/GLAHD/Share/Data/GasEx/Aci/Aci_day2_compiled.csv")
-aci3 <- read.csv(file="W:/WorkingData/GHS39/GLAHD/Share/Data/GasEx/Aci/Aci_day3_compiled.csv")
+aci1 <- read.csv(file="C:/Repos/GLAHD/Data/GasEx/Aci/Aci_day1_compiled.csv")
+aci2 <- read.csv(file="C:/Repos/GLAHD/Data/GasEx/Aci/Aci_day2_compiled.csv")
+aci3 <- read.csv(file="C:/Repos/GLAHD/Data/GasEx/Aci/Aci_day3_compiled.csv")
 
 aci <- rbind(aci1,aci2,aci3)
 
@@ -44,7 +46,7 @@ summaryBy(Vcmax+Jmax~Taxa+Treat,data=fits.params,FUN=c(mean,sd,length))
 
 #---------------------------------------------------------------------
 #make a big pdf with all of the fits for each curve.
-pdf(file="W:/WorkingData/GHS39/GLAHD/Share/Output/Aci fits.pdf")
+pdf(file="C:/Repos/GLAHD/Output/Aci fits.pdf")
 
 for (i in 1:length(fits)){
   par(xpd=F)
@@ -77,7 +79,7 @@ magaxis(c(2,3,4),labels=c(1,0,1),box=T,las=1)
 title(ylab=expression(J["max"]),cex.lab=2,line=2.5)
 axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(fits.params$Taxa),las=2)
 abline(v=16.4)
-dev.copy2pdf(file="W:/WorkingData/GHS39/GLAHD/Share/Output/Aci_results_Vcmax_Jmax.pdf")
+dev.copy2pdf(file="C:/Repos/GLAHD/Output/Aci_results_Vcmax_Jmax.pdf")
 #----------------------------------------------------------------------------------
 
 
@@ -108,9 +110,69 @@ magaxis(c(2,3,4),labels=c(1,0,1),box=T,las=1)
 title(ylab=expression(J["max"]/V["c,max"]),cex.lab=2,line=2.5)
 axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(fits.params$Taxa),las=2)
 abline(v=16.4)
-
-dev.copy2pdf(file="W:/WorkingData/GHS39/GLAHD/Share/Output/JmaxVcmaxratios.pdf")
-
+dev.copy2pdf(file="C:/Repos/GLAHD/Output/JmaxVcmaxratios.pdf")
 
 
 
+
+
+#----------------------------------------------------------------------------------
+#- process Aci fits for statistical analysis
+
+#- get the growth data, mostly just for the treatment codes
+growth <- return_size_mass(model_flag="simple") # use common slope allometry ("simple") or taxa-specific slope ("complex")
+growth2 <- summaryBy(d2h+TotMass+leafArea~Species+Treatment+Location+Taxa+Code+Range,keep.names=T,data=subset(growth,Date >= as.Date("2014-12-8") & Date <=as.Date("2014-12-20")))
+
+#- merge size totalmass and leafarea data into dataframe with aci values
+acifits <- merge(fits.params,growth2,by=c("Code","Taxa"))
+acifits$JtoV <- with(fits.params,Jmax/Vcmax)
+acifits$Location <- factor(acifits$Location,levels=c("S","N")) # relevel Location so that "S" is the first level and "N" is the second
+acifits$Sp_RS_EN <- as.factor(with(acifits,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
+acifits$Prov_Sp_EN <- as.factor(with(acifits,paste(Taxa,Species)))
+
+
+#- does Vcmax or Jmax change with plant size? note that there will be a huge N vs. S effect in Vcmax
+pairs(acifits[,c("Vcmax","Jmax","d2h","TotMass","leafArea")])
+
+#- fit and interpret Vcmax
+fm.vcmax <- lme(log(Vcmax)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=acifits)
+plot(fm.vcmax,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm.vcmax,log(Vcmax)~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
+plot(fm.vcmax,log(Vcmax)~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
+qqnorm(fm.vcmax, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
+hist(fm.vcmax$residuals[,1])
+anova(fm.vcmax)    
+
+plot(effect("Treatment:Location",fm.vcmax))      #- warming reduced Vcmax in the south but not in the north. No range interactions
+plot(effect("Range",fm.vcmax))                   #- narrow species have, on average, lower Vcmax
+
+
+
+
+#- fit and interpret Jmax
+fm.jmax <- lme(log(Jmax)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=acifits)
+plot(fm.jmax,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm.jmax,log(Jmax)~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
+plot(fm.jmax,log(Jmax)~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
+qqnorm(fm.jmax, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
+hist(fm.jmax$residuals[,1])
+anova(fm.jmax)    
+
+plot(effect("Treatment:Location",fm.jmax))      #- warming reduced Jmax to a larger degree in the south than the north. No range interactions
+
+
+
+
+#- fit and interpret Jmax/Vcmax
+fm.jtov <- lme(JtoV~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),
+               weight=varIdent(form=~1|Treatment*Location),data=acifits)
+plot(fm.jtov,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm.jtov,JtoV~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
+plot(fm.jtov,JtoV~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
+qqnorm(fm.jtov, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
+hist(fm.jtov$residuals[,1])
+anova(fm.jtov)    
+
+plot(effect("Treatment:Location",fm.jtov))      #- warming reduced Jmax/Vcmax in the south but not the north. No range interactions
+plot(effect("Treatment",fm.jtov))               #- warming reduced Jmax/Vcmax overall
+#----------------------------------------------------------------------------------
