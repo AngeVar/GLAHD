@@ -3,7 +3,7 @@
 predict_mass <- function(Taxa,Treat,Diameter,Height,model_flag="simple"){
   
   #- read in the data, do a few conversions
-  allom <- read.csv("Data/Harvests/GHS39_GLAHD_MAIN_BIOMASS_20141106-20150116_L1.csv")
+  allom <- read.csv("C:/Repos/GLAHD/Data/Harvests/GHS39_GLAHD_MAIN_BIOMASS_20141106-20150116_L1.csv")
   allom$Totmass <- base::rowSums(allom[,11:13]) #total mass is the sum of leaf, stem, and root mass
   allom$d2h <- with(allom,(Diameter/10)^2*(Height)) #calculate d2h in cm3
   allom$logd2h <- log10(allom$d2h)
@@ -46,7 +46,7 @@ predict_mass <- function(Taxa,Treat,Diameter,Height,model_flag="simple"){
 predict_LA <- function(Taxa,Treat,Diameter,Height){
   
   #- read in the data, do a few conversions
-  allom <- read.csv("Data/Harvests/GHS39_GLAHD_MAIN_BIOMASS_20141106-20150116_L1.csv")
+  allom <- read.csv("C:/Repos/GLAHD/Data/Harvests/GHS39_GLAHD_MAIN_BIOMASS_20141106-20150116_L1.csv")
   allom$Totmass <- base::rowSums(allom[,11:13]) #total mass is the sum of leaf, stem, and root mass
   allom$d2h <- with(allom,(Diameter/10)^2*(Height)) #calculate d2h in cm3
   allom$logd2h <- log10(allom$d2h)
@@ -82,7 +82,7 @@ predict_LA <- function(Taxa,Treat,Diameter,Height){
 return_size_mass <- function(model_flag="simple"){
   
   #- read in the data, do a few conversions
-  dat <- read.csv("Data/HeightDiam/GHS39_GLAHD_MAIN_HEIGHT&DIAMETER_20141106-20150105_L1.csv")
+  dat <- read.csv("C:/Repos/GLAHD/Data/HeightDiam/GHS39_GLAHD_MAIN_HEIGHT&DIAMETER_20141106-20150105_L1.csv")
   dat$Date <- as.Date(dat$Date,format="%d/%m/%Y")
   dat$d2h <- with(dat,(Diameter/10)^2*(Height)) #calculate d2h in cm3
   
