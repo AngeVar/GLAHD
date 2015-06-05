@@ -59,28 +59,6 @@ for (i in 1:length(fits)){
 dev.off()
 
 
-#----------------------------------------------------------------------------------
-#-- plot Vcmax and Jmax for each taxa
-windows(16,14);par(mfrow=c(2,1),mar=c(6,5,2,3),cex.lab=1.3,cex.axis=1.3)
-#colors <- c(rep("white",5),rep("grey",3),rep("white",6),rep("grey",3))
-colors <- c("blue","red")
-
-#plot Vcmax
-ylims=c(10,35)
-boxplot(Vcmax~Treat+Taxa,data=fits.params,axes=F,las=2,col=colors)
-magaxis(c(2,3,4),labels=c(1,0,1),box=T,las=1)
-title(ylab=expression(V["c,max"]),cex.lab=2,line=2.5)
-axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(fits.params$Taxa),las=2)
-abline(v=16.4)
-
-#plot Jmax
-boxplot(Jmax~Treat+Taxa,data=fits.params,axes=F,las=2,col=colors)
-magaxis(c(2,3,4),labels=c(1,0,1),box=T,las=1)
-title(ylab=expression(J["max"]),cex.lab=2,line=2.5)
-axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(fits.params$Taxa),las=2)
-abline(v=16.4)
-dev.copy2pdf(file="C:/Repos/GLAHD/Output/Aci_results_Vcmax_Jmax.pdf")
-#----------------------------------------------------------------------------------
 
 
 #----------------------------------------------------------------------------------
@@ -125,7 +103,7 @@ growth2 <- summaryBy(d2h+TotMass+leafArea~Species+Treatment+Location+Taxa+Code+R
 
 #- merge size totalmass and leafarea data into dataframe with aci values
 acifits <- merge(fits.params,growth2,by=c("Code","Taxa"))
-acifits$JtoV <- with(fits.params,Jmax/Vcmax)
+acifits$JtoV <- with(acifits,Jmax/Vcmax)
 acifits$Location <- factor(acifits$Location,levels=c("S","N")) # relevel Location so that "S" is the first level and "N" is the second
 acifits$Sp_RS_EN <- as.factor(with(acifits,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
 acifits$Prov_Sp_EN <- as.factor(with(acifits,paste(Taxa,Species)))
@@ -133,6 +111,8 @@ acifits$Prov_Sp_EN <- as.factor(with(acifits,paste(Taxa,Species)))
 
 #- does Vcmax or Jmax change with plant size? note that there will be a huge N vs. S effect in Vcmax
 pairs(acifits[,c("Vcmax","Jmax","d2h","TotMass","leafArea")])
+
+
 
 #- fit and interpret Vcmax
 fm.vcmax <- lme(log(Vcmax)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=acifits)
@@ -144,6 +124,9 @@ hist(fm.vcmax$residuals[,1])
 anova(fm.vcmax)    
 
 plot(effect("Treatment:Location",fm.vcmax))      #- warming reduced Vcmax in the south but not in the north. No range interactions
+effect("Treatment:Location",fm.vcmax)
+(exp(4.613)-exp(4.442))/(exp(4.613))    # 15% reduction in Vcmax in S
+(exp(5.1875)-exp(5.1669))/(exp(5.1875)) #  2% reduction in Vcmax in N
 plot(effect("Range",fm.vcmax))                   #- narrow species have, on average, lower Vcmax
 
 
@@ -159,20 +142,62 @@ hist(fm.jmax$residuals[,1])
 anova(fm.jmax)    
 
 plot(effect("Treatment:Location",fm.jmax))      #- warming reduced Jmax to a larger degree in the south than the north. No range interactions
+effect("Treatment:Location",fm.jmax)
+(exp(5.153)-exp(4.923))/(exp(5.153))    # 20% reduction in Jmax in S
+(exp(5.104)-exp(5.011))/(exp(5.104))    #  9% reduction in Jmax in N
 
 
 
 
 #- fit and interpret Jmax/Vcmax
-fm.jtov <- lme(JtoV~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),
-               weight=varIdent(form=~1|Treatment*Location),data=acifits)
+fm.jtov <- lme(log(JtoV)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=acifits)
 plot(fm.jtov,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
-plot(fm.jtov,JtoV~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
-plot(fm.jtov,JtoV~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
+plot(fm.jtov,log(JtoV)~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
+plot(fm.jtov,log(JtoV)~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
 qqnorm(fm.jtov, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
 hist(fm.jtov$residuals[,1])
 anova(fm.jtov)    
 
-plot(effect("Treatment:Location",fm.jtov))      #- warming reduced Jmax/Vcmax in the south but not the north. No range interactions
+plot(effect("Location",fm.jtov))                #- Jmax/Vcmax much higher in S than north. No range interactions
 plot(effect("Treatment",fm.jtov))               #- warming reduced Jmax/Vcmax overall
+effect("Treatment",fm.jtov)
+(exp(0.2138)-exp(0.1478))/(exp(0.2138))      # 6% reduction in Jmax/Vcmax with warming
+effect("Location",fm.jtov)
+(exp(0.51016)-exp(-0.12))/(exp(0.51016))      # 47% lower Jmax/Vcmax in N compared to S
+
+#----------------------------------------------------------------------------------
+
+
+
+
+
+
+#----------------------------------------------------------------------------------
+#-- plot Vcmax and Jmax for each taxa
+windows(16,14);par(mfrow=c(3,1),mar=c(6,5,2,3),cex.lab=1.3,cex.axis=1.3,las=1)
+#colors <- c(rep("white",5),rep("grey",3),rep("white",6),rep("grey",3))
+colors <- c("blue","red")
+
+#plot Vcmax
+ylims=c(10,35)
+boxplot(Vcmax~Treat+Taxa,data=acifits,axes=F,las=2,col=colors)
+magaxis(c(2,3,4),labels=c(1,0,1),box=T,las=1)
+title(ylab=expression(V["c,max"]),cex.lab=2,line=2.5)
+axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(acifits$Taxa),las=2,cex.axis=1.5)
+abline(v=16.4)
+
+#plot Jmax
+boxplot(Jmax~Treat+Taxa,data=acifits,axes=F,las=2,col=colors)
+magaxis(c(2,3,4),labels=c(1,0,1),box=T,las=1)
+title(ylab=expression(J["max"]),cex.lab=2,line=2.5)
+axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(acifits$Taxa),las=2,cex.axis=1.5)
+abline(v=16.4)
+
+#plot Jmax:Vcmax
+boxplot(JtoV~Treat+Taxa,data=acifits,axes=F,las=2,col=colors)
+magaxis(c(2,3,4),labels=c(1,0,1),box=T,las=1)
+title(ylab=expression(J["max"]~"/"~V["cmax"]),cex.lab=2,line=2.5)
+axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(acifits$Taxa),las=2,cex.axis=1.5)
+abline(v=16.4)
+dev.copy2pdf(file="C:/Repos/GLAHD/Output/Aci_results_Vcmax_Jmax.pdf")
 #----------------------------------------------------------------------------------
