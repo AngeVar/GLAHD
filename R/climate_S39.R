@@ -38,7 +38,7 @@ hist(fastdat.GLAHD$PAR_Avg,xlab="PAR",main="PAR histogram")
 
 #------------------------------------------------------------------------------------------------------------------------------
 #- read in the "slow" datasets, which include soil temperature
-files.slow <- list.files(path="W:/WorkingData/GHS39/GLAHD/Share/Data/Climate/heatwave climate data/",pattern="Tsoil",full.names=T)
+files.slow <- list.files(path="C:/Repos/GLAHD/Data/Climate/heatwave climate data/",pattern="Tsoil",full.names=T)
 dat.slow <- list()
 for (i in 1:length(files.slow)){
   dat.slow[[i]] <- readTOA5(files.slow[i])
@@ -98,7 +98,7 @@ plotBy(PAR~Date|Room,data=fast.day,pch=15,type="b",legend=F,axes=F,col=colors,ce
 magaxis(side=c(2,4),labels=c(1,0),box=T,las=1,cex.axis=1.5)
 axis.Date(side=1,at=seq(from=min(fast.day$Date),max(fast.day$Date),by="day"),labels=T,las=2,cex.axis=1.5,tcl=0.5)
 mtext(text="Sum PAR (umol m-2)",side=2,outer=F,line=5,cex=1.2)
-dev.copy2pdf(file="W:/WorkingData/GHS39/GLAHD/Share/Output/Climate_daily_S39.pdf")
+dev.copy2pdf(file="C:/Repos/GLAHD/Output/Climate_daily_S39.pdf")
 
 #------------------------------------------------------------------------------------------------------------------------------
 
@@ -136,11 +136,11 @@ plotBy(PAR~DateTime_hr|Room,data=fast.hour,pch=15,type="l",lwd=2,legend=F,axes=F
 magaxis(side=c(2,4),labels=c(1,0),box=T,las=1,cex.axis=1.5)
 axis.POSIXct(side=1,at=seq(from=min(fast.hour$DateTime_hr),max(fast.hour$DateTime_hr),by="day"),format="%d/%b",labels=T,las=2,cex.axis=1.5,tcl=0.5)
 mtext(text="PAR (umol m-2 s-1)",side=2,outer=F,line=5,cex=1.2)
-dev.copy2pdf(file="W:/WorkingData/GHS39/GLAHD/Share/Output/Climate_hourly_S39.pdf")
+dev.copy2pdf(file="C:/Repos/GLAHD/Output/Climate_hourly_S39.pdf")
 #------------------------------------------------------------------------------------------------------------------------------
 
 # extract just the bay 1 data for Chris and Danielle
-write.csv(subset(fast.hour,Room==1),file="W:/WorkingData/GHS39/GLAHD/Share/Output/Climate_hourly_room1.csv",row.names=F)
+#write.csv(subset(fast.hour,Room==1),file="C:/Repos/GLAHD/Output/Climate_hourly_room1.csv",row.names=F)
 
 
 
@@ -156,7 +156,7 @@ write.csv(subset(fast.hour,Room==1),file="W:/WorkingData/GHS39/GLAHD/Share/Outpu
 #------------------------------------------------------------------------------------------------------------------------------
 
 #- read in the "key" for when each bay was in each treatment
-roomkey <- read.csv("W:/WorkingData/GHS39/GLAHD/Share/Data/Climate/climate_bay_key.csv")
+roomkey <- read.csv("C:/Repos/GLAHD/Data/Climate/climate_bay_key.csv")
 roomkey$Date <- as.Date(roomkey$Date,format="%d/%m/%Y")
 roomkey$Treat <- factor(roomkey$Treat,levels=c("SouthHome","SouthWarmed","NorthHome","NorthWarmed"))
 roomkey$Room <- as.factor(roomkey$Room)
@@ -194,69 +194,10 @@ nt.means$Tair.mean[2]-nt.means$Tair.mean[1]
 # warming treatment in N
 nt.means$Tair.mean[4]-nt.means$Tair.mean[3]
 
-#Daily means
-d.means <- summaryBy(Tair+RH+VPD~Treat,data=exp,FUN=c(mean,standard.error))
+#treatment means
+trt.means <- summaryBy(Tair+RH+VPD~Treat,data=fast,FUN=c(mean,standard.error))
+
+#- the treatment-level means could go into a table for the manuscript. Unfortunately we've confounded temperature and VPD...
+trt.means
 #------------------------------------------------------------------------------------------------------------------------------
-d.means$Tair.mean-d.means$Tair.standard.error
-d.means$Tair.mean+d.means$Tair.standard.error
-plot(Tair.mean~Date, data=d.means)
-lines((Tair.mean-Tair.sd)~Date,data=subset(d.means, d.means$Treat == "NorthWarmed" ))
-
-
-#----------
-colors <- c("black","red","forestgreen","purple")
-windows(60,30)
-par(mfrow=c(3,1), mar=c(2,2,0.3,0.8), oma=c(5,6,6,2.5))
-size=1.5
-# plot airT
-plotBy(Tair~DateTime_hr|Treat,data=fast,pch=15,type="l",lwd=2,legend=F,axes=F,col=colors,cex=size)
-magaxis(side=c(2,4),labels=c(1,0),box=T,las=1,cex.axis=1.5)
-axis.POSIXct(side=1,at=seq(from=min(fast$DateTime_hr),max(fast$DateTime_hr),by="day"),labels=F,las=2,cex.axis=1.5,tcl=0.5)
-mtext(text="Mean air T (deg C)",side=2,outer=F,line=5,cex=1.2)
-legend(x=as.POSIXct("2014-11-12 00:00:00"),y=52,xpd=NA,legend=levels(fast$Treat),col=colors,lty=1,lwd=2,ncol=4,cex=1.5,title="Treatment")
-
-# plot RH
-plotBy(RH~DateTime_hr|Treat,data=fast,pch=15,type="l",lwd=2,legend=F,axes=F,col=colors,cex=size)
-magaxis(side=c(2,4),labels=c(1,0),box=T,las=1,cex.axis=1.5)
-axis.POSIXct(side=1,at=seq(from=min(fast$DateTime_hr),max(fast$DateTime_hr),by="day"),labels=F,las=2,cex.axis=1.5,tcl=0.5)
-mtext(text="Mean RH (%)",side=2,outer=F,line=5,cex=1.2)
-
-# plot PAR
-plotBy(PAR~DateTime_hr|Treat,data=fast,pch=15,type="l",lwd=2,legend=F,axes=F,col=colors,cex=size)
-magaxis(side=c(2,4),labels=c(1,0),box=T,las=1,cex.axis=1.5)
-axis.POSIXct(side=1,at=seq(from=min(fast$DateTime_hr),max(fast$DateTime_hr),by="day"),format="%d/%b",labels=T,las=2,cex.axis=1.5,tcl=0.5)
-mtext(text="PAR (umol m-2 s-1)",side=2,outer=F,line=5,cex=1.2)
-
-
-#- put a date object in the hourly air temperature and RH dataset
-fast.day$Date <- as.Date(fast.day$DateTime_hr)
-fast.day$VPD <- getVPD(Ta=fast.day$Tair,RH=fast.day$RH)
-fast.day$hour <- hour(fast.day$DateTime_hr)
-
-#- merge
-fastday <- merge(fast.day,key,by=c("Date","Room"))
-
-#- plot daily data
-#colors <- colorRampPalette(colors=c("blue","yellow","orange","red"))(4)
-colors <- c("black","grey","red","forestgreen","purple")
-windows(40,30)
-par(mfrow=c(3,1), mar=c(0.3,2,0.3,0.8), oma=c(5,6,6,2.5))
-size=1.5
-# plot airT
-plotBy(Tair~Date|Treat,data=fastday,pch=15,type="b",legend=F,axes=F,col=colors,cex=size)
-magaxis(side=c(2,4),labels=c(1,0),box=T,las=1,cex.axis=1.5)
-axis.Date(side=1,at=seq(from=min(fastday$Date),max(fastday$Date),by="day"),labels=F,las=2,cex.axis=1.5,tcl=0.5)
-mtext(text="Mean air T (deg C)",side=2,outer=F,line=5,cex=1.2)
-legend(x=as.Date("2014-11-20"),y=38,xpd=NA,legend=levels(fastday$Treat),col=colors,pch=15,ncol=4,cex=1.5,title="Treatment")
-# plot RH
-plotBy(RH~Date|Treat,data=fastday,pch=15,type="b",legend=F,axes=F,col=colors,cex=size)
-magaxis(side=c(2,4),labels=c(1,0),box=T,las=1,cex.axis=1.5)
-axis.Date(side=1,at=seq(from=min(fastday$Date),max(fastday$Date),by="day"),labels=F,las=2,cex.axis=1.5,tcl=0.5)
-mtext(text="Mean RH (%)",side=2,outer=F,line=5,cex=1.2)
-
-# plot PAR
-plotBy(PAR~Date|Treat,data=fastday,pch=15,type="b",legend=F,axes=F,col=colors,cex=size)
-magaxis(side=c(2,4),labels=c(1,0),box=T,las=1,cex.axis=1.5)
-axis.Date(side=1,at=seq(from=min(fastday$Date),max(fastday$Date),by="day"),labels=T,las=2,cex.axis=1.5,tcl=0.5)
-mtext(text="Sum PAR (umol m-2)",side=2,outer=F,line=5,cex=1.2)
 
