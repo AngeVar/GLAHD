@@ -4,20 +4,20 @@
 
 
 #- load libraries from script
-source("W:/WorkingData/GHS39/GLAHD/Share/R/loadLibraries.R")
+source("C:/Repos/GLAHD/R/loadLibraries.R")
 
 
 
 #-----------------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------
 #- read in the data, do a few conversions
-dat <- read.csv("W:/WorkingData/GHS39/GLAHD/Share/Data/GasEx/RvsT/GLADH RvsT gasex processeed.csv",stringsAsFactors=T)
+dat <- read.csv("C:/Repos/GLAHD/Data/GasEx/RvsT/GLADH RvsT gasex processeed.csv",stringsAsFactors=T)
 dat$Date <- as.Date(dat$Date,format="%d/%m/%Y")
 dat$Taxa <- as.factor(sapply(1:nrow(dat),function(i)strsplit(as.character(dat$Code[i]),split="-")[[1]][1])) # get the "Taxa" factor out of Code. Note this could have been a loop
 dat$R_area <- dat$Photo*-1
 
 #- read in the leaf mass data, calculate R per unit leaf mass
-leafmass <- read.csv("W:/WorkingData/GHS39/GLAHD/Share/Data/GasEx/RvsT/GLAHD_leaf_mass_RvT.csv")
+leafmass <- read.csv("C:/Repos/GLAHD/Data/GasEx/RvsT/GLAHD_leaf_mass_RvT.csv")
 rt <- merge(dat,leafmass,by="Code")
 rt$R_mass <- rt$R_area/10000*rt$Area/rt$mass*1000 #note mass was in g
 
@@ -54,7 +54,7 @@ for (i in 1:length(rt.m.l)){
   
 }
 title(xlab=expression(Leaf~temperature~(degree*C)),ylab=expression(R[mass]~(nmol~g^-1~s^-1)),outer=T,cex.lab=1.4,line=1)
-dev.copy2pdf(file="W:/WorkingData/GHS39/GLAHD/Share/Output/Rmass_vs_T_JED.pdf")
+dev.copy2pdf(file="C:/Repos/GLAHD/Output/Rmass_vs_T_JED.pdf")
 
 #- plot respiration per unit leaf area
 windows(20,20);par(mfrow=c(2,2),mar=c(3,2,1,1),oma=c(4,4,1,1))
@@ -85,7 +85,7 @@ mtmods <- list()  #modified Q10 to allow Q10 to decline with measurement tempera
 polymods <- list() #polynomial equation popularized by Owen Atkin. Basically an arrhenius where the activation energy can decline with temperature
 
 
-pdf(file="W:/WorkingData/GHS39/GLAHD/Share/Output/RvsT_curves.pdf")
+pdf(file="C:/Repos/GLAHD/Output/RvsT_curves.pdf")
 #par(mfrow=c(6,2),mar=c(0,0,0,0),oma=c(6,6,2,4))
 par(cex=1,cex.axis=1,cex.lab=1)
 xvals <- seq(13,45,length=101)
@@ -194,5 +194,34 @@ lmQ10 <- lm(Q10~Treatment*Taxa,data=params)
 coefs <- summaryBy(poly.a+poly.b+poly.c~Taxa*Treatment,data=params)
 names(coefs)[3:5] <- c("a","b","c")
 write.csv(coefs,row.names=F,file="W:/WorkingData/GHS39/GLAHD/Share/Data/GasEx/RvsT/poly_coefs_RvsT_JED.csv")
+#-----------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------
+
+
+
+#-----------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------
+#- statistically analyze R25 and Q10 estimates
+library(effects)
+
+#- R25
+lm.R25 <- lm(R25~Taxa*Treatment,data=params)
+
+#look at model diagnostics
+plot(lm.R25)
+hist(lm.R25$residuals)
+anova(lm.R25)
+plot(allEffects(lm.R25))     
+
+
+
+#- Q10
+lm.Q10 <- lm(Q10~Taxa*Treatment,data=params)
+
+#look at model diagnostics
+plot(lm.Q10) # point 37 may need to be removed
+hist(lm.Q10$residuals)
+anova(lm.Q10)
+plot(allEffects(lm.Q10))     
 #-----------------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------
