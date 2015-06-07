@@ -1,6 +1,6 @@
 #- to install the newest version of plantecophys
-library(devtools)
-install_bitbucket("remkoduursma/plantecophys")
+#library(devtools)
+#install_bitbucket("remkoduursma/plantecophys")
 
 #- load libraries from script
 source("C:/Repos/GLAHD/R/loadLibraries.R")
@@ -22,6 +22,9 @@ aci$Taxa <- factor(aci$Taxa,levels=c("ATER","BTER","ACAM","BCAM","CCAM","BOT","L
 aci$Pot <- as.numeric(unlist(strsplit(x=as.character(aci$Code),split="-"))[seq(from=2,to=nrow(aci)*2,by=2)])
 aci$Treat <- ifelse(aci$Pot < 20, "Home","Warmed")
 
+#- sort by code
+aci <- aci[with(aci,order(Code)),]
+
 #- have a look
 palette(rainbow(n=length(levels(aci$Code))))
 plotBy(Photo~Ci|Code,data=subset(aci,toFit==1),legend=F,type="b")
@@ -29,9 +32,49 @@ plotBy(Photo~Ci|Code,data=subset(aci,toFit==1),legend=F,type="b")
 #- extract the data to fit (exclude lines that I've manually decided to remove from the curve fitting)
 aci.fit <- subset(aci,toFit==1)
 
+
+
+
+#--- attempt to use parallel processing to speed up the A:Ci curve fitting process.
+p.flag <- T # use parallel processing?
+if(p.flag==T){
+  library(doParallel)
+  cl <- makeCluster(2)
+  registerDoParallel(cl)
+}
+#example bootstrapping from doParallel example pdf. Using 2 cores sped up the bootstrapping from 30.93 to 21.57 seconds.
+#- that's a speedup of about 23%.
+# x <- iris[which(iris[,5] != "setosa"), c(1,5)]
+# trials <- 10000
+# ptime <- system.time({
+#    r <- foreach(icount(trials), .combine=cbind) %do% {
+#      ind <- sample(100, 100, replace=TRUE)
+#      result1 <- glm(x[ind,2]~x[ind,1], family=binomial(logit))
+#      coefficients(result1)
+#      }
+#   })[3]
+# ptime
+if(p.flag==T){
+  starttime <- Sys.time()
+  fits.p <- list()
+  aci.fit.list <- split(aci.fit,aci.fit$Code)
+  crap <- foreach(i=1:length(aci.fit.list)) %dopar% 
+    plantecophys::fitaci(aci.fit.list[[i]],PPFD="PARi",Tcorrect=F,citransition=450)
+  
+  Sys.time()-starttime # took 55 seconds to fit all curves, rather than 1.6 mintues on 1 core.
+  fits.params <- as.data.frame(do.call(rbind,lapply(crap,FUN=coef)))
+  fits.params$Code <- levels(aci.fit$Code)
+}#-----
+
+
 #- fit the aci curves for each plant
-fits <- fitacis(aci.fit,group="Code",PPFD="PARi",Tcorrect=F,citransition=450)
-fits.params <- coef(fits) #extract the Vcmax and Jmax parameters
+if(p.flag==F){
+  starttime <- Sys.time()
+  fits <- fitacis(aci.fit,group="Code",PPFD="PARi",Tcorrect=F,citransition=450)
+  fits.params <- coef(fits) #extract the Vcmax and Jmax parameters
+  Sys.time()-starttime
+  
+}
 
 #- assign other factor variables based on the "Code".
 fits.params$Taxa <- unlist(strsplit(x=as.character(fits.params$Code),split="-"))[seq(from=1,to=nrow(fits.params)*2,by=2)]
@@ -40,8 +83,7 @@ fits.params$Taxa <- factor(fits.params$Taxa,levels=c("ATER","BTER","ACAM","BCAM"
 fits.params$Pot <- as.numeric(unlist(strsplit(x=as.character(fits.params$Code),split="-"))[seq(from=2,to=nrow(fits.params)*2,by=2)])
 fits.params$Treat <- ifelse(fits.params$Pot < 20, "Home","Warmed")
 
-#- get summary statistics
-summaryBy(Vcmax+Jmax~Taxa+Treat,data=fits.params,FUN=c(mean,sd,length))
+
 
 
 #---------------------------------------------------------------------
@@ -57,38 +99,10 @@ for (i in 1:length(fits)){
          bty="n")
 }
 dev.off()
+#---------------------------------------------------------------------
 
 
 
-
-#----------------------------------------------------------------------------------
-#- fit and plot each taxa-treatment combination
-head(aci)
-aci$TT <- factor(paste(aci$Taxa,aci$Treat,sep="-"))
-fits.TT <- fitacis(subset(aci,toFit==1),group="TT",PPFD="PARi",Tcorrect=F,citransition=450)
-fits.TT.params <- coef(fits.TT) #extract the Vcmax and Jmax parameters
-
-windows(30,20)
-xlims=c(0,1900)
-ylims=c(0,50)
-par(mfrow=c(6,6),mar=c(0,0,0,0),oma=c(2,2,1,1))
-for (i in 1:length(fits.TT)){
-  plot(fits.TT[[i]],addlegend=F,axes=F,ylim=ylims,xlim=xlims)
-  magaxis(1:4,labels=rep(0,4))
-  mtext(text=fits.TT.params$TT[i],side=1,line=-1.5)
-  
-}
-#----------------------------------------------------------------------------------
-
-
-#Plot J:V ratios
-windows(10,5)
-boxplot(Jmax/Vcmax~Treat+Taxa,data=fits.params,axes=F,las=2,col=colors)
-magaxis(c(2,3,4),labels=c(1,0,1),box=T,las=1)
-title(ylab=expression(J["max"]/V["c,max"]),cex.lab=2,line=2.5)
-axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(fits.params$Taxa),las=2)
-abline(v=16.4)
-dev.copy2pdf(file="C:/Repos/GLAHD/Output/JmaxVcmaxratios.pdf")
 
 
 
