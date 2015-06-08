@@ -183,17 +183,17 @@ params.m <- summaryBy(mt.x + mt.y + mt.Rref~Taxa+Treatment,FUN=c(mean,standard.e
 #-- visualize polynomial model results
 params$R25 <- with(params,exp(poly.a+poly.b*25+poly.c*25^2))
 params$Q10 <- with(params,exp(10*(poly.b+2*poly.c*25)))
-
+# 
 windows(20,30);par(mar=c(7,6,1,1),mfrow=c(2,1))
 boxplot(R25~Treatment*Taxa,data=params,las=2,col=c("blue","red"),ylab="R25")
 boxplot(Q10~Treatment*Taxa,data=params,las=2,col=c("blue","red"),ylab="Q10 at 25 C")
-
-lmR <- lm(R25~Treatment*Taxa,data=params)
-lmQ10 <- lm(Q10~Treatment*Taxa,data=params)
-
-coefs <- summaryBy(poly.a+poly.b+poly.c~Taxa*Treatment,data=params)
-names(coefs)[3:5] <- c("a","b","c")
-write.csv(coefs,row.names=F,file="W:/WorkingData/GHS39/GLAHD/Share/Data/GasEx/RvsT/poly_coefs_RvsT_JED.csv")
+# 
+# lmR <- lm(R25~Treatment*Taxa,data=params)
+# lmQ10 <- lm(Q10~Treatment*Taxa,data=params)
+# 
+# coefs <- summaryBy(poly.a+poly.b+poly.c~Taxa*Treatment,data=params)
+# names(coefs)[3:5] <- c("a","b","c")
+# write.csv(coefs,row.names=F,file="W:/WorkingData/GHS39/GLAHD/Share/Data/GasEx/RvsT/poly_coefs_RvsT_JED.csv")
 #-----------------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------
 
