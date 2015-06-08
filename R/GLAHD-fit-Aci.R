@@ -215,3 +215,37 @@ axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(acifits$Taxa),las=2,cex.
 abline(v=16.4)
 dev.copy2pdf(file="C:/Repos/GLAHD/Output/Aci_results_Vcmax_Jmax_atMeasuredLeafR.pdf")
 #----------------------------------------------------------------------------------
+
+
+
+
+
+
+#----------------------------------------------------------------------------------
+#- create ANOVA table of results, embed that table into a word document. 
+#- the table needs cleaning in word to embed the degrees of freedom and label the columns, etc.
+vcmax.o <- anova(fm.vcmax)
+
+extract.lme <- function(model){
+  mod.o <- anova(model)
+  
+  ndf <- mod.o[2:nrow(mod.o),1]
+  ddf <- mod.o[2:nrow(mod.o),2]
+  df <- (paste(ndf,ddf,sep=", "))
+  Fvalue <-round(mod.o[2:nrow(mod.o),3],1)
+  Pvalue <-round(mod.o[2:nrow(mod.o),4],3)
+  Pvalue[which(Pvalue==0)] <- "<0.001"
+  return(data.frame("F" = Fvalue,"P" = Pvalue))
+}
+
+
+#- note, for this to work, GLAHD_Asat.R should be run to produce fm.Asat
+gxtable <- do.call(cbind,lapply(list(fm.vcmax,fm.jmax,fm.jtov,fm.Asat),FUN=extract.lme))
+row.names(gxtable) <- row.names(anova(fm.vcmax))[2:8]
+gxtable[which(gxtable==0)]
+
+library(R2wd)
+wdGet()
+wdTable(gxtable,autoformat=2)
+#----------------------------------------------------------------------------------
+
