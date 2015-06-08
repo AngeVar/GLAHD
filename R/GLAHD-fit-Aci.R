@@ -85,22 +85,22 @@ fits.params$Treat <- ifelse(fits.params$Pot < 20, "Home","Warmed")
 
 
 
-
-#---------------------------------------------------------------------
-#make a big pdf with all of the fits for each curve.
-pdf(file="C:/Repos/GLAHD/Output/Aci fits.pdf")
-
-for (i in 1:length(fits)){
-  par(xpd=F)
-  plot(fits[[i]],xlim=c(0,2000),ylim=c(-2,50))
-  title(paste("ch.campaign =", fits.params[i,1]),sep="")
-  par(xpd=T)
-  legend("topleft",legend=paste("Vcmax=",round(fits.params[i,2],1),",","Jmax=",round(fits.params[i,3],1)),
-         bty="n")
-}
-dev.off()
-#---------------------------------------------------------------------
-
+# 
+# #---------------------------------------------------------------------
+# #make a big pdf with all of the fits for each curve.
+# pdf(file="C:/Repos/GLAHD/Output/Aci fits.pdf")
+# 
+# for (i in 1:length(fits)){
+#   par(xpd=F)
+#   plot(fits[[i]],xlim=c(0,2000),ylim=c(-2,50))
+#   title(paste("ch.campaign =", fits.params[i,1]),sep="")
+#   par(xpd=T)
+#   legend("topleft",legend=paste("Vcmax=",round(fits.params[i,2],1),",","Jmax=",round(fits.params[i,3],1)),
+#          bty="n")
+# }
+# dev.off()
+# #---------------------------------------------------------------------
+# 
 
 
 
@@ -139,8 +139,8 @@ anova(fm.vcmax)
 
 plot(effect("Treatment:Location",fm.vcmax))      #- warming reduced Vcmax in the south but not in the north. No range interactions
 effect("Treatment:Location",fm.vcmax)
-(exp(4.613)-exp(4.442))/(exp(4.613))    # 15% reduction in Vcmax in S
-(exp(5.1875)-exp(5.1669))/(exp(5.1875)) #  2% reduction in Vcmax in N
+(exp(4.61284)-exp(4.4414))/(exp(4.61284))    # 15.7% reduction in Vcmax in S
+(exp(5.187)-exp(5.1623))/(exp(5.187)) #  2% reduction in Vcmax in N
 plot(effect("Range",fm.vcmax))                   #- narrow species have, on average, lower Vcmax
 
 
@@ -157,8 +157,8 @@ anova(fm.jmax)
 
 plot(effect("Treatment:Location",fm.jmax))      #- warming reduced Jmax to a larger degree in the south than the north. No range interactions
 effect("Treatment:Location",fm.jmax)
-(exp(5.153)-exp(4.923))/(exp(5.153))    # 20% reduction in Jmax in S
-(exp(5.104)-exp(5.011))/(exp(5.104))    #  9% reduction in Jmax in N
+(exp(5.153)-exp(4.923))/(exp(5.153))    # 20.5% reduction in Jmax in S
+(exp(5.103)-exp(5.004))/(exp(5.103))    #  9% reduction in Jmax in N
 
 
 
@@ -175,9 +175,9 @@ anova(fm.jtov)
 plot(effect("Location",fm.jtov))                #- Jmax/Vcmax much higher in S than north. No range interactions
 plot(effect("Treatment",fm.jtov))               #- warming reduced Jmax/Vcmax overall
 effect("Treatment",fm.jtov)
-(exp(0.2138)-exp(0.1478))/(exp(0.2138))      # 6% reduction in Jmax/Vcmax with warming
+(exp(0.2124)-exp(0.1459))/(exp(0.2124))      # 6% reduction in Jmax/Vcmax with warming
 effect("Location",fm.jtov)
-(exp(0.51016)-exp(-0.12))/(exp(0.51016))      # 47% lower Jmax/Vcmax in N compared to S
+(exp(0.5103)-exp(-0.1208))/(exp(0.5103))      # 47% lower Jmax/Vcmax in N compared to S
 
 #----------------------------------------------------------------------------------
 
@@ -213,5 +213,5 @@ magaxis(c(2,3,4),labels=c(1,0,1),box=T,las=1)
 title(ylab=expression(J["max"]~"/"~V["cmax"]),cex.lab=2,line=2.5)
 axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(acifits$Taxa),las=2,cex.axis=1.5)
 abline(v=16.4)
-dev.copy2pdf(file="C:/Repos/GLAHD/Output/Aci_results_Vcmax_Jmax.pdf")
+dev.copy2pdf(file="C:/Repos/GLAHD/Output/Aci_results_Vcmax_Jmax_atMeasuredLeafR.pdf")
 #----------------------------------------------------------------------------------
