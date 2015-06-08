@@ -4,11 +4,11 @@
 
 
 #- load libraries from script
-source("W:/WorkingData/GHS39/GLAHD/Share/R/loadLibraries.R")
+source("C:/Repos/GLAHD/R/loadLibraries.R")
 
 
 #- read data
-gx <- read.csv(file="W:/WorkingData/GHS39/GLAHD/Share/Data/GasEx/Asat/GHS39_GLAHD_MAIN_Asat_04122014_L1.csv")
+gx <- read.csv(file="C:/Repos/GLAHD/Data/GasEx/Asat/GHS39_GLAHD_MAIN_Asat_04122014_L1.csv")
 
 #- get the first bit of the code (the taxa)
 gx$Taxa <- unlist(strsplit(x=as.character(gx$Code),split="-"))[seq(from=1,to=2071,by=2)]
@@ -45,29 +45,47 @@ axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(gx2$Taxa),las=2)
 abline(v=16.5)
 
 
-#- ... and conductance
-boxplot(Cond~Treat+Taxa,data=gx2,ylab=expression(g[s]~(mol~m^-2~s^-1)),axes=F,col=colors)
-magaxis(c(2,3,4),labels=c(1,0,0),box=T)
-axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(gx2$Taxa),las=2)
-abline(v=16.5)
+  #- ... and conductance
+  boxplot(Cond~Treat+Taxa,data=gx2,ylab=expression(g[s]~(mol~m^-2~s^-1)),axes=F,col=colors)
+  magaxis(c(2,3,4),labels=c(1,0,0),box=T)
+  axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(gx2$Taxa),las=2)
+  abline(v=16.5)
 dev.copy2pdf(file="W:/WorkingData/GHS39/GLAHD/Share/Output/Asat_results.pdf")
 
+
+
+
+
+
 #---------------------------
+#- prepare data for statistical analysis
+#- get the growth data, mostly just for the treatment codes
+growth <- return_size_mass(model_flag="simple") # use common slope allometry ("simple") or taxa-specific slope ("complex")
+growth2 <- summaryBy(d2h+TotMass+leafArea~Species+Treatment+Location+Taxa+Code+Range,keep.names=T,data=subset(growth,Date >= as.Date("2014-12-8") & Date <=as.Date("2014-12-20")))
 
-L1<-lm((Photo)^2~Taxa*Treat, data=gx) # The warming effect on Asat is taxa specific
-anova(L1)
-summary(L1)
+#- merge size totalmass and leafarea data into dataframe with aci values
+gx2$Range <- as.factor(tolower(gx2$Range))
+gx3 <- merge(gx2,growth2,by=c("Code","Taxa","Location","Range"))
 
-L2<-lm(Photo~Range*Treat*Location, data=gx) 
-L2<-lm(Photo~Range+Treat, data=gx) 
-anova(L2)
-summary(L2)
 
-L3<-lm((Photo)^2~Range+Treat, data=gx)
-anova(L3)
-summary(L3)
-#No difference in Asat in North and South
-#but warmed has lower Asat than home and wide has higher than narrow
+gx3$Location <- factor(gx3$Location,levels=c("S","N")) # relevel Location so that "S" is the first level and "N" is the second
+gx3$Sp_RS_EN <- as.factor(with(gx3,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
+gx3$Prov_Sp_EN <- as.factor(with(gx3,paste(Taxa,Species)))
+
+
+#- Statistical analysis of Asat
+fm.Asat <- lme(Photo~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=gx3)
+plot(fm.Asat,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm.Asat,Photo~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
+plot(fm.Asat,Photo~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
+qqnorm(fm.Asat, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
+hist(fm.Asat$residuals[,1])
+anova(fm.Asat)    
+
+plot(effect("Treatment",fm.Asat))                #- Asat reduced by warming
+plot(effect("Range",fm.Asat))               #- Asat higher in wide range species
+effect("Treatment",fm.Asat)
+(28.35-26.73)/28.35      # 65 reduction in Asat with warming
 
 #---------------------------
 
@@ -102,7 +120,7 @@ for (i in 1:length(dat)){
     
   }
 }
-dev.copy2pdf(file="W:/WorkingData/GHS39/GLAHD/Share/Output/Asat_@Tleaf.pdf")
+dev.copy2pdf(file="C:/Repos/GLAHD/Output/Asat_@Tleaf.pdf")
 
 ### Process and plot narrow vs. wide in N vs. S
 
