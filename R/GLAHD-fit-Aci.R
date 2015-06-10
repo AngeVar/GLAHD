@@ -142,7 +142,8 @@ effect("Treatment:Location",fm.vcmax)
 (exp(4.61284)-exp(4.4414))/(exp(4.61284))    # 15.7% reduction in Vcmax in S
 (exp(5.187)-exp(5.1623))/(exp(5.187)) #  2% reduction in Vcmax in N
 plot(effect("Range",fm.vcmax))                   #- narrow species have, on average, lower Vcmax
-
+effect("Range",fm.vcmax)
+(exp(4.9089)-exp(4.78961))/(exp(4.9089))         #- Vcmax is 11% lower in narrow ranged species
 
 
 
@@ -222,6 +223,38 @@ dev.copy2pdf(file="C:/Repos/GLAHD/Output/Aci_results_Vcmax_Jmax_atMeasuredLeafR.
 
 
 #----------------------------------------------------------------------------------
+#- fit the models for Asat and Rdark
+Asat <- getAsat()
+fm.Asat <- lme(Photo~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=Asat)
+anova(fm.Asat)
+plot(effect("Treatment",fm.Asat))                #- Asat reduced by warming
+plot(effect("Range",fm.Asat))               #- Asat higher in wide range species
+effect("Treatment",fm.Asat)
+(28.35-26.73)/28.35      # 5% reduction in Asat with warming
+
+
+Rdark <- getRdark()
+fm.Rmass <- lme(log(Rmass)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=Rdark)
+plot(fm.Rmass,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm.Rmass,log(Rmass)~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
+plot(fm.Rmass,log(Rmass)~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
+qqnorm(fm.Rmass, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
+hist(fm.Rmass$residuals[,1])
+anova(fm.Rmass)
+plot(effect("Treatment:Location:Range",fm.Rmass))                #- 3-way interaction for Rmass. Narrow from south don't acclimate, the rest do
+effect("Treatment:Location:Range",fm.Rmass)
+(exp(2.426073)-exp(2.174630))/(exp(2.426073))      # 22% reduction in Rmass with warming of wide species in the north
+(exp(2.361253)-exp(2.144013))/(exp(2.361253))      # 19.5% reduction in Rmass with warming of narrow species in the north
+(exp(2.318532)-exp(1.974925))/(exp(2.318532))      # 29% reduction in Rmass with warming of wide species in the south
+(exp(2.315649)-exp(2.253351))/(exp(2.315649))      # 6% reduction in Rmass with warming of narrow species in the south
+
+
+plot(effect("Treatment:Range",fm.Rmass))                         #- wide range species exhibit more substantial acclimation than narrows
+
+
+#----------------------------------------------------------------------------------
+
+#----------------------------------------------------------------------------------
 #- create ANOVA table of results, embed that table into a word document. 
 #- the table needs cleaning in word to embed the degrees of freedom and label the columns, etc.
 vcmax.o <- anova(fm.vcmax)
@@ -235,14 +268,13 @@ extract.lme <- function(model){
   Fvalue <-round(mod.o[2:nrow(mod.o),3],1)
   Pvalue <-round(mod.o[2:nrow(mod.o),4],3)
   Pvalue[which(Pvalue==0)] <- "<0.001"
-  return(data.frame("F" = Fvalue,"P" = Pvalue))
+  return(data.frame("df"=df, "F" = Fvalue,"P" = Pvalue))
 }
 
 
-#- note, for this to work, GLAHD_Asat.R should be run to produce fm.Asat
-gxtable <- do.call(cbind,lapply(list(fm.vcmax,fm.jmax,fm.jtov,fm.Asat),FUN=extract.lme))
+#- make a big table
+gxtable <- do.call(cbind,lapply(list(fm.vcmax,fm.jmax,fm.jtov,fm.Asat,fm.Rmass),FUN=extract.lme))
 row.names(gxtable) <- row.names(anova(fm.vcmax))[2:8]
-gxtable[which(gxtable==0)]
 
 library(R2wd)
 wdGet()
