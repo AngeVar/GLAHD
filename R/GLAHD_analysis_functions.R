@@ -166,3 +166,95 @@ summarizer <- function(dat, alpha){
   }
   return(CIs)
 }
+
+
+
+#- this function reads in and returns the Rdark spot measurements. Returns a dataframe.
+getRdark <- function(){
+  
+  #- read data
+  gx <- read.csv(file="Data/GasEx/Rdark/GLAHD-Rdark-151214-compiled.csv")
+  
+  #- get the first bit of the code (the taxa)
+  gx$Taxa <- unlist(strsplit(x=as.character(gx$Code),split="-"))[seq(from=1,to=nrow(gx)*2,by=2)]
+  gx$Taxa <- factor(gx$Taxa,levels=c("ATER","BTER","ACAM","BCAM","CCAM","BOT","LONG","SMIT",
+                                     "CTER","DTER","ETER","DCAM","ECAM","FCAM","BRA","PEL","PLAT"))
+  gx$Pot <- as.numeric(unlist(strsplit(x=as.character(gx$Code),split="-"))[seq(from=2,to=nrow(gx)*2,by=2)])
+  gx$Treatment <- as.factor(ifelse(gx$Pot < 20, "Home","Warmed"))
+  
+  #- average over sub-replicate logs
+  gx1 <- summaryBy(.~Code+Taxa+Treatment+Pot,data=gx,keep.names=T)
+  gx1$R <- gx1$Photo*-1
+  
+  
+  #---------------------------
+  #- get the leaf mass data
+  lm <- read.csv(file="Data/GasEx/Rdark/Dry Weight_22Dec2014_CRamig.csv")
+  
+  gx1$Code2 <- paste(gx1$Taxa,gx1$Pot,sep="")
+  
+  gx2 <- merge(gx1,lm,by.x="Code2",by.y="Code")
+  gx2$Rmass <- with(gx2,R*Area/10000/leafDW*1000*1000)
+  gx2$SLA <- with(gx2,(Area/(leafDW/1000))) 
+  #---------------------------
+  
+    
+  #---------------------------
+  #- prepare data for statistical analysis
+  #- get the growth data, mostly just for the treatment codes
+  growth <- return_size_mass(model_flag="simple") # use common slope allometry ("simple") or taxa-specific slope ("complex")
+  growth2 <- summaryBy(d2h+TotMass+leafArea~Species+Treatment+Location+Taxa+Code+Range,keep.names=T,data=subset(growth,Date >= as.Date("2014-12-8") & Date <=as.Date("2014-12-20")))
+  
+  #- merge size totalmass and leafarea data into dataframe with Rdark values
+  gx3 <- merge(gx2,growth2,by=c("Code","Taxa","Treatment"))
+  
+  
+  gx3$Location <- factor(gx3$Location,levels=c("S","N")) # relevel Location so that "S" is the first level and "N" is the second
+  gx3$Sp_RS_EN <- as.factor(with(gx3,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
+  gx3$Prov_Sp_EN <- as.factor(with(gx3,paste(Taxa,Species)))
+  return(gx3)
+}
+
+
+#- this function reads and processes the Asat spot measurements. Returns a dataframe.
+getAsat <- function(){
+  
+  
+  #- read data
+  gx <- read.csv(file="C:/Repos/GLAHD/Data/GasEx/Asat/GHS39_GLAHD_MAIN_Asat_04122014_L1.csv")
+  
+  #- get the first bit of the code (the taxa)
+  gx$Taxa <- unlist(strsplit(x=as.character(gx$Code),split="-"))[seq(from=1,to=2071,by=2)]
+  gx$Taxa <- factor(gx$Taxa,levels=c("ATER","BTER","ACAM","BCAM","CCAM","BOT","LONG","SMIT",
+                                     "CTER","DTER","ETER","DCAM","ECAM","FCAM","BRA","PEL","PLAT"))
+  gx$Pot <- as.numeric(unlist(strsplit(x=as.character(gx$Code),split="-"))[seq(from=2,to=2072,by=2)])
+  gx$Treat <- as.factor(ifelse(gx$Pot < 20, "Home","Warmed"))
+  gx$Location <- as.factor(ifelse(gx$Taxa == "ACAM" | gx$Taxa == "BCAM"| gx$Taxa == "CCAM"| 
+                                    gx$Taxa == "ATER"| gx$Taxa == "BTER"| gx$Taxa == "LONG"| 
+                                    gx$Taxa == "SMIT" | gx$Taxa == "BOT", "S","N"))
+  gx$Range <- as.factor(ifelse(gx$Taxa == "LONG"| gx$Taxa == "SMIT" |gx$Taxa == "BOT"| gx$Taxa == "PEL"
+                               | gx$Taxa == "PLAT"|gx$Taxa =="BRA","Narrow","Wide"))
+  #- average over sub-replicate logs
+  gx2 <- summaryBy(.~Code+Taxa+Treat+Location+Range,data=gx,keep.names=T)
+  
+  
+  
+  
+  
+  #---------------------------
+  #- prepare data for statistical analysis
+  #- get the growth data, mostly just for the treatment codes
+  growth <- return_size_mass(model_flag="simple") # use common slope allometry ("simple") or taxa-specific slope ("complex")
+  growth2 <- summaryBy(d2h+TotMass+leafArea~Species+Treatment+Location+Taxa+Code+Range,keep.names=T,data=subset(growth,Date >= as.Date("2014-12-8") & Date <=as.Date("2014-12-20")))
+  
+  #- merge size totalmass and leafarea data into dataframe with aci values
+  gx2$Range <- as.factor(tolower(gx2$Range))
+  gx3 <- merge(gx2,growth2,by=c("Code","Taxa","Location","Range"))
+  
+  
+  gx3$Location <- factor(gx3$Location,levels=c("S","N")) # relevel Location so that "S" is the first level and "N" is the second
+  gx3$Sp_RS_EN <- as.factor(with(gx3,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
+  gx3$Prov_Sp_EN <- as.factor(with(gx3,paste(Taxa,Species)))
+  
+  return(gx3)
+}
