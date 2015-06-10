@@ -6,31 +6,7 @@
 #- load libraries from script
 source("C:/Repos/GLAHD/R/loadLibraries.R")
 
-
-#- read data
-gx <- read.csv(file="C:/Repos/GLAHD/Data/GasEx/Asat/GHS39_GLAHD_MAIN_Asat_04122014_L1.csv")
-
-#- get the first bit of the code (the taxa)
-gx$Taxa <- unlist(strsplit(x=as.character(gx$Code),split="-"))[seq(from=1,to=2071,by=2)]
-gx$Taxa <- factor(gx$Taxa,levels=c("ATER","BTER","ACAM","BCAM","CCAM","BOT","LONG","SMIT",
-                           "CTER","DTER","ETER","DCAM","ECAM","FCAM","BRA","PEL","PLAT"))
-gx$Pot <- as.numeric(unlist(strsplit(x=as.character(gx$Code),split="-"))[seq(from=2,to=2072,by=2)])
-gx$Treat <- as.factor(ifelse(gx$Pot < 20, "Home","Warmed"))
-gx$Location <- as.factor(ifelse(gx$Taxa == "ACAM" | gx$Taxa == "BCAM"| gx$Taxa == "CCAM"| 
-                                   gx$Taxa == "ATER"| gx$Taxa == "BTER"| gx$Taxa == "LONG"| 
-                                   gx$Taxa == "SMIT" | gx$Taxa == "BOT", "S","N"))
-gx$Range <- as.factor(ifelse(gx$Taxa == "LONG"| gx$Taxa == "SMIT" |gx$Taxa == "BOT"| gx$Taxa == "PEL"
-                              | gx$Taxa == "PLAT"|gx$Taxa =="BRA","Narrow","Wide"))
-#- average over sub-replicate logs
-gx2 <- summaryBy(.~Code+Taxa+Treat+Location+Range,data=gx,keep.names=T)
-
-
-
-boxplot(VpdL~Treat+Taxa,data=gx2,ylab=expression(VPD~(kPa)),axes=F,las=2,col=colors)
-magaxis(c(2,3,4),labels=c(1,0,0),box=T)
-axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(gx2$Taxa),las=2)
-abline(v=16.5)
-
+Asat <- getAsat()
 
 #---------------------------
 #-- plot photosynthesis...
@@ -39,42 +15,24 @@ windows(14,14);par(mfrow=c(2,1),mar=c(6,5,2,1),cex.lab=1.3,cex.axis=1.3)
 colors <- c("blue","red")
 #- home photo
 ylims=c(18,35)
-boxplot(Photo~Treat+Taxa,data=gx2,ylim=ylims,ylab=expression(A[sat]~(mu*mol~m^-2~s^-1)),axes=F,las=2,col=colors)
+boxplot(Photo~Treat+Taxa,data=Asat,ylim=ylims,ylab=expression(A[sat]~(mu*mol~m^-2~s^-1)),axes=F,las=2,col=colors)
 magaxis(c(2,3,4),labels=c(1,0,0),box=T)
 axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(gx2$Taxa),las=2)
 abline(v=16.5)
 
 
-  #- ... and conductance
-  boxplot(Cond~Treat+Taxa,data=gx2,ylab=expression(g[s]~(mol~m^-2~s^-1)),axes=F,col=colors)
-  magaxis(c(2,3,4),labels=c(1,0,0),box=T)
-  axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(gx2$Taxa),las=2)
-  abline(v=16.5)
+#- ... and conductance
+boxplot(Cond~Treat+Taxa,data=Asat,ylab=expression(g[s]~(mol~m^-2~s^-1)),axes=F,col=colors)
+magaxis(c(2,3,4),labels=c(1,0,0),box=T)
+axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(gx2$Taxa),las=2)
+abline(v=16.5)
 dev.copy2pdf(file="W:/WorkingData/GHS39/GLAHD/Share/Output/Asat_results.pdf")
-
-
-
-
-
-
 #---------------------------
-#- prepare data for statistical analysis
-#- get the growth data, mostly just for the treatment codes
-growth <- return_size_mass(model_flag="simple") # use common slope allometry ("simple") or taxa-specific slope ("complex")
-growth2 <- summaryBy(d2h+TotMass+leafArea~Species+Treatment+Location+Taxa+Code+Range,keep.names=T,data=subset(growth,Date >= as.Date("2014-12-8") & Date <=as.Date("2014-12-20")))
 
-#- merge size totalmass and leafarea data into dataframe with aci values
-gx2$Range <- as.factor(tolower(gx2$Range))
-gx3 <- merge(gx2,growth2,by=c("Code","Taxa","Location","Range"))
-
-
-gx3$Location <- factor(gx3$Location,levels=c("S","N")) # relevel Location so that "S" is the first level and "N" is the second
-gx3$Sp_RS_EN <- as.factor(with(gx3,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
-gx3$Prov_Sp_EN <- as.factor(with(gx3,paste(Taxa,Species)))
 
 
 #- Statistical analysis of Asat
-fm.Asat <- lme(Photo~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=gx3)
+fm.Asat <- lme(Photo~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=Asat)
 plot(fm.Asat,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
 plot(fm.Asat,Photo~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
 plot(fm.Asat,Photo~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
@@ -93,7 +51,7 @@ effect("Treatment",fm.Asat)
 #####plot Asat at Tleaf ###
 
 #average Photo and Tleaf for warmed and home for each taxa
-gx3 <- summaryBy(Photo+Tleaf~Taxa+Treat, data=gx2, FUN=c(mean, standard.error))
+gx3 <- summaryBy(Photo+Tleaf~Taxa+Treat, data=Asat, FUN=c(mean, standard.error))
 
 
 #- split into list across all taxa for plotting
