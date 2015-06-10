@@ -4,35 +4,9 @@
 
 
 #- load libraries from script
-source("W:/WorkingData/GHS39/GLAHD/Share/R/loadLibraries.R")
+source("R/loadLibraries.R")
 
-
-#- read data
-gx <- read.csv(file="W:/WorkingData/GHS39/GLAHD/Share/Data/GasEx/Rdark/GLAHD-Rdark-151214-compiled.csv")
-
-#- get the first bit of the code (the taxa)
-gx$Taxa <- unlist(strsplit(x=as.character(gx$Code),split="-"))[seq(from=1,to=nrow(gx)*2,by=2)]
-gx$Taxa <- factor(gx$Taxa,levels=c("ATER","BTER","ACAM","BCAM","CCAM","BOT","LONG","SMIT",
-                                   "CTER","DTER","ETER","DCAM","ECAM","FCAM","BRA","PEL","PLAT"))
-gx$Pot <- as.numeric(unlist(strsplit(x=as.character(gx$Code),split="-"))[seq(from=2,to=nrow(gx)*2,by=2)])
-gx$Treat <- ifelse(gx$Pot < 20, "Home","Warmed")
-
-#- average over sub-replicate logs
-gx1 <- summaryBy(.~Code+Taxa+Treat+Pot,data=gx,keep.names=T)
-gx1$R <- gx1$Photo*-1
-
-
-#---------------------------
-#- get the leaf mass data
-lm <- read.csv(file="W:/WorkingData/GHS39/GLAHD/Share/Data/GasEx/Rdark/Dry Weight_22Dec2014_CRamig.csv")
-
-gx1$Code2 <- paste(gx1$Taxa,gx1$Pot,sep="")
-
-gx2 <- merge(gx1,lm,by.x="Code2",by.y="Code")
-gx2$Rmass <- with(gx2,R*Area/10000/leafDW*1000*1000)
-gx2$SLA <- with(gx2,(Area/(leafDW/1000)))  # this is wrong somehow...
-#---------------------------
-
+gx2 <- getRdark()
 
 #---------------------------
 #-- plot Rdark
@@ -40,22 +14,22 @@ windows(14,14);par(mfrow=c(1,1),mar=c(6,5,2,1),cex.lab=1.3,cex.axis=1.3)
 #colors <- c(rep("white",5),rep("grey",3),rep("white",6),rep("grey",3))
 colors <- c("blue","red")
 ylims=c(0.2,1.2)
-boxplot(R~Treat+Taxa,data=gx2,ylim=ylims,ylab=expression(R[dark]~(mu*mol~m^-2~s^-1)),axes=F,las=2,col=colors)
+boxplot(R~Treatment+Taxa,data=gx2,ylim=ylims,ylab=expression(R[dark]~(mu*mol~m^-2~s^-1)),axes=F,las=2,col=colors)
 magaxis(c(2,3,4),labels=c(1,0,0),box=T)
 axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(gx2$Taxa),las=2)
 abline(v=16.5)
-dev.copy2pdf(file="W:/WorkingData/GHS39/GLAHD/Share/Output/Rdark_area_results.pdf")
+dev.copy2pdf(file="Output/Rdark_area_results.pdf")
 
 
 windows(14,14);par(mfrow=c(1,1),mar=c(6,5,2,1),cex.lab=1.3,cex.axis=1.3)
 #colors <- c(rep("white",5),rep("grey",3),rep("white",6),rep("grey",3))
 colors <- c("blue","red")
 ylims=c(4,18)
-boxplot(Rmass~Treat+Taxa,data=gx2,ylim=ylims,ylab=expression(R[dark]~(n*mol~g^-1~s^-1)),axes=F,las=2,col=colors)
+boxplot(Rmass~Treatment+Taxa,data=gx2,ylim=ylims,ylab=expression(R[dark]~(n*mol~g^-1~s^-1)),axes=F,las=2,col=colors)
 magaxis(c(2,3,4),labels=c(1,0,0),box=T)
 axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(gx2$Taxa),las=2)
 abline(v=16.5)
-dev.copy2pdf(file="W:/WorkingData/GHS39/GLAHD/Share/Output/Rdark_mass_results.pdf")
+dev.copy2pdf(file="Output/Rdark_mass_results.pdf")
 
 
 
@@ -63,11 +37,11 @@ windows(14,14);par(mfrow=c(1,1),mar=c(6,5,2,1),cex.lab=1.3,cex.axis=1.3)
 #colors <- c(rep("white",5),rep("grey",3),rep("white",6),rep("grey",3))
 colors <- c("blue","red")
 ylims=c(100,300)
-boxplot(SLA~Treat+Taxa,data=gx2,ylim=ylims,ylab=expression(SLA~(cm^2~g^-1)),axes=F,las=2,col=colors)
+boxplot(SLA~Treatment+Taxa,data=gx2,ylim=ylims,ylab=expression(SLA~(cm^2~g^-1)),axes=F,las=2,col=colors)
 magaxis(c(2,3,4),labels=c(1,0,0),box=T)
 axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(gx2$Taxa),las=2)
 abline(v=16.5)
-dev.copy2pdf(file="W:/WorkingData/GHS39/GLAHD/Share/Output/Leaf_SLA.pdf")
+dev.copy2pdf(file="Output/Leaf_SLA.pdf")
 
 #---------------------------
 
@@ -82,7 +56,7 @@ boxplot(Area~Treat+Taxa,data=gx2,ylim=ylims,ylab=expression(Leaf~size~(cm^-2)),a
 magaxis(c(2,3,4),labels=c(1,0,0),box=T)
 axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(gx2$Taxa),las=2)
 abline(v=16.5)
-dev.copy2pdf(file="W:/WorkingData/GHS39/GLAHD/Share/Output/Leaf_size.pdf")
+dev.copy2pdf(file="Output/Leaf_size.pdf")
 
 #---------------------------
 
