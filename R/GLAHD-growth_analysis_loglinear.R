@@ -106,7 +106,7 @@ plotBy(M~times|combotrt,data=rates.trt,col=c("red","black","blue","green","orang
 #- Note how badly the 3-parameter power function fits the data.
 
 #- read in the 3-parameter power law fits as a comparison
-powfits <- read.csv("C:/Repos/GLAHD/Output/DE_power_fits.csv")
+powfits <- read.csv("C:/Repos/GLAHD/R/DE_power_fits.csv")
 powfits <- powfits[,1:4]
 powfits2 <- merge(powfits,dat3,by="Code")
 head(powfits2)
