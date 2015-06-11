@@ -61,7 +61,7 @@ output.log_lin <- function(X, Y, params, times,Code){
 #-------------------------------------------------------------------------------------
 #- fit log-polynomial growth model to each plant one at a time, extract parameters, and analyze them.
 growth.l <- split(dat3,dat3$Code)
-loglinfits <- output <- list()
+loglinfits <- output <- data.out <- list()
 for(i in 1:length(growth.l)){
   tofit <- growth.l[[i]]
   loglinfits[[i]] <- lm(log(TotMass)~Time+I(Time^2),data=tofit) #- fit log-polynomial
@@ -69,9 +69,14 @@ for(i in 1:length(growth.l)){
   #- extract the output using a new function which calculates AGR and RGR from the polynomial fit parameters
   output[[i]] <- output.log_lin(X=tofit$Time,Y=tofit$TotMass,
                               params=unname(coef(loglinfits[[i]])),times=seq(1:70),Code=tofit$Code[1])$rates
+  data.out[[i]] <- output.log_lin(X=tofit$Time,Y=tofit$TotMass,
+                                params=unname(coef(loglinfits[[i]])),times=seq(1:70),Code=tofit$Code[1])$data
+  data.out[[i]]$Code <- tofit$Code[1]
 }
 #- put rates dataframe together. This has the timecourse of mass, AGR, and RGR for each plant
 rates.df <-do.call(rbind,output)
+data.df <- do.call(rbind,data.out)
+data.df$fit_type <- "log-polynomial"
 params <- as.data.frame(do.call(rbind,lapply(loglinfits,coef))) #- get polynomial parameters. Perhaps not that useful alone
 params$Code <- unique(rates.df$Code) # add the code variable to the parameter estimate
 #-------------------------------------------------------------------------------------
@@ -93,23 +98,26 @@ plotBy(M~times|combotrt,data=rates.trt,col=c("red","black","blue","green","orang
        legendwhere="topleft")
 #-------------------------------------------------------------------------------------
 
+
+
+
 #-------------------------------------------------------------------------------------
-#-- pull out RGR at 10 days and analyze
-rates_10d <- subset(rates.df2,times==10)
-rates_10d$Sp_RS_EN <- as.factor(with(rates_10d,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
-rates_10d$Prov_Sp_EN <- as.factor(with(rates_10d,paste(Taxa,Species)))
+#- compare fits of the 3-parameter power function and the log-polynomial function.
+#- Note how badly the 3-parameter power function fits the data.
 
+#- read in the 3-parameter power law fits as a comparison
+powfits <- read.csv("C:/Repos/GLAHD/Output/DE_power_fits.csv")
+powfits <- powfits[,1:4]
+powfits2 <- merge(powfits,dat3,by="Code")
+head(powfits2)
+powfits2$predmass <- with(powfits2,(M0^(1-beta) + r*Time*(1-beta))^(1/(1-beta)))
 
+plot(predmass~TotMass,data=powfits2,pch=3,col="red",ylim=c(0,150),
+     xlab="Observed mass (g)",ylab="Predicted mass (g)")
+points(fitted~observed,data=data.df,pch=3,col="black")
+abline(0,1)
+legend("topleft",legend=c("log-poly","3-power"),pch=3,col=c("black","red"))
 
-#- analyze RGR
-fm.rgr <- lme(RGR~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=rates_10d)
-#look at model diagnostics
-plot(fm.rgr,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
-plot(fm.rgr,RGR~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
-plot(fm.rgr,RGR~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
-qqnorm(fm.rgr, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
-hist(fm.rgr$residuals[,1])
-anova(fm.rgr) #- our three way interaction is now marginal. (it comes back if you choose 1 day rather than 10!)
-plot(allEffects(fm.rgr))     
-summary(fm.rgr)
+summary(lm(predmass~TotMass,data=powfits2))
+summary(lm(fitted~observed,data=data.df))
 #-------------------------------------------------------------------------------------
