@@ -103,7 +103,7 @@ plotBy(M~times|combotrt,data=rates.trt,col=c("red","black","blue","green","orang
 
 #-------------------------------------------------------------------------------------
 #- compare fits of the 3-parameter power function and the log-polynomial function.
-#- Note how badly the 3-parameter power function fits the data.
+
 
 #- read in the 3-parameter power law fits as a comparison
 powfits <- read.csv("C:/Repos/GLAHD/R/DE_power_fits.csv")
@@ -112,7 +112,15 @@ powfits2 <- merge(powfits,dat3,by="Code")
 head(powfits2)
 powfits2$predmass <- with(powfits2,(M0^(1-beta) + r*Time*(1-beta))^(1/(1-beta)))
 
-plot(predmass~TotMass,data=powfits2,pch=3,col="red",ylim=c(0,150),
+windows(30,40);par(mfrow=c(2,1),mar=c(5,6,1,1))
+#- linear scale
+plot(predmass~TotMass,data=powfits2,pch=3,col="red",cex.lab=1.5,
+     xlab="Observed mass (g)",ylab="Predicted mass (g)")
+points(fitted~observed,data=data.df,pch=3,col="black")
+abline(0,1)
+legend("topleft",legend=c("log-poly","3-power"),pch=3,col=c("black","red"))
+#- log scale
+plot(predmass~TotMass,data=powfits2,pch=3,col="red",cex.lab=1.5,log="xy",
      xlab="Observed mass (g)",ylab="Predicted mass (g)")
 points(fitted~observed,data=data.df,pch=3,col="black")
 abline(0,1)

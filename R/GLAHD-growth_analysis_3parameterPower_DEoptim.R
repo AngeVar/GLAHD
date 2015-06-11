@@ -52,7 +52,7 @@ fit.power3 <- function(p, Time, TotMass){
 	beta <- exp(p[2])
 	r    <- exp(p[3])
 	y.pred <- (M0^(1-beta) + r*Time*(1-beta))^(1/(1-beta))
-	RSS    <- sum((TotMass-y.pred)*(TotMass-y.pred)/TotMass)/length(Time)#edited by JED 11 June 2015
+	RSS    <- sum((TotMass-y.pred)*(TotMass-y.pred)/y.pred)/length(Time)#edited by JED 11 June 2015
 	return(RSS)
 }
 
@@ -179,7 +179,7 @@ boxplot(beta~Treatment*Taxa,data=DEfits,col=c("blue","red"),las=2,ylab="beta",ce
 abline(v=16.5)
 boxplot(M0~Treatment*Taxa,data=DEfits,col=c("blue","red"),las=2,ylab="initial mass",cex.lab=2)
 
-#- ugh. This is bad.
+#- This is really not that bad
 plotBy(r~M0|Treatment,data=DEfits,legendwhere="topright")
 plotBy(r~beta|Treatment,data=DEfits,legendwhere="topright")
 
