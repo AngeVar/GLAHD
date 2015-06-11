@@ -52,7 +52,7 @@ fit.power3 <- function(p, Time, TotMass){
 	beta <- exp(p[2])
 	r    <- exp(p[3])
 	y.pred <- (M0^(1-beta) + r*Time*(1-beta))^(1/(1-beta))
-	RSS    <- sum((TotMass-y.pred)*(TotMass-y.pred))/length(Time)
+	RSS    <- sum((TotMass-y.pred)*(TotMass-y.pred)/TotMass)/length(Time)#edited by JED 11 June 2015
 	return(RSS)
 }
 
@@ -62,7 +62,6 @@ fit.power.pred <- function(p, Time, TotMass){
   beta <- exp(p[2])
   r    <- exp(p[3])
   y.pred <- (M0^(1-beta) + r*Time*(1-beta))^(1/(1-beta))
-  RSS    <- sum((TotMass-y.pred)*(TotMass-y.pred))/length(Time)
   return(y.pred)
 }
 # # Provide the routine with some starting guesses for parameter values
@@ -84,16 +83,17 @@ fit.power.pred <- function(p, Time, TotMass){
 # Npop <- log(as.matrix(Npop))
 
 
-
+lower <- log(c(0.001,0.5,0.001))
+upper <- log(c(0.5,0.999,0.5))
 set.seed(1234) # set seed for repeatablility
 DEoptim.control <- list(VTR = -Inf, strategy = 2,itermax=500,trace=TRUE,CR=0.9)
 out <- DEoptim(fit.power3,lower,upper,Time=junk$Time,TotMass=junk$TotMass)
-out.par <- unname(out$optim$bestmem)
+out.par <- exp(unname(out$optim$bestmem))
 
 
 
 plot(junk$TotMass~junk$Time)
-points(fit.power.pred(p=out.par,Time=junk$Time,TotMass=junk$TotMass)~junk$Time,col="red")
+points(fit.power.pred(p=log(out.par),Time=junk$Time,TotMass=junk$TotMass)~junk$Time,col="red")
 
 
 
@@ -134,9 +134,8 @@ points(fit.power.pred(p=out.par,Time=junk$Time,TotMass=junk$TotMass)~junk$Time,c
 #-   much much faster. Judging from my system monitor, DEoptim must use parallel processing under the hood.
 #----------------------------------------------------------------------------------------------------------------
 
-DEoptim.control <- list(VTR = -Inf, strategy = 2,NP=300,itermax=500,trace=100,CR=0.9)
-lower <- log(c(0.001,0.5,0.001))
-upper <- log(c(0.5,0.999,0.5))
+lower <- log(c(0.0001,0.4,0.001))
+upper <- log(c(0.6,0.999,0.5))
 dat.l <- split(dat3,dat3$Code)
 output <- list()
 outpar <- data.frame("Code"=rep(NA,length(dat.l)),"M0"=rep(NA,length(dat.l)),"beta"=rep(NA,length(dat.l)),"r"=rep(NA,length(dat.l)))
@@ -156,18 +155,18 @@ for(i in 1:length(dat.l)){
 }
 #----------------------------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------------------------
-
+outpar$Code <-as.factor(outpar$Code)
 
 
 
 #---- start from here
 
 #- merge it all the treatment code information from dat3
-DEfits <- merge(params,subset(dat3,Date==as.Date("2014-11-17")),by="Code")
+DEfits <- merge(outpar,subset(dat3,Date==as.Date("2014-11-17")),by="Code")
 
 #- write out a csv for future work, as teh evolutionary algorithm takes a long time.
-#write.csv(DEfits,row.names=F,file="C:/Repos/GLAHD/Output/DE_power_fits.csv")
-DEfits <- read.csv("C:/Repos/GLAHD/Output/DE_power_fits.csv")
+#write.csv(DEfits,row.names=F,file="C:/Repos/GLAHD/R/DE_power_fits.csv")
+#DEfits <- read.csv("C:/Repos/GLAHD/Output/DE_power_fits.csv")
 
 #Some plots. These make no sense. Initial mass is all over the place and explains why r doens't respond to treatment
 windows(20,12);par(mar=c(8,7,1,1))
@@ -183,3 +182,11 @@ boxplot(M0~Treatment*Taxa,data=DEfits,col=c("blue","red"),las=2,ylab="initial ma
 #- ugh. This is bad.
 plotBy(r~M0|Treatment,data=DEfits,legendwhere="topright")
 plotBy(r~beta|Treatment,data=DEfits,legendwhere="topright")
+
+#- DEfits compare with measured biomass
+DEfits.all <- merge(outpar,dat3,by="Code")
+DEfits.all$predmass <- with(DEfits.all,(M0^(1-beta) + r*Time*(1-beta))^(1/(1-beta)))
+
+plot(TotMass~predmass,data=DEfits.all,log="xy")
+abline(0,1)
+summary(lm(TotMass~predmass,data=DEfits.all))
