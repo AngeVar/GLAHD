@@ -99,7 +99,23 @@ return_size_mass <- function(model_flag="simple"){
   return(dat2)
 }
 
-
+#fit 3 parameter power function
+fit.power3 <- function(p, Time, TotMass){
+  M0   <- exp(p[1])
+  beta <- exp(p[2])
+  r    <- exp(p[3])
+  y.pred <- (M0^(1-beta) + r*Time*(1-beta))^(1/(1-beta))
+  RSS    <- sum((TotMass-y.pred)*(TotMass-y.pred)/y.pred)/length(Time)#edited by JED 11 June 2015
+  return(RSS)
+}
+#plot results from 3 parameter power function
+fit.power.pred <- function(p, Time, TotMass){
+  M0   <- exp(p[1])
+  beta <- exp(p[2])
+  r    <- exp(p[3])
+  y.pred <- (M0^(1-beta) + r*Time*(1-beta))^(1/(1-beta))
+  return(y.pred)
+}
 
 # from Paine et al. 2012
 # Self-start function for 2-parameter power-law fit (initial mass fixed by used). This self-start for this model is not provided by Pinhero and Bates (2000), so I wrote one. 
