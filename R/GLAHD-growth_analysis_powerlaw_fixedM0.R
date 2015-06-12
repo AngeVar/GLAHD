@@ -7,7 +7,7 @@ source("R/loadLibraries.R")
 allom <- read.csv("C:/Repos/GLAHD/Data/Harvests/GHS39_GLAHD_MAIN_BIOMASS_20141106-20150116_L1.csv")
 allom$Totmass <- base::rowSums(allom[,11:13]) #total mass is the sum of leaf, stem, and root mass
 pre <- subset(allom, Treatment == "Pre-treatment")
-seed_mass<- summaryBy(Totmass~Taxa, FUN=mean, data=pre, var.names = "seedmass", keep.names=T)
+seed_mass<- summaryBy(Totmass~Taxa, FUN=min, data=pre, var.names = "seedmass", keep.names=T) # tried the minimum instead of the mean?
 
 #- read in the data, do a few conversions
 dat2 <- return_size_mass(model_flag="complex") # use common slope allometry ("simple") or taxa-specific slope ("complex")
@@ -21,7 +21,7 @@ dat3 <- subset(dat2,Code %in% keeps) # subset dataframe
 dat3$Code <- factor(dat3$Code)
 dat3$lnTotMass <- log(dat3$TotMass)
 
-dat4<- merge(dat3,seed_mass, by="Taxa")#add taxa specific initial mass to data
+#dat4<- merge(dat3,seed_mass, by="Taxa")#add taxa specific initial mass to data
 
 
 
@@ -29,7 +29,7 @@ source("R/Paine.R")
 ##############################################################################################
 ##############################################################################################
 #- fit growth model to each plant one at a time, extract parameters, and analyze them.
-growth.l <- split(dat4,dat4$Code)
+growth.l <- split(dat3,dat3$Code)
 xlims <- c(0,70)
 ylims <- c(0,100)
 
@@ -40,15 +40,17 @@ full.output <- list()
 for (i in 1:length(growth.l)){
   print(i)
   tofit <- growth.l[[i]]
+  #seedmass <- seed_mass[which(tofit$Taxa[1] == seed_mass$Taxa),2] # get the right seedmass out of the dataframe above
+  seedmass <- ifelse(min(tofit$TotMass-0.1)>0,min(tofit$TotMass-0.1),0.1) # define the seedmass for each plant, but force it to be positive
   #tofit <- subset(tofit,TotMass>seed.mass)
-  fmla.pow2 <- as.formula(paste("~(", tofit$seedmass[1], "^(1-beta) + r*x*(1-beta))^(1/(1-beta))", sep = ""))
+  fmla.pow2 <- as.formula(paste("~(", seedmass, "^(1-beta) + r*x*(1-beta))^(1/(1-beta))", sep = ""))
   SS.pow2   <- selfStart(fmla.pow2, initial = Init.pow2, parameters = c("r", "beta"))
   xvals <- seq(1,70,by=0.5) # establish xvalues of time to use in the model fitting below
   
   #fit
   tmp.pow2 <- getInitial(TotMass ~ SS.pow2(Time, r, beta), data = tofit)
   fit.pow2 <- gnls(TotMass ~ SS.pow2(Time, r, beta), data = tofit)
-  out.pow2 <- output.pow2.gnls(fit.pow2,xvals, CI = T, M0 = tofit$seedmass[1])
+  out.pow2 <- output.pow2.gnls(fit.pow2,xvals, CI = T, M0 = seedmass) # i'm not sure this works. r and beta should be good, AGR and RGR are questionable.
   
   #plot
   plot(TotMass~Time,data=tofit,pch=20,cex=3,ylab="Total plant mass (g)",xlab="Time (days)",xlim=xlims,ylim=ylims)
@@ -100,3 +102,16 @@ dat.f <- subset(dat2,Date==as.Date("2015-01-05"))[,c(1,3,4,5,7,13)]
 names(dat.f)[6] <- "TotMass.f"
 
 output2 <- merge(output,dat.f,by=c("Species","Treatment","Location","Taxa","Code"))
+
+
+
+#Some plots
+windows(20,12);par(mar=c(8,7,1,1))
+
+output2$Taxa <- factor(output2$Taxa,levels=c("ATER","BTER","ACAM","BCAM","CCAM","BOT","LONG","SMIT",
+                                           "CTER","DTER","ETER","DCAM","ECAM","FCAM","BRA","PEL","PLAT"))#boxplot(r~Treatment*Range*Location,data=output,col=c("blue","red"),las=2,ylab="r",las=1)
+boxplot(r~Treatment*Taxa,data=output2,col=c("blue","red"),las=2,ylab="r",cex.lab=2)
+abline(v=16.5)
+boxplot(beta~Treatment*Taxa,data=output,col=c("blue","red"),las=2,ylab="beta",cex.lab=2)
+abline(v=16.5)
+
