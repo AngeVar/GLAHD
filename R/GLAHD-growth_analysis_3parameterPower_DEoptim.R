@@ -76,75 +76,15 @@ DEfits.all$leafarea <- predict_LA(Taxa=DEfits.all$Taxa,Treat=DEfits.all$Treatmen
 DEfits.all$LAR <- with(DEfits.all,leafarea/TotMass)
 DEfits.all$ULR <- with(DEfits.all,RGR/LAR)
 
-write.csv(DEfits.all,row.names=F,file="C:/Repos/GLAHD/Output/DE_power_fits_all.csv")
+#write.csv(DEfits.all,row.names=F,file="C:/Repos/GLAHD/Output/DE_power_fits_all.csv")
 # plot(TotMass~predmass,data=DEfits,log="xy")
 # abline(0,1)
 # summary(lm(TotMass~predmass,data=DEfits.all))
 
 #---- start from here-------------------------------------------------------------------------------------------
 
-DEfits.all <- read.csv("C:/Repos/GLAHD/Output/DE_power_fits_all.csv")
+#DEfits.all <- read.csv("C:/Repos/GLAHD/Output/DE_power_fits_all.csv")
 DEfits.all$Date<- as.Date(DEfits.all$Date)
-#some plots
-windows(20,20);par(mfrow=c(4,2),mar=c(2,2,0,0),oma=c(5,5,4,1))
-toplot <- subset(DEfits.all,Location=="S")
-plotBy(AGR~TotMass|Treatment,data=subset(toplot,Range=="narrow"),legend=F,pch=16,ylab="AGR",xlab="Mass",xlim=c(0,70),ylim=c(0,5))
-mtext(side=2,"AGR",line=3)
-mtext(side=3,"Narrow",line=1)
-mtext("South",side=3, line=2, outer=T, cex=1.4)
-plotBy(AGR~TotMass|Treatment,data=subset(toplot,Range=="wide"),legend=F,pch=16,ylab="AGR",xlab="Mass",xlim=c(0,70),ylim=c(0,5))
-mtext(side=3,"Wide",line=1)
-
-plotBy(RGR~TotMass|Treatment,data=subset(toplot,Range=="narrow"),legend=F,pch=16,ylab="RGR",xlab="Mass",xlim=c(0,70),ylim=c(0,0.4))
-mtext(side=2,"RGR",line=3)
-plotBy(RGR~TotMass|Treatment,data=subset(toplot,Range=="wide"),legend=F,pch=16,ylab="RGR",xlab="Mass",xlim=c(0,70),ylim=c(0,0.4))
-
-plotBy(LAR~TotMass|Treatment,data=subset(toplot,Range=="narrow"),legend=F,pch=16,ylab="RGR",xlab="Mass",xlim=c(0,70),ylim=c(50,375))
-mtext(side=2,"LAR",line=3)
-plotBy(LAR~TotMass|Treatment,data=subset(toplot,Range=="wide"),legend=F,pch=16,ylab="RGR",xlab="Mass",xlim=c(0,70),ylim=c(50,375))
-
-plotBy(ULR~TotMass|Treatment,data=subset(toplot,Range=="narrow"),legend=F,pch=16,ylab="RGR",xlab="Mass",xlim=c(0,70),ylim=c(0,0.0032))
-mtext(side=1,"Plant mass",line=3)
-mtext(side=2,"ULR",line=3)
-plotBy(ULR~TotMass|Treatment,data=subset(toplot,Range=="wide"),legend=F,pch=16,ylab="RGR",xlab="Mass",xlim=c(0,70),ylim=c(0,0.0032))
-mtext(side=1,"Plant mass",line=3)
-dev.copy2pdf(file="Output/RGR_decomposition_south.pdf")
-
-
-windows(20,20);par(mfrow=c(4,2),mar=c(2,2,0,0),oma=c(5,5,4,1))
-toplot <- subset(DEfits.all,Location=="N")
-plotBy(AGR~TotMass|Treatment,data=subset(toplot,Range=="narrow"),legend=F,pch=16,ylab="AGR",xlab="Mass",xlim=c(0,70),ylim=c(0,5))
-mtext(side=2,"AGR",line=3)
-mtext(side=3,"Narrow",line=1)
-mtext("North",side=3, line=2, outer=T, cex=1.4)
-plotBy(AGR~TotMass|Treatment,data=subset(toplot,Range=="wide"),legend=F,pch=16,ylab="AGR",xlab="Mass",xlim=c(0,70),ylim=c(0,5))
-mtext(side=3,"Wide",line=1)
-
-plotBy(RGR~TotMass|Treatment,data=subset(toplot,Range=="narrow"),legend=F,pch=16,ylab="RGR",xlab="Mass",xlim=c(0,70),ylim=c(0,0.4))
-mtext(side=2,"RGR",line=3)
-plotBy(RGR~TotMass|Treatment,data=subset(toplot,Range=="wide"),legend=F,pch=16,ylab="RGR",xlab="Mass",xlim=c(0,70),ylim=c(0,0.4))
-
-plotBy(LAR~TotMass|Treatment,data=subset(toplot,Range=="narrow"),legend=F,pch=16,ylab="RGR",xlab="Mass",xlim=c(0,70),ylim=c(50,375))
-mtext(side=2,"LAR",line=3)
-plotBy(LAR~TotMass|Treatment,data=subset(toplot,Range=="wide"),legend=F,pch=16,ylab="RGR",xlab="Mass",xlim=c(0,70),ylim=c(50,375))
-
-plotBy(ULR~TotMass|Treatment,data=subset(toplot,Range=="narrow"),legend=F,pch=16,ylab="RGR",xlab="Mass",xlim=c(0,70),ylim=c(0,0.0032))
-mtext(side=1,"Plant mass",line=3)
-mtext(side=2,"ULR",line=3)
-plotBy(ULR~TotMass|Treatment,data=subset(toplot,Range=="wide"),legend=F,pch=16,ylab="RGR",xlab="Mass",xlim=c(0,70),ylim=c(0,0.0032))
-mtext(side=1,"Plant mass",line=3)
-dev.copy2pdf(file="Output/RGR_decomposition_north.pdf")
-
-#Biomass enhancement ratios
-warm<-subset(summaryBy(TotMass~Treatment+Date+Range+Location, data=DEfits.all, FUN=mean),Treatment=="Warmed")
-home<-subset(summaryBy(TotMass~Treatment+Date+Range+Location, data=DEfits.all, FUN=mean),Treatment=="Home")
-BER<- cbind(warm,home)
-BER$ber <- BER[,5]-BER[,10]
-bioen<-BER[,7:11]
-toplot<-bioen
-plotBy(ber~Date|Range,data=subset(toplot, Location == "N"), type="l", lwd=2, col= c("Black","red"), ylab="Biomass enhancement factor", legendwhere= "topleft",ylim=c(-5,3))
-
-
 #Extract data from day 17 (the second harvest) i.e. Day 14 of the experiment
 
 dat4<- subset(DEfits.all,Date==as.Date("2014-11-17"))
@@ -193,6 +133,7 @@ hist(fm1rgr$residuals[,1])
 anova(fm1rgr)
 plot(allEffects(fm1rgr))    
 
+
 fm1Tmass <- lme(TotMass~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dat4)
 plot(fm1Tmass,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
 plot(fm1Tmass,TotMass~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
@@ -225,21 +166,124 @@ library(R2wd)
 wdGet()
 wdTable(growthtable,autoformat=2)
 
-# #Some other plots. These make no sense. Initial mass is all over the place and explains why r doens't respond to treatment
-# windows(20,12);par(mar=c(8,7,1,1))
-# 
-# output$Taxa <- factor(output$Taxa,levels=c("ATER","BTER","ACAM","BCAM","CCAM","BOT","LONG","SMIT",
-#                                            "CTER","DTER","ETER","DCAM","ECAM","FCAM","BRA","PEL","PLAT"))#boxplot(r~Treatment*Range*Location,data=output,col=c("blue","red"),las=2,ylab="r",las=1)
-# boxplot(r~Treatment*Taxa,data=DEfits,col=c("blue","red"),las=2,ylab="r",cex.lab=2)
-# abline(v=16.5)
-# boxplot(beta~Treatment*Taxa,data=DEfits,col=c("blue","red"),las=2,ylab="beta",cex.lab=2)
-# abline(v=16.5)
-# boxplot(M0~Treatment*Taxa,data=DEfits,col=c("blue","red"),las=2,ylab="initial mass",cex.lab=2)
-# 
-# #- This is really not that bad
-# plotBy(r~M0|Treatment,data=DEfits,legendwhere="topright")
-# plotBy(r~beta|Treatment,data=DEfits,legendwhere="topright")
 
-#- DEfits compare with measured biomass
+#extract data from mass 10 g?
 
+
+#some plots over mass
+windows(20,20);par(mfrow=c(4,2),mar=c(2,2,0,0),oma=c(5,5,4,1))
+toplot <- subset(DEfits.all,Location=="S")
+plotBy(AGR~TotMass|Treatment,data=subset(toplot,Range=="narrow"),legend=F,pch=16,ylab="AGR",xlab="Mass",xlim=c(0,70),ylim=c(0,5), cols = c("black", "red"))
+mtext(side=2,"AGR",line=3)
+mtext(side=3,"Narrow",line=1)
+mtext("South",side=3, line=2, outer=T, cex=1.4)
+plotBy(AGR~TotMass|Treatment,data=subset(toplot,Range=="wide"),legend=F,pch=16,ylab="AGR",xlab="Mass",xlim=c(0,70),ylim=c(0,5), cols = c("black", "red"))
+mtext(side=3,"Wide",line=1)
+
+plotBy(RGR~TotMass|Treatment,data=subset(toplot,Range=="narrow"),legend=F,pch=16,ylab="RGR",xlab="Mass",xlim=c(0,70),ylim=c(0,0.4), cols = c("black", "red"))
+mtext(side=2,"RGR",line=3)
+plotBy(RGR~TotMass|Treatment,data=subset(toplot,Range=="wide"),legend=F,pch=16,ylab="RGR",xlab="Mass",xlim=c(0,70),ylim=c(0,0.4), cols = c("black", "red"))
+
+plotBy(LAR~TotMass|Treatment,data=subset(toplot,Range=="narrow"),legend=F,pch=16,ylab="RGR",xlab="Mass",xlim=c(0,70),ylim=c(50,375), cols = c("black", "red"))
+mtext(side=2,"LAR",line=3)
+plotBy(LAR~TotMass|Treatment,data=subset(toplot,Range=="wide"),legend=F,pch=16,ylab="RGR",xlab="Mass",xlim=c(0,70),ylim=c(50,375), cols = c("black", "red"))
+
+plotBy(ULR~TotMass|Treatment,data=subset(toplot,Range=="narrow"),legend=F,pch=16,ylab="RGR",xlab="Mass",xlim=c(0,70),ylim=c(0,0.0032), cols = c("black", "red"))
+mtext(side=1,"Plant mass",line=3)
+mtext(side=2,"ULR",line=3)
+plotBy(ULR~TotMass|Treatment,data=subset(toplot,Range=="wide"),legend=F,pch=16,ylab="RGR",xlab="Mass",xlim=c(0,70),ylim=c(0,0.0032), cols = c("black", "red"))
+mtext(side=1,"Plant mass",line=3)
+dev.copy2pdf(file="Output/RGR_decomposition_south.pdf")
+
+
+windows(20,20);par(mfrow=c(4,2),mar=c(2,2,0,0),oma=c(5,5,4,1))
+toplot <- subset(DEfits.all,Location=="N")
+plotBy(AGR~TotMass|Treatment,data=subset(toplot,Range=="narrow"),legend=F,pch=16,ylab="AGR",xlab="Mass",xlim=c(0,70),ylim=c(0,5), cols = c("black", "red"))
+mtext(side=2,"AGR",line=3)
+mtext(side=3,"Narrow",line=1)
+mtext("North",side=3, line=2, outer=T, cex=1.4)
+plotBy(AGR~TotMass|Treatment,data=subset(toplot,Range=="wide"),legend=F,pch=16,ylab="AGR",xlab="Mass",xlim=c(0,70),ylim=c(0,5), cols = c("black", "red"))
+mtext(side=3,"Wide",line=1)
+
+plotBy(RGR~TotMass|Treatment,data=subset(toplot,Range=="narrow"),legend=F,pch=16,ylab="RGR",xlab="Mass",xlim=c(0,70),ylim=c(0,0.4), cols = c("black", "red"))
+mtext(side=2,"RGR",line=3)
+plotBy(RGR~TotMass|Treatment,data=subset(toplot,Range=="wide"),legend=F,pch=16,ylab="RGR",xlab="Mass",xlim=c(0,70),ylim=c(0,0.4), cols = c("black", "red"))
+
+plotBy(LAR~TotMass|Treatment,data=subset(toplot,Range=="narrow"),legend=F,pch=16,ylab="RGR",xlab="Mass",xlim=c(0,70),ylim=c(50,375), cols = c("black", "red"))
+mtext(side=2,"LAR",line=3)
+plotBy(LAR~TotMass|Treatment,data=subset(toplot,Range=="wide"),legend=F,pch=16,ylab="RGR",xlab="Mass",xlim=c(0,70),ylim=c(50,375), cols = c("black", "red"))
+
+plotBy(ULR~TotMass|Treatment,data=subset(toplot,Range=="narrow"),legend=F,pch=16,ylab="RGR",xlab="Mass",xlim=c(0,70),ylim=c(0,0.0032), cols = c("black", "red"))
+mtext(side=1,"Plant mass",line=3)
+mtext(side=2,"ULR",line=3)
+plotBy(ULR~TotMass|Treatment,data=subset(toplot,Range=="wide"),legend=F,pch=16,ylab="RGR",xlab="Mass",xlim=c(0,70),ylim=c(0,0.0032), cols = c("black", "red"))
+mtext(side=1,"Plant mass",line=3)
+dev.copy2pdf(file="Output/RGR_decomposition_north.pdf")
+
+#Biomass enhancement ratios
+
+warm<-subset(summaryBy(TotMass~Treatment+Date+Range+Location, data=DEfits.all, FUN=mean),Treatment=="Warmed")
+home<-subset(summaryBy(TotMass~Treatment+Date+Range+Location, data=DEfits.all, FUN=mean),Treatment=="Home")
+BER<- cbind(warm,home)
+BER$ber <- BER[,5]/BER[,10]
+bioen<-BER[,7:11]
+windows(30,30);par(mfrow=c(2,1), oma=c(1,1,1,1), mai=c(0,1,0.5,1))
+plotBy(ber~Date|Range,data=subset(bioen, Location == "N"), type="l", lwd=2, col= c("Black","red"), ylab="Biomass enhancement factor", legendwhere= "topleft",ylim=c(0.75,1.3), main="North")
+plotBy(ber~Date|Range,data=subset(bioen, Location == "S"), type="l", lwd=2, col= c("Black","red"), ylab="Biomass enhancement factor", legend=F,ylim=c(1,2), main = "South")
+
+#initial mass
+allom <- read.csv("C:/Repos/GLAHD/Data/Harvests/GHS39_GLAHD_MAIN_BIOMASS_20141106-20150116_L1.csv")
+allom$Totmass <- base::rowSums(allom[,11:13]) #total mass is the sum of leaf, stem, and root mass
+pre <- subset(allom, Treatment == "Pre-treatment")
+seed_mass<- summaryBy(Totmass~Taxa, FUN=min, data=pre, var.names = "seedmass", keep.names=T) # tried the minimum instead of the mean?
+seed_mass<- rename(seed_mass, c("Taxa"="Taxa", "seedmass"="M0"))
+seed_mass$Treatment <- as.factor("seed")
+predinit<- dat4[,c("M0","Treatment","Taxa")]
+init <- rbind(predinit, seed_mass)
+
+windows(20,12);par(mar=c(8,7,1,1))
+boxplot(M0~Treatment*Taxa,data=init,col=c("blue","red"),las=2,ylab="initial mass",cex.lab=2)
+abline(v=24.5)
+legend("topleft", legend=c("Home","Warmed","Min pre-harvest Mass"),colors(levels(init$Treatment)))
+
+#Some other plots.
+windows(20,12);par(mar=c(8,7,1,1))
+
+output$Taxa <- factor(output$Taxa,levels=c("ATER","BTER","ACAM","BCAM","CCAM","BOT","LONG","SMIT",
+                                           "CTER","DTER","ETER","DCAM","ECAM","FCAM","BRA","PEL","PLAT"))#boxplot(r~Treatment*Range*Location,data=output,col=c("blue","red"),las=2,ylab="r",las=1)
+boxplot(r~Treatment*Taxa,data=dat4,col=c("blue","red"),las=2,ylab="r",cex.lab=2)
+abline(v=16.5)
+boxplot(beta~Treatment*Taxa,data=dat4,col=c("blue","red"),las=2,ylab="beta",cex.lab=2)
+abline(v=16.5)
+boxplot(M0~Treatment*Taxa,data=dat4,col=c("blue","red"),las=2,ylab="initial mass",cex.lab=2)
+
+plotBy(r~M0|Treatment,data=dat4,legendwhere="topright")
+plotBy(r~beta|Treatment,data=dat4,legendwhere="topright")
+
+#- dat4 compare predicted with measured biomass
+
+DEfits.all$predmass <- with(DEfits.all,(M0^(1-beta) + r*Time*(1-beta))^(1/(1-beta)))
+
+windows(30,40);par(mfrow=c(2,1),mar=c(5,6,1,1))
+#- linear scale
+plot(predmass~TotMass,data=DEfits.all,pch=3,col="red",cex.lab=1.5,
+     xlab="Observed mass (g)",ylab="Predicted mass (g)")
+abline(0,1)
+
+#- log scale
+plot(predmass~TotMass,data=DEfits.all,pch=3,col="red",cex.lab=1.5,log="xy",
+     xlab="Observed mass (g)",ylab="Predicted mass (g)")
+abline(0,1)
+
+summary(lm(predmass~TotMass,data=DEfits.all))
+
+
+rates.trt <- summaryBy(TotMass+RGR+AGR~Time+Treatment+Location+Range,data=DEfits.all,FUN=mean,keep.names=T)
+rates.trt$combotrt <- as.factor(paste(rates.trt$Location,rates.trt$Range,rates.trt$Treatment,sep="_"))
+plotBy(RGR~Time|combotrt,data=rates.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
+       legendwhere="topright", type="o")
+plotBy(AGR~Time|combotrt,data=rates.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
+       legendwhere="topleft", type="o")
+plotBy(TotMass~Time|combotrt,data=rates.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
+       legendwhere="topleft", type="o")
 
