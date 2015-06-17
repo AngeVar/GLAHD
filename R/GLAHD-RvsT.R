@@ -5,8 +5,7 @@
 
 #- load libraries from script
 source("R/loadLibraries.R")
-
-
+library(scales)
 
 #-----------------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------
@@ -35,7 +34,7 @@ rt$Code <- factor(rt$Code)
 ## quick plot- have a look
 
 #- break data into bins of leaf temperatures, for averaging and plotting
-rt$Tleaf_bin <- cut(rt$Tleaf,breaks=seq(from=10,to=65,length=60))
+rt$Tleaf_bin <- cut(rt$Tleaf,breaks=seq(from=10,to=65,by=2))#length=60))
 rt$Tleaf_bin_mid <- sapply(strsplit(gsub("^\\W|\\W$", "", rt$Tleaf_bin), ","), function(x)sum(as.numeric(x))/2) 
 
 
@@ -300,3 +299,82 @@ plot(effect("Taxa:Treatment",lm.Q10_25))
 plot(allEffects(lm.Q10)) 
 #-----------------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+#--------------------------------------------------------------------------------------------------------
+#- make plot for publicaiton
+gx2 <- getRdark()
+
+#- average across taxa
+gx2$Species <- factor(gx2$Species)
+gx2.tm <- summaryBy(Rmass~Taxa+Treatment+Location+Range,data=gx2,FUN=mean,keep.names=T)
+
+#- make plots
+colors <- c("blue","red")
+windows(22,20);par(mfrow=c(2,2),mar=c(2,0,2,0),oma=c(5,9,3,5),cex.axis=1.2)
+
+#Rmass
+ylims=c(5,15)
+boxplot(Rmass~Treatment*Range,data=subset(gx2.tm,Location=="N"),ylim=ylims,
+        axes=F,las=2,col=colors)
+title(main="North",line=0.2,cex.main=2,xpd=NA)
+magaxis(c(2,3,4),labels=c(1,0,0),box=T,las=1)
+mtext(text=expression(R["mass"]~"("*n*mol~g^-1~s^-1*")"),side=2,outer=T,cex=2,adj=0.5,line=3)
+axis(side=1,at=c(1.5,3.5),labels=levels(gx2.tm$Range),las=1,cex.axis=1.5)
+legend("bottomleft",c("Home","Warmed"),fill=colors,cex=1.3,bty="n")
+legend("topright","a",bty="n",cex=1.3)
+boxplot(Rmass~Treatment*Range,data=subset(gx2.tm,Location=="S"),ylim=ylims,
+        axes=F,las=2,col=colors)
+title(main="South",line=0.2,cex.main=2,xpd=NA)
+magaxis(c(2,3,4),labels=c(0,0,1),box=T,las=1)
+axis(side=1,at=c(1.5,3.5),labels=levels(gx2.tm$Range),las=1,cex.axis=1.5)
+legend("topright","b",bty="n",cex=1.3)
+#mtext("Range size",side=1,cex=1.5,outer=T,line=-17)
+
+#- plot R vs. T
+toplot <- subset(rt.m,Tleaf_bin_mid < 40)
+toplot.s <- subset(toplot,Taxa=="BOT" | Taxa=="BTER")
+toplot.n <- subset(toplot,Taxa=="BRA" | Taxa=="CTER")
+
+ylims <- c(0,40)
+xlims <- c(10,45)
+cexpoints=1.8
+# plot north
+plotBy(R_mass.mean~Tleaf_bin_mid|Treatment,data=subset(toplot.n,Taxa=="BRA"),xlim=xlims,ylim=ylims,pch=16,cex=cexpoints,col=colors,legend=F,
+         panel.first=adderrorbars(x=subset(toplot.n,Taxa=="BRA")$Tleaf_bin_mid,
+                                  y=subset(toplot.n,Taxa=="BRA")$R_mass.mean,
+                                  SE=subset(toplot.n,Taxa=="BRA")$R_mass.standard.error,direction="updown",col="black"),
+       las=1,axes=F,xlab="")
+plotBy(R_mass.mean~Tleaf_bin_mid|Treatment,data=subset(toplot.n,Taxa=="CTER"),ylim=ylims,pch=1,cex=cexpoints,col=colors,legend=F,
+       panel.first=adderrorbars(x=subset(toplot.n,Taxa=="CTER")$Tleaf_bin_mid,
+                                y=subset(toplot.n,Taxa=="CTER")$R_mass.mean,
+                               SE=subset(toplot.n,Taxa=="CTER")$R_mass.standard.error,direction="updown",col="black"),
+       add=T,las=1)
+magaxis(c(1,2,3,4),labels=c(1,1,0,0),box=T,las=1)
+#title(main="North",line=0.2,cex.main=2,xpd=NA)
+legend("topright","c",bty="n",cex=1.3)
+legend("topleft",c("Narrow-H","Narrow-W","Wide-H","Wide-W"),pch=c(16,16,1,1),col=c("blue","red"),ncol=1,
+       cex=1.2,bty="n")
+
+# plot south
+plotBy(R_mass.mean~Tleaf_bin_mid|Treatment,data=subset(toplot.s,Taxa=="BOT"),xlim=xlims,ylim=ylims,pch=16,cex=cexpoints,col=colors,legend=F,
+        panel.first=adderrorbars(x=subset(toplot.s,Taxa=="BOT")$Tleaf_bin_mid,
+                                 y=subset(toplot.s,Taxa=="BOT")$R_mass.mean,
+                                 SE=subset(toplot.s,Taxa=="BOT")$R_mass.standard.error,direction="updown",col="black"),
+       axes=F,las=1,xlab="")
+plotBy(R_mass.mean~Tleaf_bin_mid|Treatment,data=subset(toplot.s,Taxa=="BTER"),ylim=ylims,pch=1,cex=cexpoints,col=colors,legend=F,
+       panel.first=adderrorbars(x=subset(toplot.s,Taxa=="BTER")$Tleaf_bin_mid,
+                                y=subset(toplot.s,Taxa=="BTER")$R_mass.mean,
+                                SE=subset(toplot.s,Taxa=="BTER")$R_mass.standard.error,direction="updown",col="black"),
+       add=T,las=1,axes=F,xlab="")
+#title(main="South",line=0.2,cex.main=2,xpd=NA)
+legend("topright","d",bty="n",cex=1.3)
+
+magaxis(c(1,2,3,4),labels=c(1,0,0,1),box=T,las=1)
+mtext(text=expression(T["leaf"]~"("*degree~C*")"),side=1,outer=T,cex=2,adj=0.5,line=3)
+mtext(text=expression(R["mass"]~"("*n*mol~g^-1~s^-1*")"),side=2,outer=T,cex=2,adj=0.5,line=3)
+dev.copy2pdf(file="C:/Repos/GLAHD/Output/Rdark_figure_Rmass_RvsT.pdf")
