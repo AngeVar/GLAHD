@@ -16,7 +16,6 @@ predict_mass <- function(Taxa,Treat,Diameter,Height,model_flag="simple"){
   linkdf <- data.frame(Species = c("CAM","TER","BOT","BRA","LONG","PEL","PLAT","SMIT"),Range= c("wide","wide",rep("narrow",6)))
   allom <- merge(allom,linkdf,by="Species")
   allom[24,] <- NA # get rid of BOT-45, which has crazy high LAR and SLA
-  allom$LMF <- with(allom,Leafmass/Totmass)
   
   #-----------------------------------
   #-- allometry ANCOVA for all taxa
