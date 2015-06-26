@@ -144,7 +144,7 @@ ancova.full <- lm(logLA~logd2h*Taxa*Treat,data=allom.2) # 3-way term significant
 
 #####################
 #-- is there a good relationship between total leaf area and size?
-#- plot each taxa on a separate panel. Results in a huge figure
+
 #-- allometry?
 windows(12,12);par(mar=c(5,6,1,1))
 
@@ -203,7 +203,59 @@ mtext(expression(log[10]~(diam^2~"*"~height)),side=1,line=2,outer=T,cex=1.5)
 mtext(expression(log[10]~(Total~leaf~area~(cm^2))),side=2,line=2,outer=T,cex=1.5)
 legend(x=4,y=2,legend=c("Home","Warmed"),pch=15,cex=1.5,xpd=NA,col=c("black","red"))
 #####################
+#####################
 
+#Assign three pretreatment plants to Warmed and Home
+pretre<- subset(allom, Treat== "Pre")
+pretre$sign<- c(rep(sample(c(1,2,1,2,1,2)),16),sample(c(1,2,1,2,1)))
+pretre$Treatment <- ifelse(pretre$sign == "1", "Warmed","Home")
 
+allom.3<- droplevels(rbind(allom.2,pretre[,c(1:20)]))
+###--------------------------------------------------
+windows(12,12);par(mar=c(5,6,1,1))
+
+#- plot taxa
+palette(rainbow(length(levels(allom.3$Taxa))))
+colors <- (rainbow(length(levels(allom.3$Taxa))))
+
+with(allom.3,plot(logLA~logd2h,xlim=c(-2,3.5),ylim=c(0.3,4),col=Taxa,pch=15,cex.lab=1.5,
+                xlab=expression(log[10]~(Diameter^2~"*"~Height)),
+                ylab=expression(log[10]~Total~leaf~area~(cm^2))))
+dat.l <- split(allom.3,allom.3$Taxa)
+for (i in 1:length(dat.l)){
+  fit <- lm(logLA~logd2h,data=dat.l[[i]])
+  predline(fit,col=alpha(colors[i],alpha=0.5))
+  
+}
+with(allom.3,points(logLA~logd2h,col=Taxa,pch=15))
+legend("topleft",legend=levels(allom.3$Taxa),pch=15,col=colors)
+title(main="All taxa")
+
+ancova.full <- lm(logLA~logd2h*Taxa*Treatment,data=allom.3) # 3-way term almost significant
+
+allom.l <- split(allom.3,allom.3$Taxa)
+
+windows(30,30)
+par(mfrow=c(5,4), mar=c(2,2,0.3,0.8), oma=c(5,6,2,2.5))
+ylims <- c(-1.4,2.1)
+xlims <- c(-1.4,3)
+palette(c("black","red"))
+for (i in 1:length(allom.l)){
+  toplot <- allom.l[[i]]
+  plotBy(logTM~logd2h|Treatment,data=toplot,type="p",pch=15,xlim=xlims,ylim=ylims,axes=F,
+         ylab="H",xlab="",legend=F)
+  magaxis(side=c(1:4),labels=c(1,1,0,0))
+  mtext(text=paste(toplot$Location,toplot$Taxa,sep="-"),side=1,line=-1.5)
+  
+  fit.h <- lm(logTM~logd2h,data=subset(toplot,Treatment=="Home"))
+  predline(fit.h,col=alpha("black",alpha=0.1))
+  
+  fit.w <- lm(logTM~logd2h,data=subset(toplot,Treatment=="Warmed"))
+  predline(fit.w,col=alpha("red",alpha=0.1))
+  
+}
+mtext(expression(log[10]~(diam^2~"*"~height)),side=1,line=2,outer=T,cex=1.5)
+mtext(expression(log[10]~(Total~leaf~area~(g))),side=2,line=2,outer=T,cex=1.5)
+legend(x=4,y=2,legend=c("Home","Warmed"),pch=15,cex=1.5,xpd=NA,col=c("black","red"))
 
 #####################
