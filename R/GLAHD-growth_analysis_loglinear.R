@@ -11,9 +11,14 @@
 source("R/loadLibraries.R")
 
 #- read in the data, do a few conversions
+<<<<<<< HEAD
 dat2 <- return_size_mass(model_flag="simple") # use common slope allometry ("simple") or taxa-specific slope ("complex")
 dat2$Time <- as.numeric(dat2$Date-(min(dat2$Date)-1)) #finds first date and labels it as Time 1 i.e. 07112014 is Day 1! 
                                                       # note how this is a change from how we did it with the power model
+=======
+dat2 <- return_size_mass(model_flag="complex") # use common slope allometry ("simple") or taxa-specific slope ("complex")
+dat2$Time <- as.numeric(dat2$Date-(min(dat2$Date)-7)) #finds first date and labels it as Time 7 i.e. 07112014 is Day 7
+>>>>>>> 2444ec9dc0c96a8b6ff54db0699b8fe5abf3dd99
 
 #- remove data with fewer than 6 observations through time
 obs <- unname(table(dat2$Code)) # get the frequency of observations for each pot
@@ -280,31 +285,31 @@ dev.off()
 
 
 #-------------------------------------------------------------------------------------
-#- compare fits of the 3-parameter power function and the log-polynomial function.
-
-
-#- read in the 3-parameter power law fits as a comparison
-powfits <- read.csv("C:/Repos/GLAHD/R/DE_power_fits.csv")
-powfits <- powfits[,1:4]
-powfits2 <- merge(powfits,dat3,by="Code")
-head(powfits2)
-powfits2$predmass <- with(powfits2,(M0^(1-beta) + r*Time*(1-beta))^(1/(1-beta)))
-
-windows(30,40);par(mfrow=c(2,1),mar=c(5,6,1,1))
-#- linear scale
-plot(predmass~TotMass,data=powfits2,pch=3,col="red",cex.lab=1.5,
-     xlab="Observed mass (g)",ylab="Predicted mass (g)")
-points(fitted~observed,data=data.df,pch=3,col="black")
-abline(0,1)
-legend("topleft",legend=c("log-3poly","3-power"),pch=3,col=c("black","red"))
-#- log scale
-plot(predmass~TotMass,data=powfits2,pch=3,col="red",cex.lab=1.5,log="xy",
-     xlab="Observed mass (g)",ylab="Predicted mass (g)")
-points(fitted~observed,data=data.df,pch=3,col="black")
-abline(0,1)
-legend("topleft",legend=c("log-3poly","3-power"),pch=3,col=c("black","red"))
-
-summary(lm(predmass~TotMass,data=powfits2)) #- note that the power function still has a higher r2 and fits better at higher mass values
-summary(lm(fitted~observed,data=data.df))#- note that the 3rd order poly's r2 is still very good but lower than the powers. 
-                                         #- it fits better at low values of mass, which is expected given that it is fit to log-transformed values.
-#-------------------------------------------------------------------------------------
+# #- compare fits of the 3-parameter power function and the log-polynomial function.
+# 
+# 
+# #- read in the 3-parameter power law fits as a comparison
+# powfits <- read.csv("C:/Repos/GLAHD/R/DE_power_fits.csv")
+# powfits <- powfits[,1:4]
+# powfits2 <- merge(powfits,dat3,by="Code")
+# head(powfits2)
+# powfits2$predmass <- with(powfits2,(M0^(1-beta) + r*Time*(1-beta))^(1/(1-beta)))
+# 
+# windows(30,40);par(mfrow=c(2,1),mar=c(5,6,1,1))
+# #- linear scale
+# plot(predmass~TotMass,data=powfits2,pch=3,col="red",cex.lab=1.5,
+#      xlab="Observed mass (g)",ylab="Predicted mass (g)")
+# points(fitted~observed,data=data.df,pch=3,col="black")
+# abline(0,1)
+# legend("topleft",legend=c("log-3poly","3-power"),pch=3,col=c("black","red"))
+# #- log scale
+# plot(predmass~TotMass,data=powfits2,pch=3,col="red",cex.lab=1.5,log="xy",
+#      xlab="Observed mass (g)",ylab="Predicted mass (g)")
+# points(fitted~observed,data=data.df,pch=3,col="black")
+# abline(0,1)
+# legend("topleft",legend=c("log-3poly","3-power"),pch=3,col=c("black","red"))
+# 
+# summary(lm(predmass~TotMass,data=powfits2)) #- note that the power function still has a higher r2 and fits better at higher mass values
+# summary(lm(fitted~observed,data=data.df))#- note that the 3rd order poly's r2 is still very good but lower than the powers. 
+#                                          #- it fits better at low values of mass, which is expected given that it is fit to log-transformed values.
+# #-------------------------------------------------------------------------------------
