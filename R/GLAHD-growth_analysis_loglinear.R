@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------------------
 #- This script provides an alternative curve fit for growth analysis.
 #- This works quickly and simply because it uses a LINEAR model rather than a nonlinear model.
-#- This assumes that a plot of log(Mass)~Time can be adequately fit with a polynomial.
+#- This assumes that a plot of log(Mass)~Time can be adequately fit with a polynomial of some order (e.g., 2nd, 3rd).
 #- This assumption seems to be correct in this case, for our data.
 #- I don't know whether it's "better" than a power model, but it is much more convenient!
 #-------------------------------------------------------------------------------------
@@ -12,7 +12,8 @@ source("R/loadLibraries.R")
 
 #- read in the data, do a few conversions
 dat2 <- return_size_mass(model_flag="simple") # use common slope allometry ("simple") or taxa-specific slope ("complex")
-dat2$Time <- as.numeric(dat2$Date-(min(dat2$Date)-7)) #finds first date and labels it as Time 7 i.e. 07112014 is Day 7
+dat2$Time <- as.numeric(dat2$Date-(min(dat2$Date)-1)) #finds first date and labels it as Time 1 i.e. 07112014 is Day 1! 
+                                                      # note how this is a change from how we did it with the power model
 
 #- remove data with fewer than 6 observations through time
 obs <- unname(table(dat2$Code)) # get the frequency of observations for each pot
@@ -23,9 +24,13 @@ dat3$Code <- factor(dat3$Code)
 dat3$lnTotMass <- log(dat3$TotMass)
 
 
+
+
+
+
 # 
 # #-------------------------------------------------------------------------------------
-# #-- function to interpret log-polynomial curve fits
+# #-- function to interpret 2nd order log-polynomial curve fits
 # output.log_lin <- function(X, Y, params, times,Code){
 #   a <- params[1]; b <- params[2]; c <- params[3]
 #   #fitted <- (M0^(1-beta)   + r  * X *(1-beta))^(1/(1-beta))
@@ -102,7 +107,10 @@ for (i in 1:length(growth.l)){
   growth.l[[i]]$RGR <- c(diff(growth.l[[i]]$lnTotMass),NA)/c(unname(diff(growth.l[[i]]$Date)),NA) 
 }
 dat4 <- do.call(rbind,growth.l)
+windows(30,40)
 plotBy(RGR~jitter(as.numeric(Date))|Code,type="b",data=dat4,legend=F);abline(h=0) 
+smoothScatter(x=dat4$Time,y=dat4$RGR,ylab="RGR",xlab="Time since treatment began (days)",cex.lab=1.5,
+              xlim=c(0,60));abline(h=0)
 #- it looks like a third-order polynomial may fit the data best, which would produce
 #   and RGR that changes over time according to a second-order polynomial
 
@@ -147,9 +155,9 @@ for(i in 1:length(growth.l)){
   
   #- extract the output using a new function which calculates AGR and RGR from the polynomial fit parameters
   output[[i]] <- output.log_3order(X=tofit$Time,Y=tofit$TotMass,
-                                params=unname(coef(log3fits[[i]])),times=seq(1:70),Code=tofit$Code[1])$rates
+                                params=unname(coef(log3fits[[i]])),times=seq(1:60),Code=tofit$Code[1])$rates
   data.out[[i]] <- output.log_3order(X=tofit$Time,Y=tofit$TotMass,
-                                  params=unname(coef(log3fits[[i]])),times=seq(1:70),Code=tofit$Code[1])$data
+                                  params=unname(coef(log3fits[[i]])),times=seq(1:60),Code=tofit$Code[1])$data
   data.out[[i]]$Code <- tofit$Code[1]
 }
 #- put rates dataframe together. This has the timecourse of mass, AGR, and RGR for each plant
@@ -169,14 +177,104 @@ rates.df2 <- merge(rates.df,subset(dat2,Date==as.Date("2014-11-17")),by="Code")[
 rates.trt <- summaryBy(M+RGR+AGR~times+Treatment+Location+Range,data=rates.df2,FUN=mean,keep.names=T)
 rates.trt$combotrt <- as.factor(paste(rates.trt$Location,rates.trt$Range,rates.trt$Treatment,sep="_"))
 
-windows(40,30);par(mfrow=c(3,1))
+windows(40,30);par(mfrow=c(1,1))
 plotBy(RGR~times|combotrt,data=rates.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
-       legendwhere="topright")
-plotBy(AGR~times|combotrt,data=rates.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
-       legendwhere="topleft")
+       legendwhere="topright",pch=15)
+  plotBy(AGR~times|combotrt,data=rates.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
+       legendwhere="topleft",pch=15)
 plotBy(M~times|combotrt,data=rates.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
-       legendwhere="topleft")
+       legendwhere="topleft",pch=15)
 #-------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+#-------------------------------------------------------------------------------------
+#- plot RGR via the segment method for each taxa-combination. Overlay model outputs.
+dat4$combotrt <- as.factor(paste(dat4$Location,dat4$Range,dat4$Treatment,sep="_"))
+dat4.l <- split(dat4,dat4$combotrt)
+names(rates.trt)[1] <- "Time"
+rates.trt.l <- split(rates.trt,rates.trt$combotrt)
+windows(40,40);par(mfrow=c(4,2),mar=c(0.2,0.2,0.2,0.2),oma=c(7,7,3,3))
+ylims=c(0,0.3)
+for (i in 1:length(dat3.l)){
+  smoothScatter(x=dat4.l[[i]]$Time,y=dat4.l[[i]]$RGR,ylab="",xlab="",ylim=ylims,axes=F,
+                xlim=c(0,60));abline(h=0)
+  lines(rates.trt.l[[i]]$RGR~rates.trt.l[[i]]$Time,lwd=3)
+  legend("top",legend=dat4.l[[i]]$combotrt[1],bty="n")
+  if(i%%2==1) axis(2,las=1)
+  if(i%%2==0) axis(4,las=1)
+  if(i>6) axis(1)
+}
+mtext(side=1,"Time (days after treatment began)",outer=T,line=4,cex=1.5,xpd=NA)
+mtext(side=2,"RGR",outer=T,line=3,cex=1.5)
+#----------------------- --------------------------------------------------------------
+
+
+
+#-------------------------------------------------------------------------------------
+#- plot mass and RGR over time for each taxa-treatment combination, overlay data and model output
+dat4$RGR_time <- dat4$Time+5
+dat4.l.taxa <- split(dat4,dat4$Taxa)
+rates.taxa <- summaryBy(M+RGR+AGR~times+Treatment+Location+Range+Taxa,data=rates.df2,FUN=mean,keep.names=T)
+rates.taxa.l <- split(rates.taxa,rates.taxa$Taxa)
+rates.l <- split(rates.df2,rates.df2$Taxa)
+
+# loop over each taxa, plot a set of four figures, export to a pdf
+pdf(file="C:/Repos/GLAHD/Output/RGR_M_Taxa.pdf")
+
+layout(matrix(c(1,2,3,4), 2, 2, byrow = TRUE), 
+       widths=rep(1,4), heights=rep(1,4))
+for (i in 1:length(dat4.l.taxa)){
+  ylims=c(0,max(dat4.l.taxa[[i]]$TotMass+5))
+  #- plot home mass over time
+  plot(TotMass~Time,data=subset(dat4.l.taxa[[i]],Treatment=="Home"),ylim=ylims,col="blue",
+       main=paste(subset(dat4.l.taxa[[i]],Treatment=="Home")$Taxa[1],"Home",sep='_'))
+  plotBy(M~times|Code,data=subset(rates.l[[i]],Treatment=="Home"),lwd=0.5,add=T,type="l",legend=F,col="grey")
+  lines(M~times,data=subset(rates.taxa.l[[i]],Treatment=="Home"),lwd=3)
+  
+  #- plot warmed mass over time
+  plot(TotMass~Time,data=subset(dat4.l.taxa[[i]],Treatment=="Warmed"),ylim=ylims,col="red",
+       main=paste(subset(dat4.l.taxa[[i]],Treatment=="Warmed")$Taxa[1],"Warmed",sep='_'))
+  plotBy(M~times|Code,data=subset(rates.l[[i]],Treatment=="Warmed"),lwd=0.5,add=T,type="l",legend=F,col="grey")
+  lines(M~times,data=subset(rates.taxa.l[[i]],Treatment=="Warmed"),lwd=3)
+  
+  #- plot home RGR over time
+  ylims=c(0,max(dat4.l.taxa[[i]]$RGR+0.1,na.rm=T))
+  
+  plot(RGR~RGR_time,data=subset(dat4.l.taxa[[i]],Treatment=="Home"),ylim=ylims,col="blue",xlim=c(0,60),
+       main=paste(subset(dat4.l.taxa[[i]],Treatment=="Home")$Taxa[1],"Home",sep='_'))
+  plotBy(RGR~times|Code,data=subset(rates.l[[i]],Treatment=="Home"),lwd=0.5,add=T,type="l",legend=F,col="grey")
+  lines(RGR~times,data=subset(rates.taxa.l[[i]],Treatment=="Home"),lwd=3)
+  
+  #- plot warmed RGR over time
+  plot(RGR~RGR_time,data=subset(dat4.l.taxa[[i]],Treatment=="Warmed"),ylim=ylims,col="red",xlim=c(0,60),
+       main=paste(subset(dat4.l.taxa[[i]],Treatment=="Warmed")$Taxa[1],"Home",sep='_'))
+  plotBy(RGR~times|Code,data=subset(rates.l[[i]],Treatment=="Warmed"),lwd=0.5,add=T,type="l",legend=F,col="grey")
+  lines(RGR~times,data=subset(rates.taxa.l[[i]],Treatment=="Warmed"),lwd=3)
+  
+}
+dev.off()
+
+#-------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
