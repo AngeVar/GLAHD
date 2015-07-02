@@ -205,7 +205,10 @@ legend(x=4,y=2,legend=c("Home","Warmed"),pch=15,cex=1.5,xpd=NA,col=c("black","re
 #####################
 #####################
 
-#Assign three pretreatment plants to Warmed and Home
+#Assign three pretreatment plants to Warmed and Home - cannot randomly add pretreatment data. The significance 
+#of the three-way interaction depends on which pretreatment trees are added.
+#Include pretreatment trees in both treatments or do mot use pretreatment trees
+
 pretre<- subset(allom, Treat== "Pre")
 pretre$sign<- c(rep(sample(c(1,2,1,2,1,2)),16),sample(c(1,2,1,2,1)))
 pretre$Treatment <- ifelse(pretre$sign == "1", "Warmed","Home")
@@ -230,19 +233,13 @@ for (i in 1:length(dat.l)){
 with(allom.3,points(logLA~logd2h,col=Taxa,pch=15))
 legend("topleft",legend=levels(allom.3$Taxa),pch=15,col=colors)
 title(main="All taxa")
-<<<<<<< HEAD
+
 
 ancova.full <- lm(logLA~logd2h*Taxa*Treatment,data=allom.3) # 3-way term almost significant
 
 allom.l <- split(allom.3,allom.3$Taxa)
 
-=======
 
-ancova.full <- lm(logLA~logd2h*Taxa*Treatment,data=allom.3) # 3-way term almost significant
-
-allom.l <- split(allom.3,allom.3$Taxa)
-
->>>>>>> 2444ec9dc0c96a8b6ff54db0699b8fe5abf3dd99
 windows(30,30)
 par(mfrow=c(5,4), mar=c(2,2,0.3,0.8), oma=c(5,6,2,2.5))
 ylims <- c(-1.4,2.1)
@@ -263,11 +260,7 @@ for (i in 1:length(allom.l)){
   
 }
 mtext(expression(log[10]~(diam^2~"*"~height)),side=1,line=2,outer=T,cex=1.5)
-<<<<<<< HEAD
 mtext(expression(log[10]~(Total~leaf~area~(g))),side=2,line=2,outer=T,cex=1.5)
-=======
-mtext(expression(log[10]~(Total~plant~mass~(g))),side=2,line=2,outer=T,cex=1.5)
->>>>>>> 2444ec9dc0c96a8b6ff54db0699b8fe5abf3dd99
 legend(x=4,y=2,legend=c("Home","Warmed"),pch=15,cex=1.5,xpd=NA,col=c("black","red"))
 
 #####################
