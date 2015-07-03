@@ -112,6 +112,12 @@ ancova.y <- lm(logTM~logd2h*Taxa+Taxa,data=allom.2)
 anova(ancova.full,ancova.6) # full ancova has slightly lower AIC score, but is not significantly different than the full ancova.
 plot(ancova.6) # assumptions are met pretty well. It's not perfect, but it's good.
 anova(ancova.6)
+
+#- does this inference hold when fit with major-axis regression (see Warton et al. 2006 Biological Reviews)?
+#-  Yes.
+library(smatr)
+fit1 <- slope.com(y=allom.2$logTM,x=allom.2$logd2h,groups=allom.2$Taxa) # slopes do not differ (p = 0.1)
+fit2 <- elev.com(y=allom.2$logTM,x=allom.2$logd2h,groups=allom.2$Taxa)  # intercepts DO differ (p < 0.0001)
 #####################
 
 
@@ -177,10 +183,11 @@ allom.2$Treatment <- factor(allom.2$Treatment)
 ancova.full <- lm(logLA~logd2h*Taxa*Treat,data=allom.2) # 3-way term significant, can't be dropped.
 # this means that the warming effect on the slope is taxa-specific
 
-
-
-
-
+#-----------------------------------------------
+#--- Same inference with major axis regression?
+allom.2$Taxa_Treat <- as.factor(paste(allom.2$Taxa,allom.2$Treat,sep="_"))
+fit1.la <- slope.com(y=allom.2$logLA,x=allom.2$logd2h,groups=allom.2$Taxa_Treat) # slopes DO differ (p = 0.002)
+#-----------------------------------------------
 
 #####################
 #-- is there a good relationship between total leaf area and size?
