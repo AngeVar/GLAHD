@@ -22,10 +22,48 @@ allom$Taxa <- factor(allom$Taxa,levels=c("ATER","BTER","ACAM","BCAM","CCAM","BOT
                                          "CTER","DTER","ETER","DCAM","ECAM","FCAM","BRA","PEL","PLAT"))
 allom[24,] <- NA # get rid of BOT-45, which has crazy high LAR and SLA
 
+####################
+#check for 'bad' diameter measurements
 
+dat2 <- return_size_mass()
 
+#- remove data with fewer than 6 observations through time
+obs <- unname(table(dat2$Code)) # get the frequency of observations for each pot
+names <- names(table(dat2$Code))# get the associated name of each pot
+keeps <- names[which(obs>6)]    # return a vector of pot names with more than n observations
+dat3 <- subset(dat2,Code %in% keeps) # subset dataframe
+dat3$Code <- factor(dat3$Code)
+#Get difference in diameter since previous measurement
+dat4<-summaryBy(Diameter~Code+Date, data=dat3, FUN=mean) #sorts the data chronologically
+#divide diameter by the diameter of the previous date - if >1 then diameter is increasing
+#if <1 Diameter is decreasing
 
+for (i in 1:nrow(dat4)) {
+  dat4[i, 4] <- dat4[i+1,3]/dat4[i,3]
+}
+#remove last date
+dat5<-dat4[!(dat4$Date == as.Date("2015-01-05")),]
 
+nrow(dat3)# Total number of data points: 2411
+nrow(subset(dat5, V4 < 1.05))# Number of points shrinking or increasing less than 5%: 186
+nrow(subset(dat5, V4 < 1.1))# Number of points shrinking or increasing less than 10%: 368
+nrow(subset(dat5, V4 < 1))# Number of points shrinking at any time in the experiment: 79
+nrow(subset(dat5, V4 < 0.95))# Number of points shrinking more than 5 %: 40
+nrow(subset(dat5, V4 < 0.85))# Number of points shrinking more than 10 %: 8
+
+#subset beginning of experiment
+dat6 <- subset(dat4, Date == as.Date("2014-11-07")|Date == as.Date("2014-11-17")|Date == as.Date("2014-11-26")|
+                 Date == as.Date("2014-12-01")|Date == as.Date("2014-12-08"))
+
+nrow(subset(dat6, V4 < 1.05))# Number of points shrinking or increasing less than 5%: 76
+nrow(subset(dat6, V4 < 1.1))# Number of points shrinking or increasing less than 10%: 149
+nrow(subset(dat6, V4 < 1))# Number of points shrinking at any time in the experiment: 42
+nrow(subset(dat6, V4 < 0.95))# Number of points shrinking more than 5 %: 27
+nrow(subset(dat6, V4 < 0.85))# Number of points shrinking more than 10 %: 7
+
+#Remove datapoints where the slope to the next point is negative during the first 5 measurements points
+dat7<- subset(dat5, V4 < 0.95)
+allom2<- allom[!(allom$Code %in% dat7$Code),]
 
 #####################
 #--- did warming change the allometric relationship between d2h and mass?
@@ -34,7 +72,9 @@ allom[24,] <- NA # get rid of BOT-45, which has crazy high LAR and SLA
 
 
 #- split into list across all taxa for plotting
-allom.2 <- subset(allom,Treat!="Pre")
+allom.2 <- subset(allom2,Treat!="Pre")
+
+#allom.2 <- subset(allom,Treat!="Pre")
 allom.2$Treat <- factor(allom.2$Treat)
 allom.l <- split(allom.2,allom.2$Taxa)
 
@@ -207,7 +247,7 @@ legend(x=4,y=2,legend=c("Home","Warmed"),pch=15,cex=1.5,xpd=NA,col=c("black","re
 
 #Assign three pretreatment plants to Warmed and Home - cannot randomly add pretreatment data. The significance 
 #of the three-way interaction depends on which pretreatment trees are added.
-#Include pretreatment trees in both treatments or do mot use pretreatment trees
+#Include pretreatment trees in both treatments, use mean or do mot use pretreatment trees
 
 pretre<- subset(allom, Treat== "Pre")
 pretre$sign<- c(rep(sample(c(1,2,1,2,1,2)),16),sample(c(1,2,1,2,1)))
