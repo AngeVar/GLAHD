@@ -23,10 +23,6 @@ allom$Taxa <- factor(allom$Taxa,levels=c("ATER","BTER","ACAM","BCAM","CCAM","BOT
 allom[24,] <- NA # get rid of BOT-45, which has crazy high LAR and SLA
 
 
-
-
-
-
 #####################
 #--- did warming change the allometric relationship between d2h and mass?
 
@@ -35,6 +31,8 @@ allom[24,] <- NA # get rid of BOT-45, which has crazy high LAR and SLA
 
 #- split into list across all taxa for plotting
 allom.2 <- subset(allom,Treat!="Pre")
+
+#allom.2 <- subset(allom,Treat!="Pre")
 allom.2$Treat <- factor(allom.2$Treat)
 allom.l <- split(allom.2,allom.2$Taxa)
 
@@ -214,7 +212,7 @@ legend(x=4,y=2,legend=c("Home","Warmed"),pch=15,cex=1.5,xpd=NA,col=c("black","re
 
 #Assign three pretreatment plants to Warmed and Home - cannot randomly add pretreatment data. The significance 
 #of the three-way interaction depends on which pretreatment trees are added.
-#Include pretreatment trees in both treatments or do mot use pretreatment trees
+#Include pretreatment trees in both treatments, use mean or do mot use pretreatment trees
 
 pretre<- subset(allom, Treat== "Pre")
 pretre$sign<- c(rep(sample(c(1,2,1,2,1,2)),16),sample(c(1,2,1,2,1)))

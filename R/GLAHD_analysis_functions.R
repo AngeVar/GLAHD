@@ -75,7 +75,8 @@ predict_LA <- function(Taxa,Treat,Diameter,Height){
 return_size_mass <- function(model_flag="simple"){
   
   #- read in the data, do a few conversions
-  dat <- read.csv("C:/Repos/GLAHD/Data/HeightDiam/GHS39_GLAHD_MAIN_HEIGHT&DIAMETER_20141106-20150105_L1.csv")
+  #dat <- read.csv("C:/Repos/GLAHD/Data/HeightDiam/GHS39_GLAHD_MAIN_HEIGHT&DIAMETER_20141106-20150105_L1.csv")
+  dat <- read.csv("C:/Repos/GLAHD/R/HeightDiam/GHS39_GLAHD_MAIN_HEIGHT&DIAMETER_20141106-20150105_L2.csv")
   dat$Date <- as.Date(dat$Date,format="%d/%m/%Y")
   dat$d2h <- with(dat,(Diameter/10)^2*(Height)) #calculate d2h in cm3
   
@@ -83,7 +84,7 @@ return_size_mass <- function(model_flag="simple"){
   dat <- merge(dat,linkdf,by="Species")
   
   # get rid of the initial harvest and periodic harvest data
-  dat2 <- subset(dat,Date!=as.Date("2014-11-06") & Date != as.Date("2014-11-20"))
+  dat2 <- subset(dat,Date!=as.Date("2014-11-06") & Date != as.Date("2014-11-20")& ToFit != 0)
   dat2$Treatment <- factor(dat2$Treatment)
   dat2$Code <- factor(dat2$Code)
   dat2$Taxa <- factor(dat2$Taxa,levels=c("ATER","BTER","ACAM","BCAM","CCAM","BOT","LONG","SMIT",
