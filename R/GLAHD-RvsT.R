@@ -303,6 +303,44 @@ plot(allEffects(lm.Q10))
 
 
 
+#-----------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------
+#- This is strange. Why do we see a 3-way interaction with the spot Rdark measurements but not the curves?
+
+#- subset the spot measurements to just those used in the curves, test just like the curves
+#- the interaction between warming treatment and taxa is present (just, p = 0.049),
+#- suggesting that BOT really didn't acclimate, while the other species did.
+#- I don't know why this pattern isn't present in the curve dataset.
+rd <- getRdark()
+taxa <- c("BOT","BTER","BRA","CTER")
+rd2 <- subset(rd,Taxa %in% taxa)
+rd2$Taxa <- factor(rd2$Taxa)
+lm.rd <- lm(Rmass~Taxa*Treatment,data=rd2)
+plot(lm.rd)
+hist(lm.rd$residuals)
+anova(lm.rd)
+library(effects)
+plot(allEffects(lm.rd))  
+
+
+#- is this because the spot measurements were at 15, but the curves estimate a rate at 15? Let's subset the
+#-    curves to include data nested near 15 deg C.
+#-    Nope. There is no hint of a taxa-specific acclimation in this dataset. They all acclimated. 
+#-    It may be a sample size thing. We weren't able to detect a real taxa-specific effect?
+rt.15 <- subset(rt,Tleaf_bin_mid >=12 & Tleaf_bin_mid <=18)
+rt.15m <- summaryBy(R_mass~Code+Taxa+Treatment,data=rt.15,FUN=mean,keep.names=T)
+lm.15 <- lm(R_mass~Taxa*Treatment,data=rt.15m)
+
+plot(lm.15)
+hist(lm.15$residuals)
+anova(lm.15)
+plot(allEffects(lm.15))  
+plot(effect("Treatment",lm.15))
+#-----------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------
+
+
+
 
 
 #--------------------------------------------------------------------------------------------------------
