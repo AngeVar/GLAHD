@@ -131,6 +131,18 @@ pairs(acifits[,c("Vcmax","Jmax","d2h","TotMass","leafArea")])
 
 
 
+
+
+
+
+
+
+
+
+
+
+#----------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------
 #- make a nice plot of Vcmax and Jmax in the N vs. S for a manuscript
 
@@ -150,6 +162,7 @@ windows(20,20);par(mfrow=c(3,2),mar=c(2,0,1,0),oma=c(5,9,3,5),cex.axis=1.2)
 ylims=c(60,220)
 boxplot(Vcmax~Treatment*Range,data=subset(acifits.tm,Location=="N"),ylim=ylims,
         axes=F,las=2,col=colors)
+legend("topleft","a",bty="n",cex=1.5,inset=-0.05)
 title(main="North",line=0.2,cex.main=2,xpd=NA)
 magaxis(c(2,3,4),labels=c(1,0,0),box=T,las=1)
 mtext(text=expression(V["c,max"]),side=2,outer=T,cex=2,adj=0.9,line=5)
@@ -158,6 +171,7 @@ axis(side=1,at=c(1.5,3.5),labels=levels(acifits.tm$Range),las=1,cex.axis=1.5)
 legend("bottomleft",c("Home","Warmed"),fill=colors,cex=1.3)
 boxplot(Vcmax~Treatment*Range,data=subset(acifits.tm,Location=="S"),ylim=ylims,
         axes=F,las=2,col=colors)
+legend("topleft","b",bty="n",cex=1.5,inset=-0.05)
 title(main="South",line=0.2,cex.main=2,xpd=NA)
 magaxis(c(2,3,4),labels=c(0,0,1),box=T,las=1)
 axis(side=1,at=c(1.5,3.5),labels=levels(acifits.tm$Range),las=1,cex.axis=1.5)
@@ -166,12 +180,14 @@ axis(side=1,at=c(1.5,3.5),labels=levels(acifits.tm$Range),las=1,cex.axis=1.5)
 ylims=c(100,210)
 boxplot(Jmax~Treatment*Range,data=subset(acifits.tm,Location=="N"),ylim=ylims,
         axes=F,las=2,col=colors)
+legend("topleft","c",bty="n",cex=1.5,inset=-0.05)
 magaxis(c(2,3,4),labels=c(1,0,0),box=T,las=1)
 mtext(text=expression(J["max"]),side=2,outer=T,cex=2,adj=0.5,line=5)
 mtext(text=expression("("*mu*mol~m^-2~s^-1*")"),side=2,outer=T,cex=1,adj=0.52,line=3)
 axis(side=1,at=c(1.5,3.5),labels=levels(acifits.tm$Range),las=1,cex.axis=1.5)
 boxplot(Jmax~Treatment*Range,data=subset(acifits.tm,Location=="S"),ylim=ylims,
         axes=F,las=2,col=colors)
+legend("topleft","d",bty="n",cex=1.5,inset=-0.05)
 magaxis(c(2,3,4),labels=c(0,0,1),box=T,las=1)
 axis(side=1,at=c(1.5,3.5),labels=levels(acifits.tm$Range),las=1,cex.axis=1.5)
 
@@ -179,18 +195,37 @@ axis(side=1,at=c(1.5,3.5),labels=levels(acifits.tm$Range),las=1,cex.axis=1.5)
 ylims=c(20,35)
 boxplot(Photo~Treatment*Range,data=subset(asat.tm,Location=="N"),ylim=ylims,
         axes=F,las=2,col=colors)
+legend("topleft","e",bty="n",cex=1.5,inset=-0.05)
 magaxis(c(2,3,4),labels=c(1,0,0),box=T,las=1)
 mtext(text=expression(A["sat"]),side=2,outer=T,cex=2,adj=0.15,line=5)
 mtext(text=expression("("*mu*mol~m^-2~s^-1*")"),side=2,outer=T,cex=1,adj=0.1,line=3)
 axis(side=1,at=c(1.5,3.5),labels=levels(acifits.tm$Range),las=1,cex.axis=1.5)
 boxplot(Photo~Treatment*Range,data=subset(asat.tm,Location=="S"),ylim=ylims,
         axes=F,las=2,col=colors)
+legend("topleft","f",bty="n",cex=1.5,inset=-0.05)
 magaxis(c(2,3,4),labels=c(0,0,1),box=T,las=1)
 axis(side=1,at=c(1.5,3.5),labels=levels(acifits.tm$Range),las=1,cex.axis=1.5)
 
 mtext(text=expression(Range~size),side=1,outer=T,cex=2,line=3)
 dev.copy2pdf(file="C:/Repos/GLAHD/Output/Photo_figure_Vcmax_Jmax_Asat.pdf")
 #----------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
