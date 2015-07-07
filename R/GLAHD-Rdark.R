@@ -46,6 +46,14 @@ dev.copy2pdf(file="Output/Leaf_SLA.pdf")
 #---------------------------
 
 
+
+
+
+
+
+
+
+
 #---------------------------
 #-- plot leaf size
 windows(14,14);par(mfrow=c(1,1),mar=c(6,5,2,1),cex.lab=1.3,cex.axis=1.3)
@@ -132,4 +140,11 @@ windows(20,30);par(mar=c(7,6,1,1),mfrow=c(2,1))
 boxplot(AsatR~Treatment*Taxa,data=gx5,las=2,col=c("blue","red"),ylab="Asat:R at common day growth T")
 boxplot(AR~Treatment*Taxa,data=gx5,las=2,col=c("blue","red"),ylab="Day Asat:night Rd at growth T")
 dev.copy2pdf(file="W:/WorkingData/GHS39/GLAHD/Share/Output/AsatRratios.pdf")
+
+
+
+
+
+
+
 
