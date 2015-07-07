@@ -11,14 +11,10 @@
 source("R/loadLibraries.R")
 
 #- read in the data, do a few conversions
-<<<<<<< HEAD
-dat2 <- return_size_mass(model_flag="simple") # use common slope allometry ("simple") or taxa-specific slope ("complex")
+dat2 <- return_size_mass(model_flag="complex") # use common slope allometry ("simple") or taxa-specific slope ("complex")
 dat2$Time <- as.numeric(dat2$Date-(min(dat2$Date)-1)) #finds first date and labels it as Time 1 i.e. 07112014 is Day 1! 
                                                       # note how this is a change from how we did it with the power model
-=======
-dat2 <- return_size_mass(model_flag="complex") # use common slope allometry ("simple") or taxa-specific slope ("complex")
-dat2$Time <- as.numeric(dat2$Date-(min(dat2$Date)-7)) #finds first date and labels it as Time 7 i.e. 07112014 is Day 7
->>>>>>> 2444ec9dc0c96a8b6ff54db0699b8fe5abf3dd99
+
 
 #- remove data with fewer than 6 observations through time
 obs <- unname(table(dat2$Code)) # get the frequency of observations for each pot
@@ -110,16 +106,16 @@ for (i in 1:length(growth.l)){
   #- use diff() to calculate RGR. Note that I've added a trailing "NA", or else the vector would be too short to fit
   #-   the data frame.
   growth.l[[i]]$RGR <- c(diff(growth.l[[i]]$lnTotMass),NA)/c(unname(diff(growth.l[[i]]$Date)),NA) 
+  growth.l[[i]]$dDiameter <- c(diff(growth.l[[i]]$Diameter),NA) 
+  
 }
 dat4 <- do.call(rbind,growth.l)
 windows(30,40)
 plotBy(RGR~jitter(as.numeric(Date))|Code,type="b",data=dat4,legend=F);abline(h=0) 
 smoothScatter(x=dat4$Time,y=dat4$RGR,ylab="RGR",xlab="Time since treatment began (days)",cex.lab=1.5,
               xlim=c(0,60));abline(h=0)
-#- it looks like a third-order polynomial may fit the data best, which would produce
-#   and RGR that changes over time according to a second-order polynomial
 
-#-------------------------------------------------------------------------------------
+
 
 
 # 
@@ -185,7 +181,7 @@ rates.trt$combotrt <- as.factor(paste(rates.trt$Location,rates.trt$Range,rates.t
 windows(40,30);par(mfrow=c(1,1))
 plotBy(RGR~times|combotrt,data=rates.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
        legendwhere="topright",pch=15)
-  plotBy(AGR~times|combotrt,data=rates.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
+plotBy(AGR~times|combotrt,data=rates.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
        legendwhere="topleft",pch=15)
 plotBy(M~times|combotrt,data=rates.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
        legendwhere="topleft",pch=15)
@@ -313,3 +309,132 @@ dev.off()
 # summary(lm(fitted~observed,data=data.df))#- note that the 3rd order poly's r2 is still very good but lower than the powers. 
 #                                          #- it fits better at low values of mass, which is expected given that it is fit to log-transformed values.
 # #-------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+#-------------------------------------------------------------------------------------------------------
+#- Do analysis suggested by Mark, where interval-based RGR estimates are compared to model estimates
+#-  The basic question: is a 3rd order polynomial model sufficient to describe the data,
+#-      particularly the peaked RGR response to warming during the second growth interval?
+
+
+#- the interval-based RGR estimate for the segment in question
+rgr.seg2 <- subset(dat4,Date==as.Date("2014-11-17"))
+names(rgr.seg2)[17] <- "RGR.seg"
+
+#- get the modeled RGR for each day of the growth interval in question for each plant
+#remember that time "1" is 2014-11-07
+table(dat2$Date) # second growth interval is from 2014-11-17 to 2014-11-26, which is "times" 11 to 20
+rgr.mod.seg2 <- subset(rates.df2,times>=11 & times <=20)
+rgr.mod.seg2.plant <- summaryBy(M+AGR+RGR~Code+Species+Treatment+Location+Taxa+Range,data=rgr.mod.seg2,keep.names=T)
+
+#- put them together
+rgr2 <- merge(rgr.seg2,rgr.mod.seg2.plant,by=c("Code","Species","Treatment","Location","Taxa","Range"))
+
+#- plot both estimates of RGR for each taxa
+
+#plot RGR seg, then RGR modeled
+ylims=c(0,0.2)
+xlims=c(0,35)
+colors <- c("blue","red")
+windows(20,20);par(mfrow=c(2,1),mar=c(0.5,6,0.5,3),oma=c(6,0,0,0),cex.axis=1.2)
+
+#RGR segmented
+boxplot(RGR.seg~Treatment+Taxa,data=rgr2,ylim=ylims,xlim=xlims,
+        axes=F,las=2,col=colors)
+magaxis(c(2,3,4),labels=c(1,0,1),box=T,las=1)
+title(ylab=expression(RGR[seg]),cex.lab=2,line=2.5)
+axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=F,las=2,cex.axis=1.5)
+abline(v=16.4)
+
+#RGR modeled
+boxplot(RGR~Treatment+Taxa,data=rgr2,ylim=ylims,xlim=xlims,
+        axes=F,las=2,col=colors)
+magaxis(c(2,3,4),labels=c(1,0,1),box=T,las=1)
+title(ylab=expression(RGR[mod]),cex.lab=2,line=2.5)
+axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(rgr2$Taxa),las=2,cex.axis=1.5)
+abline(v=16.4)
+
+
+#- by-plot
+windows(20,20)
+plotBy(RGR~RGR.seg|Location,data=rgr2,xlab="RGR-seg",ylab="RGR-mod",xlim=c(0,0.22),ylim=c(0,0.22),cex.lab=2)
+abline(0,1)
+
+#- compare statistical analyes
+library(nlme)
+rgr2$Sp_RS_EN <- as.factor(with(rgr2,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
+rgr2$Prov_Sp_EN <- as.factor(with(rgr2,paste(Taxa,Species)))
+fm.rgr.mod <- lme(RGR~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=rgr2)
+plot(fm.rgr.mod,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm.rgr.mod,RGR~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
+plot(fm.rgr.mod,RGR~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
+qqnorm(fm.jtov, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
+hist(fm.rgr.mod$residuals[,1])
+anova(fm.rgr.mod)  
+
+fm.rgr.seg <- lme(RGR.seg~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=rgr2)
+plot(fm.rgr.seg,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm.rgr.seg,RGR.seg~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
+plot(fm.rgr.seg,RGR.seg~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
+qqnorm(fm.rgr.seg, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
+hist(fm.rgr.seg$residuals[,1])
+anova(fm.rgr.seg)  
+
+#-------------------------------------------------------------------------------------------------------
+
+#- plot the first four segements
+rgr.seg14 <- subset(dat4,Date <=as.Date("2014-12-01"))
+names(rgr.seg14)[17] <- "RGR.seg"
+windows(20,20)
+plotBy(RGR.seg~Date|Code,data=rgr.seg14,type="b",legend=F)
+
+#-------------------------------------------------------------------------------------------------------
+#- compare modeled and segmented data again, but for the second and third growth intervals
+#- the interval-based RGR estimate for the segment in question
+rgr.seg23 <- subset(dat4,Date>=as.Date("2014-11-17") & Date <=as.Date("2014-11-26"))
+names(rgr.seg23)[17] <- "RGR.seg"
+
+#- get the modeled RGR for each day of the growth interval in question for each plant
+#remember that time "1" is 2014-11-07
+table(dat2$Date) # second growth interval is from 2014-11-17 to 2014-11-26, which is "times" 11 to 20
+rgr.mod.seg23 <- subset(rates.df2,times >=10 & times <= 24)
+rgr.mod.seg23.plant <- summaryBy(M+AGR+RGR~Code+Species+Treatment+Location+Taxa+Range,data=rgr.mod.seg23,keep.names=T)
+
+#- put them together
+rgr23 <- merge(rgr.seg23,rgr.mod.seg23.plant,by=c("Code","Species","Treatment","Location","Taxa","Range"))
+
+#plot RGR seg, then RGR modeled
+ylims=c(0,0.2)
+colors <- c("blue","red")
+windows(20,20);par(mfrow=c(2,1),mar=c(0.5,6,0.5,3),oma=c(6,0,0,0),cex.axis=1.2)
+
+#RGR segmented
+boxplot(RGR.seg~Treatment+Taxa,data=rgr23,ylim=ylims,
+        axes=F,las=2,col=colors)
+magaxis(c(2,3,4),labels=c(1,0,1),box=T,las=1)
+title(ylab=expression(RGR[seg]),cex.lab=2,line=2.5)
+axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=F,las=2,cex.axis=1.5)
+abline(v=16.4)
+
+#RGR modeled
+boxplot(RGR~Treatment+Taxa,data=rgr23,ylim=ylims,
+        axes=F,las=2,col=colors)
+magaxis(c(2,3,4),labels=c(1,0,1),box=T,las=1)
+title(ylab=expression(RGR[mod]),cex.lab=2,line=2.5)
+axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(rgr12$Taxa),las=2,cex.axis=1.5)
+abline(v=16.4)
+
+
+#- by-plot
+windows(20,20);par(mar=c(6,6,0,0))
+plotBy(RGR~RGR.seg|Location,data=rgr23,xlab="RGR-seg",ylab="RGR-mod",xlim=c(0,0.22),ylim=c(0,0.22),cex.lab=2)
+abline(0,1)
+
+#-------------------------------------------------------------------------------------------------------
+
