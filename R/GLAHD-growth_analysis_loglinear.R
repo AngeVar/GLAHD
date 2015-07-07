@@ -11,14 +11,10 @@
 source("R/loadLibraries.R")
 
 #- read in the data, do a few conversions
-<<<<<<< HEAD
-dat2 <- return_size_mass(model_flag="simple") # use common slope allometry ("simple") or taxa-specific slope ("complex")
-dat2$Time <- as.numeric(dat2$Date-(min(dat2$Date)-1)) #finds first date and labels it as Time 1 i.e. 07112014 is Day 1! 
-                                                      # note how this is a change from how we did it with the power model
-=======
+
 dat2 <- return_size_mass(model_flag="complex") # use common slope allometry ("simple") or taxa-specific slope ("complex")
-dat2$Time <- as.numeric(dat2$Date-(min(dat2$Date)-7)) #finds first date and labels it as Time 7 i.e. 07112014 is Day 7
->>>>>>> 2444ec9dc0c96a8b6ff54db0699b8fe5abf3dd99
+dat2$Time <- as.numeric(dat2$Date-(min(dat2$Date)-1)) #finds first date and labels it as Time 1 i.e. 07112014 is Day 1
+
 
 #- remove data with fewer than 6 observations through time
 obs <- unname(table(dat2$Code)) # get the frequency of observations for each pot
@@ -115,7 +111,7 @@ dat4 <- do.call(rbind,growth.l)
 windows(30,40)
 plotBy(RGR~jitter(as.numeric(Date))|Code,type="b",data=dat4,legend=F);abline(h=0) 
 smoothScatter(x=dat4$Time,y=dat4$RGR,ylab="RGR",xlab="Time since treatment began (days)",cex.lab=1.5,
-              xlim=c(0,60));abline(h=0)
+              xlim=c(0,60), ylim=c(-0.07,0.22));abline(h=0)
 #- it looks like a third-order polynomial may fit the data best, which would produce
 #   and RGR that changes over time according to a second-order polynomial
 
@@ -177,7 +173,7 @@ params$Code <- unique(rates.df$Code) # add the code variable to the parameter es
 
 #-------------------------------------------------------------------------------------
 #- plot the development for each treatment. Note how effect on RGR is particularly time-dependant
-rates.df2 <- merge(rates.df,subset(dat2,Date==as.Date("2014-11-17")),by="Code")[,c(1:6,8:10,16)] # merge with dat2 to get Treatment, Location, etc
+rates.df2 <- merge(rates.df,subset(dat2,Date==as.Date("2014-11-17")),by="Code")[,c(1:6,8:10,17)]#,16)] # merge with dat2 to get Treatment, Location, etc
 
 rates.trt <- summaryBy(M+RGR+AGR~times+Treatment+Location+Range,data=rates.df2,FUN=mean,keep.names=T)
 rates.trt$combotrt <- as.factor(paste(rates.trt$Location,rates.trt$Range,rates.trt$Treatment,sep="_"))
@@ -185,7 +181,7 @@ rates.trt$combotrt <- as.factor(paste(rates.trt$Location,rates.trt$Range,rates.t
 windows(40,30);par(mfrow=c(1,1))
 plotBy(RGR~times|combotrt,data=rates.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
        legendwhere="topright",pch=15)
-  plotBy(AGR~times|combotrt,data=rates.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
+plotBy(AGR~times|combotrt,data=rates.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
        legendwhere="topleft",pch=15)
 plotBy(M~times|combotrt,data=rates.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
        legendwhere="topleft",pch=15)
@@ -207,7 +203,7 @@ names(rates.trt)[1] <- "Time"
 rates.trt.l <- split(rates.trt,rates.trt$combotrt)
 windows(40,40);par(mfrow=c(4,2),mar=c(0.2,0.2,0.2,0.2),oma=c(7,7,3,3))
 ylims=c(0,0.3)
-for (i in 1:length(dat3.l)){
+for (i in 1:length(dat4.l)){
   smoothScatter(x=dat4.l[[i]]$Time,y=dat4.l[[i]]$RGR,ylab="",xlab="",ylim=ylims,axes=F,
                 xlim=c(0,60));abline(h=0)
   lines(rates.trt.l[[i]]$RGR~rates.trt.l[[i]]$Time,lwd=3)
@@ -231,7 +227,7 @@ rates.taxa.l <- split(rates.taxa,rates.taxa$Taxa)
 rates.l <- split(rates.df2,rates.df2$Taxa)
 
 # loop over each taxa, plot a set of four figures, export to a pdf
-pdf(file="C:/Repos/GLAHD/Output/RGR_M_Taxa.pdf")
+pdf(file="C:/Repos/GLAHD/Output/RGR_M_Taxa_filtered.pdf")
 
 layout(matrix(c(1,2,3,4), 2, 2, byrow = TRUE), 
        widths=rep(1,4), heights=rep(1,4))
