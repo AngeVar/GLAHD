@@ -186,13 +186,13 @@ logLik(ancova.full);logLik(ancova.full1)
 #- plot each taxa on a separate panel. Results in a huge figure
 windows(30,30)
 par(mfrow=c(5,4), mar=c(2,2,0.3,0.8), oma=c(5,6,2,2.5))
-ylims <- c(1.5,4)
-xlims <- c(-.5,3)
+ylims <- c(1,4)
+xlims <- c(-1,3)
 palette(c("black","red"))
 allom.l <- split(allom.2,allom.2$Taxa)
 for (i in 1:length(allom.l)){
   toplot <- allom.l[[i]]
-  plotBy(logLA~logd2h|Treatment,data=toplot,type="p",pch=15,xlim=xlims,ylim=ylims,axes=F,col=c("black","red"),
+  plotBy(logLA~logd2h|Treatment,data=toplot,type="p",pch=15,xlim=xlims,ylim=ylims,axes=F,
          ylab="H",xlab="",legend=F)
   magaxis(side=c(1:4),labels=c(1,1,0,0))
   mtext(text=paste(toplot$Location,toplot$Taxa,sep="-"),side=1,line=-1.5)
@@ -210,16 +210,28 @@ legend(x=4,y=2,legend=c("Home","Warmed"),pch=15,cex=1.5,xpd=NA,col=c("black","re
 #####################
 #####################
 
-#Assign three pretreatment plants to Warmed and Home - cannot randomly add pretreatment data. The significance 
-#of the three-way interaction depends on which pretreatment trees are added.
-#Include pretreatment trees in both treatments, use mean or do mot use pretreatment trees
-
-pretre<- subset(allom, Treat== "Pre")
-pretre$sign<- c(rep(sample(c(1,2,1,2,1,2)),16),sample(c(1,2,1,2,1)))
-pretre$Treatment <- ifelse(pretre$sign == "1", "Warmed","Home")
-
-allom.3<- droplevels(rbind(allom.2,pretre[,c(1:20)]))
+# #Assign three pretreatment plants to Warmed and Home - cannot randomly add pretreatment data. The significance 
+# #of the three-way interaction depends on which pretreatment trees are added.
+# #Include pretreatment trees in both treatments, use mean or do mot use pretreatment trees
+# 
+# pretre<- subset(allom, Treat== "Pre")
+# pretre$sign<- c(rep(sample(c(1,2,1,2,1,2)),16),sample(c(1,2,1,2,1)))
+# pretre$Treatment <- ifelse(pretre$sign == "1", "Warmed","Home")
+# 
+# allom.3<- droplevels(rbind(allom.2,pretre[,c(1:20)]))
 ###--------------------------------------------------
+
+#Get mean of pretreatment trees and add to both treatments
+pretre<- subset(allom, Treat== "Pre")
+sumpre1<- summaryBy(.~Taxa, data=pretre, FUN=mean, keep.names=T)
+sumpre2<- summaryBy(.~Taxa, data=pretre, FUN=mean, keep.names=T)
+sumpre1$Treat<- "Home";sumpre2$Treat<- "Warmed"
+sumpre3<- droplevels(rbind(sumpre1,sumpre2))
+sumpre3$Date<-as.Date("2014-11-06");sumpre3$Treatment<-"Pre-treatment";sumpre3$Location<-c(rep("S",8),rep("N",9), rep("S",8),rep("N",9));sumpre3$Notes<- " "
+sumpre3$Species <-c(rep(c("TER","TER","CAM","CAM","CAM","BOT","LONG","SMIT","TER","TER","TER","CAM","CAM","CAM","BRA","PEL","PLAT"),2))
+sumpre3$Code <- paste(sumpre3$Taxa,sumpre3$Pot, sep="-")
+allom.3<- droplevels(rbind(sumpre3,allom.2))
+
 windows(12,12);par(mar=c(5,6,1,1))
 
 #- plot taxa
@@ -240,32 +252,40 @@ legend("topleft",legend=levels(allom.3$Taxa),pch=15,col=colors)
 title(main="All taxa")
 
 
-ancova.full <- lm(logLA~logd2h*Taxa*Treatment,data=allom.3) # 3-way term almost significant
+ancova.full <- lm(logLA~logd2h*Taxa*Treat,data=allom.3) # Treatment efect has disappeared
+ancova.2 <- lm(logLA~logd2h+Taxa+Treat+logd2h:Taxa+logd2h:Treat+Taxa:Treat,data=allom.3) # drop 3-way interaction
+ancova.3 <- lm(logLA~logd2h+Taxa+Treat+logd2h:Taxa+logd2h:Treat,data=allom.3)
+ancova.4 <- lm(logLA~logd2h+Taxa+Treat+logd2h:Taxa,data=allom.3)
+ancova.5 <- lm(logLA~logd2h+Taxa+logd2h:Taxa,data=allom.3)
+anova(ancova.full,ancova.5)
+AIC(ancova.full,ancova.5) #AIC is lower, use taxa specific slopes and intercepts fit to both treatments
 
-allom.l <- split(allom.3,allom.3$Taxa)
+
 
 
 windows(30,30)
 par(mfrow=c(5,4), mar=c(2,2,0.3,0.8), oma=c(5,6,2,2.5))
-ylims <- c(-1.4,2.1)
-xlims <- c(-1.4,3)
+ylims <- c(1,4)
+xlims <- c(-1,3)
 palette(c("black","red"))
+allom.l <- split(allom.3,allom.3$Taxa)
 for (i in 1:length(allom.l)){
   toplot <- allom.l[[i]]
-  plotBy(logTM~logd2h|Treatment,data=toplot,type="p",pch=15,xlim=xlims,ylim=ylims,axes=F,
+  plotBy(logLA~logd2h|Treat,data=toplot,type="p",pch=15,xlim=xlims,ylim=ylims,axes=F,
          ylab="H",xlab="",legend=F)
   magaxis(side=c(1:4),labels=c(1,1,0,0))
   mtext(text=paste(toplot$Location,toplot$Taxa,sep="-"),side=1,line=-1.5)
   
-  fit.h <- lm(logTM~logd2h,data=subset(toplot,Treatment=="Home"))
+  fit.h <- lm(logLA~logd2h,data=subset(toplot,Treat=="Home"))
   predline(fit.h,col=alpha("black",alpha=0.1))
   
-  fit.w <- lm(logTM~logd2h,data=subset(toplot,Treatment=="Warmed"))
+  fit.w <- lm(logLA~logd2h,data=subset(toplot,Treat=="Warmed"))
   predline(fit.w,col=alpha("red",alpha=0.1))
   
 }
 mtext(expression(log[10]~(diam^2~"*"~height)),side=1,line=2,outer=T,cex=1.5)
-mtext(expression(log[10]~(Total~leaf~area~(g))),side=2,line=2,outer=T,cex=1.5)
+mtext(expression(log[10]~(Total~leaf~area~(cm^2))),side=2,line=2,outer=T,cex=1.5)
 legend(x=4,y=2,legend=c("Home","Warmed"),pch=15,cex=1.5,xpd=NA,col=c("black","red"))
+#####################
 
 #####################
