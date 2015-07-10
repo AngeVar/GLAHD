@@ -311,8 +311,12 @@ abline(0,1)
 
 #-------------------------------------------------------------------------------------------------------
 rates.df2 <- merge(rates.df,subset(dat2,Date==as.Date("2014-11-17")),by="Code")[,c(1:6,8:10,17,19)]#,16)] # merge with dat2 to get Treatment, Location, etc
+names(dat2)<- c("Species","Date","Treatment","Location","Taxa","Pot","Code","Height","Diameter", "Comment",
+                "ToFit","d2h","Range","TotMass","leafArea","times")  
+rates.df2 <- merge(rates.df,dat2,by=c("Code", "times"))[,c(1:6,8:10,17,19)]#,16)] # merge with dat2 to get Treatment, Location, etc
 rates.df2$LAR <- rates.df2$leafArea/rates.df2$M
-rates.trt <- summaryBy(LAR+M+RGR+AGR~times+Treatment+Location+Range,data=rates.df2,FUN=mean,keep.names=T)
+rates.trt <- summaryBy(LAR+M+RGR+AGR~times+Treatment+Location+Range,data=subset(rates.df2,Date==as.Date("2014-11-17")),
+                       FUN=mean,keep.names=T)
 rates.trt$combotrt <- as.factor(paste(rates.trt$Location,rates.trt$Range,rates.trt$Treatment,sep="_"))
 
 windows(40,30);par(mfrow=c(1,1))
@@ -322,12 +326,57 @@ plotBy(AGR~times|combotrt,data=rates.trt,col=c("red","black","blue","green","ora
        legendwhere="topleft",pch=15)
 plotBy(M~times|combotrt,data=rates.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
        legendwhere="topleft",pch=15)
-plotBy(LAR~times|combotrt,data=rates.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
+plotBy(LAR~times|combotrt,type='l',data=rates.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
        legendwhere="topright",pch=15)
 
-plotBy(log(LAR)~RGR|combotrt,data=rates.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
+plotBy(LAR~RGR|combotrt, type='l', data=rates.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
        legendwhere="bottomright",pch=15)
 ##-------------------------------------------------------------------------------------------------------
+##-------------------------------------------------------------------------------------------------------
+
+
+#maximum of RGR
+maxRGR<-rates.df2[ rates.df2$RGR %in% tapply(rates.df2$RGR, rates.df2$Code, max), ]#max RGR per Code
+maxRGR$combotrt <- as.factor(paste(maxRGR$Location,maxRGR$Range,maxRGR$Treatment,sep="_"))
+
+ylims=c(0,0.2)
+xlims=c(0,35)
+colors <- c("blue","red")
+windows(10,5);par(mfrow=c(1,1),mar=c(0.5,6,0.5,3),oma=c(6,0,0,0),cex.axis=1.2)
+boxplot(RGR~Treatment+Taxa,data=maxRGR,ylim=ylims,xlim=xlims,
+        axes=F,las=2,col=colors)
+magaxis(c(2,3,4),labels=c(1,0,1),box=T,las=1)
+title(ylab=expression(MaxRGR),cex.lab=2,line=2.5)
+axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(maxRGR$Taxa),las=2,cex.axis=1.5)
+abline(v=16.4)
+
+#- compare statistically
+library(nlme)
+maxRGR$Sp_RS_EN <- as.factor(with(maxRGR,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
+maxRGR$Prov_Sp_EN <- as.factor(with(maxRGR,paste(Taxa,Species)))
+fm.maxRGR<- lme(1/(RGR)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=maxRGR)
+plot(fm.maxRGR,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm.maxRGR,RGR~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
+plot(fm.maxRGR,RGR~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
+qqnorm(fm.maxRGR, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
+hist(fm.maxRGR$residuals[,1])
+anova(fm.maxRGR)  
+plot(allEffects(fm.maxRGR))
+
+fm.tmaxRGR<- lme(sqrt(times)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=maxRGR)
+plot(fm.tmaxRGR,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm.tmaxRGR,sqrt(times)+1~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
+plot(fm.tmaxRGR,sqrt(times)+1~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
+qqnorm(fm.tmaxRGR, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
+hist(fm.tmaxRGR$residuals[,1])
+anova(fm.tmaxRGR) 
+plot(allEffects(fm.tmaxRGR))
+fm.tmaxRGR2<- lme(sqrt(times)~Treatment+Location,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=maxRGR)
+anova(fm.tmaxRGR2) 
+##-------------------------------------------------------------------------------------------------------
+##-------------------------------------------------------------------------------------------------------
+
+
 #Biomass enhancement ratio (mean of all data)
 ber<- summaryBy(M~times+Range+Location+Treatment, data=rates.df2, FUN=mean, keep.names=T) 
 berh <- subset(ber, Treatment == "Home")
@@ -456,27 +505,5 @@ abline(h=0)
 mtext(text="Time",side=1,outer=T,cex=1,adj=0.5,line=1)
 mtext(text="Absolute Enhancement of LAR",side=3,outer=T,cex=1,adj=0.5,line=1)
 ##---------------------------------------------------------------------------------------------------
-
-
-
-#not modified yet
-#Extract data from day 17 (the second harvest) i.e. Day 14 of the experiment
-
-dat4<- subset(DEfits.all,Date==as.Date("2014-11-17"))
-
-dat4$Location <- factor(dat4$Location,levels=c("S","N")) # relevel Location so that "S" is the first level and "N" is the second
-dat4$Sp_RS_EN <- as.factor(with(dat4,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
-dat4$Prov_Sp_EN <- as.factor(with(dat4,paste(Taxa,Species)))
-dat4$Sp_Loc_EN <- as.factor(with(dat4,paste(Species,Location)))
-
-fm1r.l <- lme(log(r)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dat4)
-plot(fm1r.l,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
-plot(fm1r.l,log(r)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
-plot(fm1r.l,log(r)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
-qqnorm(fm1r.l, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
-hist(fm1r.l$residuals[,1])
-anova(fm1r.l)                 #3-way interaction almost there
-
-plot(allEffects(fm1r.l))      #- try to make sense of Treatment:Location:Range interaction
 
 
