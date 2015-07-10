@@ -223,14 +223,13 @@ legend(x=4,y=2,legend=c("Home","Warmed"),pch=15,cex=1.5,xpd=NA,col=c("black","re
 
 #Get mean of pretreatment trees and add to both treatments
 pretre<- subset(allom, Treat== "Pre")
-sumpre1<- summaryBy(.~Taxa, data=pretre, FUN=mean, keep.names=T)
-sumpre2<- summaryBy(.~Taxa, data=pretre, FUN=mean, keep.names=T)
-sumpre1$Treat<- "Home";sumpre2$Treat<- "Warmed"
-sumpre3<- droplevels(rbind(sumpre1,sumpre2))
+sumpre1<- summaryBy(.~Taxa, data=pretre, FUN=mean, keep.names=T);sumpre2<- summaryBy(.~Taxa, data=pretre, FUN=mean, keep.names=T)
+sumpre1$Treat<- "Home";sumpre2$Treat<- "Warmed"; sumpre3<- droplevels(rbind(sumpre1,sumpre2))
 sumpre3$Date<-as.Date("2014-11-06");sumpre3$Treatment<-"Pre-treatment";sumpre3$Location<-c(rep("S",8),rep("N",9), rep("S",8),rep("N",9));sumpre3$Notes<- " "
 sumpre3$Species <-c(rep(c("TER","TER","CAM","CAM","CAM","BOT","LONG","SMIT","TER","TER","TER","CAM","CAM","CAM","BRA","PEL","PLAT"),2))
 sumpre3$Code <- paste(sumpre3$Taxa,sumpre3$Pot, sep="-")
 allom.3<- droplevels(rbind(sumpre3,allom.2))
+allom.3$Treat<-as.factor(allom.3$Treat)
 
 windows(12,12);par(mar=c(5,6,1,1))
 
