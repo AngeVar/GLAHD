@@ -14,7 +14,7 @@ source("R/loadLibraries.R")
 
 
 dat2 <- return_size_mass(model_flag="complex") # use common slope allometry ("simple") or taxa-specific slope ("complex")
-dat2$Time <- as.numeric(dat2$Date-(min(dat2$Date)-1)) #finds first date and labels it as Time 1 i.e. 07112014 is Day 1
+dat2$Time <- as.numeric(dat2$Date-(min(dat2$Date)-7)) #finds first date and labels it as Time 7 i.e. 07112014 is Day 7
 
 
 #- remove data with fewer than 6 observations through time
@@ -114,8 +114,7 @@ dat4 <- do.call(rbind,growth.l)
 windows(30,40)
 plotBy(RGR~jitter(as.numeric(Date))|Code,type="b",data=dat4,legend=F);abline(h=0) 
 smoothScatter(x=dat4$Time,y=dat4$RGR,ylab="RGR",xlab="Time since treatment began (days)",cex.lab=1.5,
-
-              xlim=c(0,60), ylim=c(-0.07,0.22));abline(h=0)
+              xlim=c(0,60));abline(h=0)
 #- it looks like a third-order polynomial may fit the data best, which would produce
 #   and RGR that changes over time according to a second-order polynomial
 
@@ -329,12 +328,12 @@ dev.off()
 
 #- the interval-based RGR estimate for the segment in question
 rgr.seg2 <- subset(dat4,Date==as.Date("2014-11-17"))
-names(rgr.seg2)[17] <- "RGR.seg"
+names(rgr.seg2)[18] <- "RGR.seg"
 
 #- get the modeled RGR for each day of the growth interval in question for each plant
-#remember that time "1" is 2014-11-07
+#remember that time "7" is 2014-11-07
 table(dat2$Date) # second growth interval is from 2014-11-17 to 2014-11-26, which is "times" 11 to 20
-rgr.mod.seg2 <- subset(rates.df2,times>=11 & times <=20)
+rgr.mod.seg2 <- subset(rates.df2,times>=18 & times <=27)
 rgr.mod.seg2.plant <- summaryBy(M+AGR+RGR~Code+Species+Treatment+Location+Taxa+Range,data=rgr.mod.seg2,keep.names=T)
 
 #- put them together
@@ -346,7 +345,7 @@ rgr2 <- merge(rgr.seg2,rgr.mod.seg2.plant,by=c("Code","Species","Treatment","Loc
 ylims=c(0,0.2)
 xlims=c(0,35)
 colors <- c("blue","red")
-windows(20,20);par(mfrow=c(2,1),mar=c(0.5,6,0.5,3),oma=c(6,0,0,0),cex.axis=1.2)
+windows(10,10);par(mfrow=c(2,1),mar=c(0.5,6,0.5,3),oma=c(6,0,0,0),cex.axis=1.2)
 
 #RGR segmented
 boxplot(RGR.seg~Treatment+Taxa,data=rgr2,ylim=ylims,xlim=xlims,
@@ -378,7 +377,7 @@ fm.rgr.mod <- lme(RGR~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_S
 plot(fm.rgr.mod,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
 plot(fm.rgr.mod,RGR~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
 plot(fm.rgr.mod,RGR~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
-qqnorm(fm.jtov, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
+qqnorm(fm.rgr.mod, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
 hist(fm.rgr.mod$residuals[,1])
 anova(fm.rgr.mod)  
 
@@ -401,13 +400,13 @@ plotBy(RGR.seg~Date|Code,data=rgr.seg14,type="b",legend=F)
 #-------------------------------------------------------------------------------------------------------
 #- compare modeled and segmented data again, but for the second and third growth intervals
 #- the interval-based RGR estimate for the segment in question
-rgr.seg23 <- subset(dat4,Date>=as.Date("2014-11-17") & Date <=as.Date("2014-11-26"))
-names(rgr.seg23)[17] <- "RGR.seg"
+rgr.seg23 <- subset(dat4,Date>=as.Date("2014-11-17") & Date <=as.Date("2014-12-01"))
+names(rgr.seg23)[18] <- "RGR.seg"
 
 #- get the modeled RGR for each day of the growth interval in question for each plant
-#remember that time "1" is 2014-11-07
+#remember that time "7" is 2014-11-07
 table(dat2$Date) # second growth interval is from 2014-11-17 to 2014-11-26, which is "times" 11 to 20
-rgr.mod.seg23 <- subset(rates.df2,times >=10 & times <= 24)
+rgr.mod.seg23 <- subset(rates.df2,times >=18 & times <= 32)
 rgr.mod.seg23.plant <- summaryBy(M+AGR+RGR~Code+Species+Treatment+Location+Taxa+Range,data=rgr.mod.seg23,keep.names=T)
 
 #- put them together
