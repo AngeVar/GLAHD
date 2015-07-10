@@ -92,6 +92,46 @@ g.trt$combotrt <- as.factor(paste(g.trt$Location,g.trt$Range,g.trt$Treatment,sep
 windows(40,30);par(mfrow=c(1,1))
 plotBy(dydt~Time|combotrt,data=g.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
        legendwhere="topright",pch=15)
+
+#maximum of RGR
+maxdydt<-gamfits2[ gamfits2$dydt %in% tapply(gamfits2$dydt, gamfits2$Code, max), ]#max RGR per Code
+maxdydt$combotrt <- as.factor(paste(maxdydt$Location,maxdydt$Range,maxdydt$Treatment,sep="_"))
+
+ylims=c(0,0.2)
+xlims=c(0,35)
+colors <- c("blue","red")
+windows(10,5);par(mfrow=c(1,1),mar=c(0.5,6,0.5,3),oma=c(6,0,0,0),cex.axis=1.2)
+boxplot(dydt~Treatment+Taxa,data=maxdydt,ylim=ylims,xlim=xlims,
+        axes=F,las=2,col=colors)
+magaxis(c(2,3,4),labels=c(1,0,1),box=T,las=1)
+title(ylab=expression(MaxRGR),cex.lab=2,line=2.5)
+axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(maxdydt$Taxa),las=2,cex.axis=1.5)
+abline(v=16.4)
+
+#- compare statistically 
+#Warming increases MAXRGR in temperate but not tropical taxa, slightly more in wide than narrow (P=0.124).
+#Warming causes an earlier peak in Tropical Taxa but not Temperate taxa #poly4 did not find this
+
+library(nlme)
+maxdydt$Sp_RS_EN <- as.factor(with(maxdydt,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
+maxdydt$Prov_Sp_EN <- as.factor(with(maxdydt,paste(Taxa,Species)))
+fm.maxdydt<- lme(log(dydt)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=maxdydt)
+plot(fm.maxdydt,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm.maxdydt,log(dydt)~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
+plot(fm.maxdydt,log(dydt)~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
+qqnorm(fm.maxdydt, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
+hist(fm.maxdydt$residuals[,1])
+anova(fm.maxdydt)  
+plot(allEffects(fm.maxdydt))
+
+fm.tmaxdydt<- lme(sqrt(Time)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=maxdydt)
+plot(fm.tmaxdydt,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm.tmaxdydt,sqrt(Time)+1~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
+plot(fm.tmaxdydt,sqrt(Time)+1~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
+qqnorm(fm.tmaxdydt, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
+hist(fm.tmaxdydt$residuals[,1])
+anova(fm.tmaxdydt) 
+plot(allEffects(fm.tmaxdydt))
 #-------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------
@@ -129,4 +169,56 @@ for (i in 1:length(dat4.l)){
 }
 mtext(side=1,"Time (days after treatment began)",outer=T,line=4,cex=1.5,xpd=NA)
 mtext(side=2,"RGR",outer=T,line=3,cex=1.5)
+
+#-----------------------------------------------------------------------------------------
+#Relative enhancement of RGR
+ber<- summaryBy(dydt~Time+Range+Location+Treatment, data=gamfits2, FUN=mean, keep.names=T) 
+berh <- subset(ber, Treatment == "Home")
+berw <- subset (ber, Treatment == "Warmed")  
+bio <- cbind(berh,berw)
+bio$ber<- bio[,10]/bio[,5]
+BER<- bio[,c(1:5,11)]
+bersum<- summaryBy(ber~Range+Location+Time, data=BER, FUN=mean, keep.names=T)
+
+windows(10,6);par(mfrow=c(1,2),mar=c(2,0,2,0),oma=c(5,9,3,5),cex.axis=1)
+
+plotBy(ber~Time|Range,data=subset(BER, Location =="S"),col=c("black","red","blue","orange"),
+       legend=F,type="o", main="South", ylim=c(1,1.5), xlim=c(0,67))
+mtext(text=expression(RGR[W]:RGR[H]),side=2,outer=T,cex=1,adj=0.5,line=3)
+abline(h=1)
+plotBy(ber~Time|Range,data=subset(BER,Location =="N"),col=c("black","red","blue","orange"),
+       legendwhere="topright",type="o", main = "North", ylim=c(1,1.5),yaxt='n', xlim=c(0,67))
+mtext(text="Time",side=1,outer=T,cex=1,adj=0.5,line=1)
+mtext(text="Relative Enhancement of RGR",side=3,outer=T,cex=1,adj=0.5,line=1)
+abline(h=1)
+
+#maximum enhancement of RGR
+sber<- subset(BER, Location =="S")
+nber<-subset(BER, Location =="N")
+sber[ sber$ber %in% tapply(sber$ber, sber$Range, max), ]
+nber[ nber$ber %in% tapply(nber$ber, nber$Range, max), ]
+
+#Absolute enhancement of RGR
+ber<- summaryBy(dydt~Time+Range+Location+Treatment, data=gamfits2, FUN=mean, keep.names=T) 
+berh <- subset(ber, Treatment == "Home")
+berw <- subset (ber, Treatment == "Warmed")  
+bio <- cbind(berh,berw)
+bio$ber<- bio[,10]-bio[,5]
+BER<- bio[,c(1:5,11)]
+bersum<- summaryBy(ber~Range+Location+times, data=BER, FUN=mean, keep.names=T)
+
+windows(10,6);par(mfrow=c(1,2),mar=c(2,0,2,0),oma=c(5,9,3,5),cex.axis=1)
+
+plotBy(ber~Time|Range,data=subset(BER, Location =="S"),col=c("black","red","blue","orange"),
+       legend=F,type="o", main="South", ylim=c(-0.02,0.04), xlim=c(0,67))
+mtext(text=expression(RGR[W]-RGR[H]),side=2,outer=T,cex=1,adj=0.5,line=3)
+abline(h=0)
+plotBy(ber~Time|Range,data=subset(BER,Location =="N"),col=c("black","red","blue","orange"),
+       legendwhere="topright",type="o", main = "North", ylim=c(-0.02,0.04),yaxt='n', xlim=c(0,67))
+mtext(text="Time",side=1,outer=T,cex=1,adj=0.5,line=1)
+mtext(text="Absolute Enhancement of RGR",side=3,outer=T,cex=1,adj=0.5,line=1)
+abline(h=0)
+
+#--------------------------------------------------------------------------------------------------
+
 
