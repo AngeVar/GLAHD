@@ -70,6 +70,12 @@ for(i in 1:length(growth.l)){
   #- put derivatives into a list of dataframes
   gamfits[[i]] <- data.frame(Code=tofit$Code[1],Time=dates,dydt=dydt)
   
+  #- get the predicted mass
+  newDF <- data.frame(Time=dates) ## needs to be a data frame for predict
+  X0 <- exp(predict(g, newDF))    ## exp() needed to convert from ln(mass) to mass
+  
+  #- put mass into the dataframe
+  gamfits[[i]]$predMass <- X0
 }
 
 #- merge dataframes, combine with treatment key
