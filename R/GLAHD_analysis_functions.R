@@ -58,10 +58,20 @@ predict_LA <- function(Taxa,Treat,Diameter,Height){
   #-----------------------------------
   #-- allometry ANCOVA for all taxa
   allom.2 <- subset(allom,Treatment!="Pre-treatment")
-  allom.2$Treatment <- factor(allom.2$Treatment)
-  ancova.full <- lm(logLA~logd2h*Taxa*Treat,data=allom.2) # 3-way term significant, can't be dropped.
-                                                          # this means that the warming effect on the slope is taxa-specific
+  #get mean of pre-treatment trees and add to both treatments
+  pretre<- subset(allom, Treat== "Pre")
+  sumpre1<- summaryBy(.~Taxa, data=pretre, FUN=mean, keep.names=T);sumpre2<- summaryBy(.~Taxa, data=pretre, FUN=mean, keep.names=T)
+  sumpre1$Treat<- "Home";sumpre2$Treat<- "Warmed"; sumpre3<- droplevels(rbind(sumpre1,sumpre2))
+  sumpre3$Date<-as.Date("2014-11-06");sumpre3$Treatment<-"Pre-treatment";sumpre3$Location<-c(rep("S",8),rep("N",9), rep("S",8),rep("N",9));sumpre3$Notes<- " "
+  sumpre3$Species <-c(rep(c("TER","TER","CAM","CAM","CAM","BOT","LONG","SMIT","TER","TER","TER","CAM","CAM","CAM","BRA","PEL","PLAT"),2))
+  sumpre3$Code <- paste(sumpre3$Taxa,sumpre3$Pot, sep="-");sumpre3$Range<-c(rep(c(rep("wide",5),rep("narrow",3),rep("wide",6),rep("narrow",3)),2))
+  allom.3<- droplevels(rbind(sumpre3,allom.2))
+  allom.3$Treat<-as.factor(allom.3$Treat)
   
+#   allom.2$Treatment <- factor(allom.2$Treatment)
+#   ancova.full <- lm(logLA~logd2h*Taxa*Treat,data=allom.2) # 3-way term significant, can't be dropped.
+#                                                           # this means that the warming effect on the slope is taxa-specific
+  ancova.full <- lm(logLA~logd2h*Taxa*Treat,data=allom.3)
   #-----------------------------------
   
   newdat <- data.frame(Taxa=Taxa,Treat=Treat,Diameter=Diameter,Height=Height)
