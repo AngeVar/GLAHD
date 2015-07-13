@@ -87,7 +87,7 @@ gamfits2 <- merge(gamfits.df,key,by=c("Code"),all.x=T)
 
 gamfits2$AGR <- gamfits2$dydt*gamfits2$predMass
 
-
+write.csv(gamfits2,row.names=F,file="C:/Repos/GLAHD/Output/GAM_fits.csv")
 
 #-------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------
@@ -97,12 +97,19 @@ g.trt <- summaryBy(dydt+predMass+AGR~Time+Treatment+Location+Range,data=gamfits2
 g.trt$combotrt <- as.factor(paste(g.trt$Location,g.trt$Range,g.trt$Treatment,sep="_"))
 
 windows(40,30);par(mfrow=c(1,1))
-plotBy(dydt~Time|combotrt,data=g.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
-       legendwhere="topright",pch=15)
-plotBy(AGR~Time|combotrt,data=g.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
-       legendwhere="topleft",pch=15)
 plotBy(predMass~Time|combotrt,data=g.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
        legendwhere="topleft",pch=15)
+plotBy(dydt~Time|combotrt,data=g.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
+       legendwhere="topright",pch=15, ylim=c(0.04,0.12))
+plotBy(AGR~Time|combotrt,data=g.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
+       legendwhere="topleft",pch=15)
+
+
+plotBy(log(predMass)~Time|combotrt,data=g.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
+       legendwhere="topleft",pch=15, ylab="log(Total Mass (g)")
+plotBy(log(AGR)~Time|combotrt,data=g.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
+
+
 
 #maximum of RGR
 maxdydt<-gamfits2[ gamfits2$dydt %in% tapply(gamfits2$dydt, gamfits2$Code, max), ]#max RGR per Code
@@ -120,7 +127,7 @@ axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(maxdydt$Taxa),las=2,cex.
 abline(v=16.4)
 
 #- compare statistically 
-#Warming increases MAXRGR in temperate but not tropical taxa, slightly more in wide than narrow (P=0.124).
+#Warming increases MAXRGR in temperate but not tropical taxa.
 #Warming causes an earlier peak in Tropical Taxa but not Temperate taxa #poly4 did not find this
 
 library(nlme)
@@ -317,6 +324,10 @@ plotBy(ber~Time|Range,data=subset(BER,Location =="N"),col=c("black","red","blue"
 mtext(text="Time",side=1,outer=T,cex=1,adj=0.5,line=1)
 mtext(text="Relative Enhancement of M",side=3,outer=T,cex=1,adj=0.5,line=1)
 abline(h=1)
+sber<- subset(BER, Location =="S")
+nber<-subset(BER, Location =="N")
+sber[ sber$ber %in% tapply(sber$ber, sber$Range, max), ]
+nber[ nber$ber %in% tapply(nber$ber, nber$Range, max), ]
 
 #Absolute enhancement of biomass
 ber<- summaryBy(predMass~Time+Range+Location+Treatment, data=gamfits2, FUN=mean, keep.names=T) 
@@ -387,18 +398,322 @@ mtext(text="Time",side=1,outer=T,cex=1,adj=0.5,line=1)
 mtext(text="Absolute Enhancement of RGR",side=3,outer=T,cex=1,adj=0.5,line=1)
 abline(h=0)
 
+rate <- merge(gamfits2,dat2,by=c("Code","Time","Species","Location","Treatment","Taxa","Range"))[,c(1:10,19)]# merge with dat2 to get LA
+rate$LAR <- rate$leafArea/rate$predMass
+
+#RGR per taxa
+sumrate<-summaryBy(dydt~Time+Taxa+Treatment+Location, data=rate, FUN=c(mean,standard.error))
+rate.l <- split(sumrate,sumrate$Taxa)
+#- plot each taxa on a separate panel. Results in a huge figure
+windows(30,30)
+par(mfrow=c(5,4), mar=c(2,2,0.3,0.8), oma=c(5,6,2,2.5))
+ylims <- c(0,0.15)
+xlims <- c(0,60)
+palette(c("black","red"))
+for (i in 1:length(rate.l)){
+  toplot <- rate.l[[i]]
+  plotBy(dydt.mean~Time|Treatment,data=toplot,type="p",pch=15,xlim=xlims,ylim=ylims,
+         ylab="H",xlab="",legend=F,
+         panel.first=adderrorbars(x=toplot$Time,y=toplot$dydt.mean,
+                                  SE=toplot$dydt.standard.error,direction="updown"))
+  mtext(text=paste(toplot$Location,toplot$Taxa,sep="-"),side=1,line=-1.5)
+  if (i==length(rate.l)){
+    mtext(text="RGR",side=2,outer=T,line=2,cex=2)
+    mtext(text="Time",side=1,outer=T,line=2,cex=1)
+    
+  }      
+}
+
+legend(x=80,y=0.10,legend=c("Home","Warmed"),pch=15,cex=1.5,xpd=NA,col=c("black","red"))
+
+#--------------------------------------------------------------------------------------------------
+
+#Extract data from day 30 (the second harvest) i.e. Day 30 of the experiment
+
+dat5<- subset(gamfits2,Time==40)
+
+dat5$Location <- factor(dat5$Location,levels=c("S","N")) # relevel Location so that "S" is the first level and "N" is the second
+dat5$Sp_RS_EN <- as.factor(with(dat5,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
+dat5$Prov_Sp_EN <- as.factor(with(dat5,paste(Taxa,Species)))
+dat5$Sp_Loc_EN <- as.factor(with(dat5,paste(Species,Location)))
+
+fm1.mass <- lme(predMass~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dat5)
+plot(fm1.mass,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm1.mass,predMass~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
+plot(fm1.mass,predMass~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
+qqnorm(fm1.mass, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
+hist(fm1.mass$residuals[,1])
+anova(fm1.mass)                 
+
+plot(allEffects(fm1.mass))     
+
+fm1.agr <- lme(log(AGR)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dat5)
+plot(fm1.agr,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm1.agr,AGR~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
+plot(fm1.agr,AGR~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
+qqnorm(fm1.agr, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
+hist(fm1.agr$residuals[,1])
+anova(fm1.agr)                 
+
+plot(allEffects(fm1.agr))      
+
+fm1.rgr <- lme(dydt~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dat5)
+plot(fm1.rgr,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm1.rgr,dydt~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
+plot(fm1.rgr,dydt~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
+qqnorm(fm1.rgr, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
+hist(fm1.rgr$residuals[,1])
+anova(fm1.rgr)                 
+
+plot(allEffects(fm1.rgr))     
 #--------------------------------------------------------------------------------------------------
 #LAR
 
 rate <- merge(gamfits2,dat2,by=c("Code","Time","Species","Location","Treatment","Taxa","Range"))[,c(1:10,19)]# merge with dat2 to get LA
 rate$LAR <- rate$leafArea/rate$predMass
-rate.trt <- summaryBy(LAR+predMass+dydt+AGR~Time+Treatment+Location+Range,data=rate,FUN=mean,keep.names=T)
+rate$ULR <- with(rate,dydt/LAR)
+
+#LAR per taxa
+sumrate<-summaryBy(LAR~Time+Taxa+Treatment+Location, data=rate, FUN=c(mean,standard.error))
+rate.l <- split(sumrate,sumrate$Taxa)
+#- plot each taxa on a separate panel. Results in a huge figure
+windows(30,30)
+par(mfrow=c(5,4), mar=c(2,2,0.3,0.8), oma=c(5,6,2,2.5))
+ylims <- c(0,180)
+xlims <- c(0,60)
+palette(c("black","red"))
+for (i in 1:length(rate.l)){
+  toplot <- rate.l[[i]]
+  plotBy(LAR.mean~Time|Treatment,data=toplot,type="p",pch=15,xlim=xlims,ylim=ylims,
+         ylab="H",xlab="",legend=F,
+         panel.first=adderrorbars(x=toplot$Time,y=toplot$LAR.mean,
+                                  SE=toplot$LAR.standard.error,direction="updown"))
+  mtext(text=paste(toplot$Location,toplot$Taxa,sep="-"),side=1,line=-1.5)
+  if (i==length(rate.l)){
+    mtext(text="LAR",side=2,outer=T,line=2,cex=2)
+    mtext(text="Time",side=1,outer=T,line=2,cex=1)
+    
+  }      
+}
+
+legend(x=80,y=180,legend=c("Home","Warmed"),pch=15,cex=1.5,xpd=NA,col=c("black","red"))
+
+#LAR per group
+sumrate2<-summaryBy(LAR~Time+Range+Treatment+Location, data=rate, FUN=c(mean,standard.error))
+rate.l <- split(sumrate2,as.factor(paste(sumrate$Location,sumrate$Range,sep="-")))
+
+windows(30,30)
+par(mfrow=c(2,2), mar=c(0.3,2,0.3,0.8), oma=c(5,6,2,2.5))
+ylims <- c(0,160)
+xlims <- c(0,60)
+for (i in 1:length(rate.l)){
+  toplot <- rate.l[[i]]
+  plotBy(LAR.mean~Time|Treatment,data=toplot,type="b",pch=15,xlim=xlims,ylim=ylims,
+         ylab="LAR",xlab="",legend=F,
+         panel.first=adderrorbars(x=toplot$Time,y=toplot$LAR.mean,
+                                  SE=toplot$LAR.standard.error,direction="updown"))
+  mtext(text=paste(toplot$Location,toplot$Range,sep="-"),side=1,line=-1.5)
+  if (i==length(rate.l)){
+    mtext(text="LAR",side=2,outer=T,line=2,cex=2)
+    mtext(text="Time",side=1,outer=T,line=2,cex=1)
+    
+  }
+}
+
+#Absolute enhancement of LAR
+ber<- summaryBy(LAR~Time+Range+Location+Treatment, data=rate, FUN=mean, keep.names=T) 
+berh <- subset(ber, Treatment == "Home")
+berw <- subset (ber, Treatment == "Warmed")  
+bio <- cbind(berh,berw)
+bio$ber<- bio[,10]-bio[,5]
+BER<- bio[,c(1:5,11)]
+bersum<- summaryBy(ber~Range+Location+Time, data=BER, FUN=mean, keep.names=T)
+
+windows(10,6);par(mfrow=c(1,2),mar=c(2,0,2,0),oma=c(5,9,3,5),cex.axis=1)
+
+plotBy(ber~Time|Range,data=subset(BER, Location =="S"),col=c("black","red","blue","orange"),
+       legend=F,type="o", main="South", ylim=c(-30,20), xlim=c(0,67))
+mtext(text=expression(LAR[W]-LAR[H]),side=2,outer=T,cex=1,adj=0.5,line=3)
+abline(h=0)
+plotBy(ber~Time|Range,data=subset(BER,Location =="N"),col=c("black","red","blue","orange"),
+       legendwhere="topleft",type="o", main = "North", ylim=c(-30,20),yaxt='n', xlim=c(0,67))
+mtext(text="Time",side=1,outer=T,cex=1,adj=0.5,line=1)
+mtext(text="Absolute Enhancement of LAR",side=3,outer=T,cex=1,adj=0.5,line=1)
+abline(h=0)
+
+#Relative enhancement of LAR
+ber<- summaryBy(LAR~Time+Range+Location+Treatment, data=rate, FUN=mean, keep.names=T) 
+berh <- subset(ber, Treatment == "Home")
+berw <- subset (ber, Treatment == "Warmed")  
+bio <- cbind(berh,berw)
+bio$ber<- bio[,10]/bio[,5]
+BER<- bio[,c(1:5,11)]
+bersum<- summaryBy(ber~Range+Location+Time, data=BER, FUN=mean, keep.names=T)
+
+windows(10,6);par(mfrow=c(1,2),mar=c(2,0,2,0),oma=c(5,9,3,5),cex.axis=1)
+
+plotBy(ber~Time|Range,data=subset(BER, Location =="S"),col=c("black","red","blue","orange"),
+       legend=F,type="o", main="South", ylim=c(0.5,1.5), xlim=c(0,67))
+mtext(text=expression(LAR[W]:LAR[H]),side=2,outer=T,cex=1,adj=0.5,line=3)
+abline(h=1)
+plotBy(ber~Time|Range,data=subset(BER,Location =="N"),col=c("black","red","blue","orange"),
+       legendwhere="topleft",type="o", main = "North", ylim=c(0.5,1.5),yaxt='n', xlim=c(0,67))
+mtext(text="Time",side=1,outer=T,cex=1,adj=0.5,line=1)
+mtext(text="Relative Enhancement of LAR",side=3,outer=T,cex=1,adj=0.5,line=1)
+abline(h=1)
+
+
+#Co-plot RGR and LAR
+rate.trt <- summaryBy(LAR+ULR+predMass+dydt+AGR~Time+Treatment+Location+Range,data=rate,FUN=mean,keep.names=T)
 rate.trt$combotrt <- as.factor(paste(rate.trt$Location,rate.trt$Range,rate.trt$Treatment,sep="_"))
 
 windows(40,30);par(mfrow=c(1,1))
 plotBy(LAR~Time|combotrt,type='o',data=rate.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
-       legendwhere="topright",pch=15)
+       legendwhere="topright",pch=15, xlim=c(0,60), ylim=c(50,145))
+par(new=T)
+plotBy(dydt~Time|combotrt,type='o',data=rate.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
+      pch=15, ann=F, axes=F, xlab="",ylab="")
+axis(side=4)
+
+
 plotBy(LAR~dydt|combotrt, type='o', data=rate.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
-       legendwhere="bottomright",pch=15, ylim=c(60,144), xlab="RGR")
+       legendwhere="topleft",pch=15, xlim=c(0,0.12), ylim=c(50,150), xlab="RGR")
 
 
+
+
+rate$Sp_RS_EN <- as.factor(with(rate,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
+rate$Prov_Sp_EN <- as.factor(with(rate,paste(Taxa,Species)))
+
+
+fm.lar.rgr <- lme(log(LAR)~dydt*Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=rate)
+plot(fm.lar.rgr,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm.lar.rgr,log(LAR)~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
+plot(fm.lar.rgr,log(LAR)~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
+qqnorm(fm.lar.rgr, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
+hist(fm.lar.rgr$residuals[,1])
+anova(fm.lar.rgr) 
+plot(allEffects(fm.lar.rgr))
+
+fm.lar.rgr <- lme(log(LAR)~dydt+Treatment+dydt:Location+
+                    Treatment:Location+dydt:Range+Treatment:Range+Location:Range+
+                    dydt:Treatment:Location+dydt:Treatment:Range+
+                    dydt:Treatment:Location:Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=rate)
+
+
+
+fm.lar.rgr <- lm(log(LAR)~dydt*combotrt,data=rate.trt)
+anova(fm.lar.rgr) 
+fm.lar.rgr2 <- lm(log(LAR)~dydt+combotrt,data=rate.trt)
+anova(fm.lar.rgr2) 
+plot(allEffects(fm.lar.rgr2))
+
+
+#------------------------------------------------------------------------------
+
+#ULR
+
+
+#ULR per taxa
+sumrate3<-summaryBy(ULR~Time+Taxa+Treatment+Location, data=rate, FUN=c(mean,standard.error))
+rate.l <- split(sumrate3,sumrate3$Taxa)
+#- plot each taxa on a separate panel. Results in a huge figure
+windows(30,30)
+par(mfrow=c(5,4), mar=c(2,2,0.3,0.8), oma=c(5,6,2,2.5))
+ylims <- c(0,0.002)
+xlims <- c(0,60)
+palette(c("black","red"))
+for (i in 1:length(rate.l)){
+  toplot <- rate.l[[i]]
+  plotBy(ULR.mean~Time|Treatment,data=toplot,type="p",pch=15,xlim=xlims,ylim=ylims,
+         ylab="H",xlab="",legend=F,
+         panel.first=adderrorbars(x=toplot$Time,y=toplot$ULR.mean,
+                                  SE=toplot$ULR.standard.error,direction="updown"))
+  mtext(text=paste(toplot$Location,toplot$Taxa,sep="-"),side=1,line=-1.5)
+  if (i==length(rate.l)){
+    mtext(text="ULR",side=2,outer=T,line=2,cex=2)
+    mtext(text="Time",side=1,outer=T,line=2,cex=1)
+    
+  }      
+}
+
+legend(x=80,y=180,legend=c("Home","Warmed"),pch=15,cex=1.5,xpd=NA,col=c("black","red"))
+
+#Absolute enhancement of ULR
+ber<- summaryBy(ULR~Time+Range+Location+Treatment, data=rate, FUN=mean, keep.names=T) 
+berh <- subset(ber, Treatment == "Home")
+berw <- subset (ber, Treatment == "Warmed")  
+bio <- cbind(berh,berw)
+bio$ber<- bio[,10]-bio[,5]
+BER<- bio[,c(1:5,11)]
+bersum<- summaryBy(ber~Range+Location+Time, data=BER, FUN=mean, keep.names=T)
+
+windows(10,6);par(mfrow=c(1,2),mar=c(2,0,2,0),oma=c(5,9,3,5),cex.axis=1)
+
+plotBy(ber~Time|Range,data=subset(BER, Location =="S"),col=c("black","red","blue","orange"),
+       legend=F,type="o", main="South", ylim=c(-0.001,0.001), xlim=c(0,67))
+mtext(text=expression(ULR[W]-ULR[H]),side=2,outer=T,cex=1,adj=0.5,line=3)
+abline(h=0)
+plotBy(ber~Time|Range,data=subset(BER,Location =="N"),col=c("black","red","blue","orange"),
+       legendwhere="topleft",type="o", main = "North", ylim=c(-0.001,0.001),yaxt='n', xlim=c(0,67))
+mtext(text="Time",side=1,outer=T,cex=1,adj=0.5,line=1)
+mtext(text="Absolute Enhancement of ULR",side=3,outer=T,cex=1,adj=0.5,line=1)
+abline(h=0)
+
+#Relative enhancement of ULR
+ber<- summaryBy(ULR~Time+Range+Location+Treatment, data=rate, FUN=mean, keep.names=T) 
+berh <- subset(ber, Treatment == "Home")
+berw <- subset (ber, Treatment == "Warmed")  
+bio <- cbind(berh,berw)
+bio$ber<- bio[,10]/bio[,5]
+BER<- bio[,c(1:5,11)]
+bersum<- summaryBy(ber~Range+Location+Time, data=BER, FUN=mean, keep.names=T)
+
+windows(10,6);par(mfrow=c(1,2),mar=c(2,0,2,0),oma=c(5,9,3,5),cex.axis=1)
+
+plotBy(ber~Time|Range,data=subset(BER, Location =="S"),col=c("black","red","blue","orange"),
+       legend=F,type="o", main="South", ylim=c(0.5,1.5), xlim=c(0,67))
+mtext(text=expression(ULR[W]:ULR[H]),side=2,outer=T,cex=1,adj=0.5,line=3)
+abline(h=1)
+plotBy(ber~Time|Range,data=subset(BER,Location =="N"),col=c("black","red","blue","orange"),
+       legendwhere="topright",type="o", main = "North", ylim=c(0.5,1.5),yaxt='n', xlim=c(0,67))
+mtext(text="Time",side=1,outer=T,cex=1,adj=0.5,line=1)
+mtext(text="Relative Enhancement of ULR",side=3,outer=T,cex=1,adj=0.5,line=1)
+abline(h=1)
+
+
+#Co-plot RGR and ULR
+rate.trt <- summaryBy(ULR+predMass+dydt+AGR~Time+Treatment+Location+Range,data=rate,FUN=mean,keep.names=T)
+rate.trt$combotrt <- as.factor(paste(rate.trt$Location,rate.trt$Range,rate.trt$Treatment,sep="_"))
+
+windows(40,30);par(mfrow=c(1,1))
+plotBy(ULR~Time|combotrt,type='o',data=rate.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
+       legendwhere="topright",pch=15, xlim=c(0,60), ylim=c(0,0.0015))
+par(new=T)
+plotBy(dydt~Time|combotrt,type='o',data=rate.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
+       pch=15, ann=F, axes=F, xlab="",ylab="", legend=F)
+axis(side=4)
+
+
+  plotBy(ULR~dydt|combotrt, type='o', data=rate.trt,col=c("red","black","blue","green","orange","cyan","grey","yellow"),
+         legendwhere="topleft",pch=15, xlim=c(0,0.12), ylim=c(0,0.0015), xlab="RGR")
+
+  fm.ulr.rgr <- lm(ULR~dydt*combotrt,data=rate.trt)
+  anova(fm.lar.rgr) 
+  fm.lar.rgr2 <- lm(ULR~dydt+combotrt,data=rate.trt)
+  anova(fm.lar.rgr2) 
+  plot(allEffects(fm.lar.rgr2))
+  
+  rate$Sp_RS_EN <- as.factor(with(rate,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
+  rate$Prov_Sp_EN <- as.factor(with(rate,paste(Taxa,Species)))
+  
+  
+  fm.ulr.rgr <- lme(ULR~dydt*Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=rate)
+  plot(fm.ulr.rgr,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
+  plot(fm.ulr.rgr,ULR~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
+  plot(fm.ulr.rgr,ULR~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
+  qqnorm(fm.ulr.rgr, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
+  hist(fm.ulr.rgr$residuals[,1])
+  anova(fm.ulr.rgr) 
+  plot(allEffects(fm.ulr.rgr))
+  
