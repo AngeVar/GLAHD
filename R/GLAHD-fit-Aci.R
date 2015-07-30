@@ -3,8 +3,6 @@
 #install_bitbucket("remkoduursma/plantecophys")
 
 
-#-- TEST- can I push without username/password?
-
 
 #- load libraries from script
 source("C:/Repos/GLAHD/R/loadLibraries.R")
