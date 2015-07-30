@@ -60,7 +60,7 @@ windows(14,14);par(mfrow=c(1,1),mar=c(6,5,2,1),cex.lab=1.3,cex.axis=1.3)
 #colors <- c(rep("white",5),rep("grey",3),rep("white",6),rep("grey",3))
 colors <- c("blue","red")
 ylims=c(0,120)
-boxplot(Area~Treat+Taxa,data=gx2,ylim=ylims,ylab=expression(Leaf~size~(cm^-2)),axes=F,las=2,col=colors)
+boxplot(Area~Treatment+Taxa,data=gx2,ylim=ylims,ylab=expression(Leaf~size~(cm^-2)),axes=F,las=2,col=colors)
 magaxis(c(2,3,4),labels=c(1,0,0),box=T)
 axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(gx2$Taxa),las=2)
 abline(v=16.5)
@@ -82,7 +82,7 @@ dev.copy2pdf(file="Output/Leaf_size.pdf")
 polyfits <- read.csv("W:/WorkingData/GHS39/GLAHD/Share/Data/GasEx/RvsT/poly_coefs_RvsT_JED.csv")
 
 #- merge with measured Rdark data
-gx3 <- merge(polyfits,gx2,by.x=c("Taxa","Treatment"),by.y=c("Taxa","Treat"))
+gx3 <- merge(polyfits,gx2,by.x=c("Taxa","Treatment"),by.y=c("Taxa","Treatment"))
 
 #- predict Rmass at the mean nightly growth temperature. This was 15.64542 in south home, 19.07866 in south warmed,
 #- 24.13100 in north home, and 27.63018 in north warmed. (see "climate_S39.R")
@@ -93,9 +93,9 @@ allom <- unique(read.csv("W:/WorkingData/GHS39/GLAHD/Share/Data/Harvests/GHS39_G
 
 
 gx4 <- merge(gx3,allom,by=c("Taxa"))
-gx4$mean_airT <- ifelse(gx4$Location=="S" & gx4$Treatment=="Home",15.65,
-                        ifelse(gx4$Location=="S" & gx4$Treatment=="Warmed",19.08,
-                               ifelse(gx4$Location=="N" & gx4$Treatment=="Home",24.13,27.63)))
+gx4$mean_airT <- ifelse(gx4$Location.x=="S" & gx4$Treatment=="Home",15.65,
+                        ifelse(gx4$Location.x=="S" & gx4$Treatment=="Warmed",19.08,
+                               ifelse(gx4$Location.x=="N" & gx4$Treatment=="Home",24.13,27.63)))
 
 #- predict Rmass at the mean nightly growth temperature. Uses equation 8 from O'Sullivan (2013)
 gx4$Rpred <- with(gx4,Rmass*exp(b*(mean_airT-Tleaf)+c*(mean_airT^2-Tleaf^2)))
