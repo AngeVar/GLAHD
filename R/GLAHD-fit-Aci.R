@@ -3,7 +3,7 @@
 #install_bitbucket("remkoduursma/plantecophys")
 
 
-#-- TEST- can I push without username/password?
+#-- new TEST- can I push without username/password?
 
 
 #- load libraries from script
