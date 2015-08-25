@@ -185,24 +185,30 @@ POWER <- code
 
 #- fit log-3polynomial growth model to each plant one at a time, extract parameters, and analyze them.
 growth.l <- split(dat3,dat3$Code)
-log3fits <- output <- data.out <- list()
+log3fits <- log4fits <- output <- data.out <- list()
 for(i in 1:length(growth.l)){
   tofit <- growth.l[[i]]
   log3fits[[i]] <- lm(log(TotMass)~Time+I(Time^2)+I(Time^3),data=tofit) #- fit log-polynomial
+  log4fits[[i]] <- lm(log(TotMass)~Time+I(Time^2)+I(Time^3)+I(Time^4),data=tofit) #- fit log-polynomial
   
+  #- third order
   #- extract the output using a new function which calculates AGR and RGR from the polynomial fit parameters
   output[[i]] <- output.log_3order(X=tofit$Time,Y=tofit$TotMass,
                                    params=unname(coef(log3fits[[i]])),times=seq(1:60),Code=tofit$Code[1])$rates
   data.out[[i]] <- output.log_3order(X=tofit$Time,Y=tofit$TotMass,
                                      params=unname(coef(log3fits[[i]])),times=seq(1:60),Code=tofit$Code[1])$data
   data.out[[i]]$Code <- tofit$Code[1]
+  
+#   #- fourth-order
+#   #- extract the output using a new function which calculates AGR and RGR from the polynomial fit parameters
+#   output[[i]] <- output.log_4order(X=tofit$Time,Y=tofit$TotMass,
+#                                    params=unname(coef(log4fits[[i]])),times=seq(1:60),Code=tofit$Code[1])$rates
+#   data.out[[i]] <- output.log_4order(X=tofit$Time,Y=tofit$TotMass,
+#                                      params=unname(coef(log4fits[[i]])),times=seq(1:60),Code=tofit$Code[1])$data
+#   data.out[[i]]$Code <- tofit$Code[1]
 }
 #- put rates dataframe together. This has the timecourse of mass, AGR, and RGR for each plant
 rates.df <-do.call(rbind,output)
-data.df <- do.call(rbind,data.out)
-data.df$fit_type <- "log-3polynomial"
-params <- as.data.frame(do.call(rbind,lapply(log3fits,coef))) #- get polynomial parameters. Perhaps not that useful alone
-params$Code <- unique(rates.df$Code) # add the code variable to the parameter estimate
 rates.df2 <- merge(rates.df,subset(dat2,Date==as.Date("2014-11-17")),by="Code")[,c(1:6,8:10,17)]#,16)] # merge with dat2 to get Treatment, Location, etc
 
 POLY <- rates.df2[with(rates.df2,order(Code,times)),]
@@ -230,12 +236,8 @@ POLY <- rates.df2[with(rates.df2,order(Code,times)),]
 #- PLOT
 
 #- compare the gam, power, and log-polynomial fits
-head(INTERVAL)
-plotBy(RGR~Time|Taxa,data=INTERVAL)
+#- plot RGR via the segment method for each treatment combination. Overlay model outputs.
 
-
-#-------------------------------------------------------------------------------------
-#- plot RGR via the segment method for each taxa-combination. Overlay model outputs.
 INTERVAL$combotrt <- as.factor(paste(INTERVAL$Location,INTERVAL$Range,INTERVAL$Treatment,sep=" "))
 INTERVAL.mean <- summaryBy(RGR~RGR_time+Location+Range+Treatment+combotrt,data=INTERVAL,FUN=c(mean,standard.error),na.rm=T)
 names(INTERVAL.mean)[1] <- "Time"
@@ -280,16 +282,66 @@ for (i in 1:length(INTERVAL.l)){
   if(i%%2==1) magaxis(side=c(1,2,3,4),labels=c(0,1,0,0),las=1,frame.plot=T)
   if(i%%2==0) magaxis(side=c(1,2,3,4),labels=c(0,0,0,1),las=1,frame.plot=T)
   if(i>=7) magaxis(side=c(1),labels=c(1),las=1,frame.plot=T)
-  #if(i%%2==0) magaxis(4,las=1,frame.plot=T)
-  #if(i>6) axis(1)
+
 }
 mtext(side=1,"Time",outer=T,line=4,cex=1.5,xpd=NA)
 mtext(side=2,expression(RGR~(g~g^-1~d^-1)),outer=T,line=3,cex=1.5)
 legend(x=-80,y=0.7,xpd=NA,legend=c("GAM","Power","Polynomial"),bty="n",ncol=3,lty=c(1,2,3),lwd=lwidth,seg.len=3)
-#----------------------- --------------------------------------------------------------
+#--------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------
 
 
 
-#-- put interval and GAM predictions together
 
 
+
+#--------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------
+#- PLOT
+
+#- predicted vs. observed
+
+#-- put observations and predictions together
+combo1 <- merge(INTERVAL,GAM,by=c("Code","Time","Species","Range","Treatment","Location","Taxa"))[,c(1:7,15,23)]
+names(combo1)[9] <- "predMassGam"
+combo2 <- merge(combo1,POLY[,c(1,2,3)],by=c("Code","Time"))
+names(combo2)[10] <- "predMassPoly"
+combo <- merge(combo2,POWER[,c(1,2,11)],by=c("Code","Time"))
+names(combo)[11] <- "predMassPower"
+
+windows(60,40);par(mfrow=c(1,3))
+ylims=c(0,120);xlims=ylims
+
+#- plot Power 
+plot(predMassPower~TotMass,data=combo,axes=F,ylab="",xlab="",log="xy")
+magaxis(side=c(1,2,3,4),labels=c(1,1,0,0),frame.plot=T,las=1,
+        xlab="Observed mass (g)",ylab="Predicted mass, Power (g)")
+abline(0,1,lty=2)
+lm.power <- lm(log(predMassPower)~log(TotMass),data=combo)
+abline(lm.power)
+r2 <- round(summary(lm.power)$adj.r.squared,3)
+legend("topleft",bty="n",legend=as.expression(bquote(r^2 ~ "=" ~ 0.985)),cex=1.5)
+title(main="Power")
+
+#- plot polynomial  
+plot(predMassPoly~TotMass,data=combo,axes=F,ylab="",xlab="",log="xy")
+magaxis(side=c(1,2,3,4),labels=c(1,1,0,0),frame.plot=T,las=1,
+        xlab="Observed mass (g)",ylab="Predicted mass, Polynomial (g)")
+abline(0,1,lty=2)
+lm.poly <- lm(log(predMassPoly)~log(TotMass),data=combo)
+abline(lm.poly)
+r2 <- round(summary(lm.poly)$adj.r.squared,3)
+legend("topleft",bty="n",legend=as.expression(bquote(r^2 ~ "=" ~ 0.996)),cex=1.5)
+title(main="Polynomial")
+
+plot(predMassGam~TotMass,data=combo,axes=F,ylab="",xlab="",log="xy")
+magaxis(side=c(1,2,3,4),labels=c(1,1,0,0),frame.plot=T,las=1,
+        xlab="Observed mass (g)",ylab="Predicted mass, GAM (g)")
+abline(0,1,lty=2)
+lm.gam <- lm(log(predMassGam)~log(TotMass),data=combo)
+abline(lm.gam)
+r2 <- round(summary(lm.gam)$adj.r.squared,3)
+legend("topleft",bty="n",legend=as.expression(bquote(r^2 ~ "=" ~ 0.997)),cex=1.5)
+title(main="GAM")
+#--------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------
