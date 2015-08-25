@@ -86,11 +86,7 @@ return_size_mass <- function(model_flag="simple"){
   
   #- read in the data, do a few conversions
   #dat <- read.csv("C:/Repos/GLAHD/Data/HeightDiam/GHS39_GLAHD_MAIN_HEIGHT&DIAMETER_20141106-20150105_L1.csv")
-<<<<<<< HEAD
-  dat <- read.csv("C:/Repos/GLAHD/R/GHS39_GLAHD_MAIN_HEIGHT&DIAMETER_20141106-20150105_L3.csv")
-=======
   dat <- read.csv("C:/Repos/GLAHD/R/GHS39_GLAHD_MAIN_HEIGHT&DIAMETER_20141106-20150105_L3.1.csv")
->>>>>>> 8ea1116b9ef5279b5fe5238cd726d728e7b9c0ce
   dat$Date <- as.Date(dat$Date,format="%d/%m/%Y")
   dat$d2h <- with(dat,(Diameter/10)^2*(Height)) #calculate d2h in cm3
   
@@ -288,3 +284,70 @@ getAsat <- function(){
   
   return(gx3)
 }
+
+
+
+
+#-------------------------------------------------------------------------------------
+#-- function to interpret log-polynomial curve fits that are THIRD ORDER
+output.log_3order <- function(X, Y, params, times,Code){
+  a <- params[1]; b <- params[2]; c <- params[3]; d <- params[4]
+  #fitted <- (M0^(1-beta)   + r  * X *(1-beta))^(1/(1-beta))
+  fitted <- exp(a + b*X + c*X^2 + d*X^3)
+  resid  <- Y - fitted
+  data <- data.frame(time=X,observed = Y, fitted = fitted, resid = resid)
+  #eq   <- bquote(paste((.(round(r * (1-beta), 3))*t)^.(round(1/(1-beta), 2))))
+  eq <- bquote(a+bx+cx^2+dx^3)
+  mss  <- sum((fitted - mean(fitted))^2)
+  rss  <- sum(resid^2)
+  R2   <- mss/(mss + rss)
+  rmse <- sqrt(rss)
+  N <- length(X)
+  logLik <- -N * (log(2 * pi) + 1 - log(N) + log(sum(resid^2)))/2
+  AIC  <- -2 * logLik  + 2 * 3 # four parameters
+  summary <- c(R2 = R2, AIC = AIC, RMSE = rmse)
+  #temp <- a + b*X + c*X^2 
+  rates = data.frame(
+    times = times,
+    M    =  exp(a+b*times+c*times^2+d*times^3))                  # from Hunt- Plant Growth Curves
+  rates$AGR  =  with(rates,M*(b+2*c*times+3*d*times^2))            # from Hunt- Plant Growth Curves
+  rates$RGR <- rates$AGR/rates$M
+  rates$Code <- Code
+  out <- list(params = params[-4], summary = summary, equation = eq, data = data, rates = rates)
+  return(out)
+}
+#-------------------------------------------------------------------------------------
+
+
+
+
+#-------------------------------------------------------------------------------------
+#-- function to interpret log-polynomial curve fits that are FOURTH ORDER
+output.log_4order <- function(X, Y, params, times,Code){
+  a <- params[1]; b <- params[2]; c <- params[3]; d <- params[4]; e<- params[5]
+  #fitted <- (M0^(1-beta)   + r  * X *(1-beta))^(1/(1-beta))
+  fitted <- exp(a + b*X + c*X^2 + d*X^3 +e*X^4)
+  resid  <- Y - fitted
+  data <- data.frame(time=X,observed = Y, fitted = fitted, resid = resid)
+  #eq   <- bquote(paste((.(round(r * (1-beta), 3))*t)^.(round(1/(1-beta), 2))))
+  eq <- bquote(a+bx+cx^2+dx^3+ex^4)
+  mss  <- sum((fitted - mean(fitted))^2)
+  rss  <- sum(resid^2)
+  R2   <- mss/(mss + rss)
+  rmse <- sqrt(rss)
+  N <- length(X)
+  logLik <- -N * (log(2 * pi) + 1 - log(N) + log(sum(resid^2)))/2
+  AIC  <- -2 * logLik  + 2 * 3 # four parameters
+  summary <- c(R2 = R2, AIC = AIC, RMSE = rmse)
+  #temp <- a + b*X + c*X^2 
+  rates = data.frame(
+    times = times,
+    M    =  exp(a+b*times+c*times^2+d*times^3+e*times^4))                  # from Hunt- Plant Growth Curves
+  rates$AGR  =  with(rates,M*(b+2*c*times+3*d*times^2+4*e*times^3))            # from Hunt- Plant Growth Curves
+  rates$RGR <- rates$AGR/rates$M
+  rates$Code <- Code
+  out <- list(params = params[-4], summary = summary, equation = eq, data = data, rates = rates)
+  return(out)
+}
+#-------------------------------------------------------------------------------------
+
