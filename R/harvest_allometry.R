@@ -4,12 +4,12 @@
 
 
 #- load libraries from script
-source("W:/WorkingData/GHS39/GLAHD/Share/R/loadLibraries.R")
-source("W:/WorkingData/GHS39/GLAHD/Share/R/gamplotfunctions.R")
+source("R/loadLibraries.R")
+source("R/gamplotfunctions.R")
 library(scales)
 
 #- read in the data, do a few conversions
-dat <- read.csv("W:/WorkingData/GHS39/GLAHD/Share/Data/Harvests/GHS39_GLAHD_MAIN_BIOMASS_20141106-20150116_L1.csv")
+dat <- read.csv("Data/Harvests/GHS39_GLAHD_MAIN_BIOMASS_20141106-20150116_L1.csv")
 dat$Date <- as.Date(dat$Date,format="%d/%m/%Y")
 dat$Totmass <- base::rowSums(dat[,11:13]) #total mass is the sum of leaf, stem, and root mass
 dat$LAR <- with(dat,Leafarea/Totmass)
@@ -58,7 +58,7 @@ summary(lm.taxa)
 #--------------------------------------------------
 #- evaluate the relationship between d2h and mass
 
-pdf(file="W:/WorkingData/GHS39/GLAHD/Share/Output/allom_d2h_height.pdf")
+pdf(file="Output/allom_d2h_height.pdf")
 
 dat2 <- subset(dat,Treat!="Pre")
 dat2$Treat <- factor(dat2$Treat)
@@ -116,10 +116,69 @@ for (i in 1:length(levels(dat$Taxa))){
 mtext(expression(log[10]~(Total~mass~(g))),side=1,line=2,outer=T,cex=1.5)
 mtext(expression(log[10]~(Leaf~mass~(g))),side=2,line=2,outer=T,cex=1.5)
 legend(x=4,y=0.4,legend=c("Warmed","Pre","Home"),pch=15,cex=1.5,xpd=NA,col=colors[1:3])
-dev.copy2pdf(file="W:/WorkingData/GHS39/GLAHD/Share/Output/LeafMass_TotalMass.pdf")
+dev.copy2pdf(file="Output/LeafMass_TotalMass.pdf")
 #-----------------------------------
+dat2 <- subset(dat,Treat!="Pre")
+dat2$Treat <- factor(dat2$Treat)
+dat2$TT <- as.factor(paste(dat2$Taxa,dat2$Treat,sep="-"))
+dat2$logLM <- log10(dat2$Leafmass)
 
+ancova.full <- lm(logLM~logTM*Taxa*Treat,data=dat2) # most higher order terms not significant
+ancova.2 <- lm(logLM~logTM+Taxa+Treat+logTM:Taxa+logTM:Treat+Taxa:Treat,data=dat2) # drop 3-way interaction
+ancova.3 <- lm(logLM~logTM+Taxa+Treat+logTM:Taxa+logTM:Treat,data=dat2)
+ancova.4 <- lm(logLM~logTM+Taxa+Treat+logTM:Taxa,data=dat2)
+anova(ancova.full,ancova.4)
+plot(ancova.4) # assumptions are met pretty well. It's not perfect, but it's good.
+anova(ancova.6)
 
+windows(20,20)
+colors <-(c("red","orange","green"))
+palette(colors)
+par(mfrow=c(5,4),mar=c(0,0,0,0),oma=c(6,6,1,1))
+for (i in 1:length(levels(dat$Taxa))){
+  dat2 <- subset(dat,Taxa==as.character(combos[i]))
+  dat2$logLM <- log10(dat2$Leafmass)
+  
+  with(subset(dat2,Treat=="Home"),plot(logLM~logd2h,xlim=c(-1.3,2.5),ylim=c(-2.2,2),col=Treat,pch=15,axes=F,cex=1.5,
+                                       xlab=expression(log[10]~(Total~mass~(g))),
+                                       ylab=expression(log[10]~Leaf~mass~(g))))  
+  fit <- lm(logLM~logd2h,data=subset(dat2,Treat=="Home"))
+  predline(fit,col=alpha("red",alpha=0.1))
+  
+  
+  with(subset(dat2,Treat=="Warmed"),points(logLM~logd2h,xlim=c(-1.3,2.5),ylim=c(-2.2,2),col=Treat,pch=15,cex=1.5,
+                                           xlab=expression(log[10]~(Total~mass~(g))),
+                                           ylab=expression(log[10]~Leaf~mass~(g))))  
+  fit <- lm(logLM~logd2h,data=subset(dat2,Treat=="Warmed"))
+  predline(fit,col=alpha("green",alpha=0.1))
+  
+  with(subset(dat2,Treat=="Pre"),points(logLM~logd2h,xlim=c(-1.3,2.5),ylim=c(-2.2,2),col=Treat,pch=15,cex=1.5,
+                                        xlab=expression(log[10]~(Total~mass~(g))),
+                                        ylab=expression(log[10]~Leaf~mass~(g)))) 
+  fit <- lm(logLM~logd2h,data=subset(dat2,Treat=="Pre"))
+  predline(fit,col=alpha("orange",alpha=0.1))
+  
+  magaxis(side=1:4,labels=c(1,1,0,0),box=T)
+  legend("bottom",legend=dat2$Taxa[1],bty="n",cex=1.5)
+}
+mtext(expression(log[10]~(logd2h~(g))),side=1,line=2,outer=T,cex=1.5)
+mtext(expression(log[10]~(Leaf~mass~(g))),side=2,line=2,outer=T,cex=1.5)
+legend(x=4,y=0.4,legend=c("Warmed","Pre","Home"),pch=15,cex=1.5,xpd=NA,col=colors[1:3])
+
+#-----------------------------------
+dat2 <- subset(dat,Treat!="Pre")
+dat2$Treat <- factor(dat2$Treat)
+dat2$TT <- as.factor(paste(dat2$Taxa,dat2$Treat,sep="-"))
+dat2$logLM <- log10(dat2$Leafmass)
+ancova.full <- lm(logLM~logd2h*Taxa*Treat,data=dat2) # most higher order terms not significant
+ancova.2 <- lm(logLM~logd2h+Taxa+Treat+logd2h:Taxa+logd2h:Treat+Taxa:Treat,data=dat2) # drop 3-way interaction
+ancova.3 <- lm(logLM~logd2h+Taxa+Treat+logd2h:Taxa+logd2h:Treat,data=dat2)
+ancova.4 <- lm(logLM~logd2h+Taxa+Treat+logd2h:Taxa,data=dat2)
+ancova.5 <- lm(logLM~logd2h+Taxa+Treat,data=dat2)
+ancova.6 <- lm(logLM~logd2h+Taxa,data=dat2) #Taxa specific intercepts
+anova(ancova.full,ancova.6)
+plot(ancova.6) # assumptions are met pretty well. It's not perfect, but it's good.
+anova(ancova.6)
 
 
 #-----------------------------------
@@ -154,11 +213,148 @@ for (i in 1:length(levels(dat$Taxa))){
 mtext(expression(log[10]~(Total~mass~(g))),side=1,line=2,outer=T,cex=1.5)
 mtext(expression(log[10]~(Root~mass~(g))),side=2,line=2,outer=T,cex=1.5)
 legend(x=4,y=0,legend=c("Warmed","Pre","Home"),pch=15,cex=1.5,xpd=NA,col=colors[1:3])
-dev.copy2pdf(file="W:/WorkingData/GHS39/GLAHD/Share/Output/RootMass_TotalMass.pdf")
+dev.copy2pdf(file="Output/RootMass_TotalMass.pdf")
+#-----------------------------------
+
+dat2 <- subset(dat,Treat!="Pre")
+dat2$Treat <- factor(dat2$Treat)
+dat2$TT <- as.factor(paste(dat2$Taxa,dat2$Treat,sep="-"))
+dat2$logRM <- log10(dat2$Rootmass)
+ancova.full <- lm(logRM~logTM*Taxa*Treat,data=dat2) # three-way interaction significant
+anova(ancova.full, ancova.2)
+
+ancova.2 <- lm(logRM~logTM+Taxa+Treat+logTM:Treat,data=dat2)
+plot(allEffects(ancova.2)) 
+
+combos <- levels(dat$Taxa)
+#names(combos) <- c("Treat","Taxa")
+windows(20,20)
+par(mfrow=c(5,4),mar=c(0,0,0,0),oma=c(6,6,1,1))
+for (i in 1:length(levels(dat$Taxa))){
+  dat2 <- subset(dat,Taxa==as.character(combos[i]))
+  dat2$logRM <- log10(dat2$Rootmass)
+  
+  with(subset(dat2,Treat=="Home"),plot(logRM~logd2h,xlim=c(-1.3,2.2),ylim=c(-2,1.5),col=Treat,pch=15,axes=F,cex=1.5,
+                                       xlab=expression(log[10]~(Total~mass~(g))),
+                                       ylab=expression(log[10]~Leaf~mass~(g))))  
+  fit <- lm(logRM~logd2h,data=subset(dat2,Treat=="Home"))
+  predline(fit,col=alpha("red",alpha=0.1))
+  
+  
+  with(subset(dat2,Treat=="Warmed"),points(logRM~logd2h,xlim=c(-1.3,2.2),ylim=c(-2,1.5),col=Treat,pch=15,cex=1.5,
+                                           xlab=expression(log[10]~(Total~mass~(g))),
+                                           ylab=expression(log[10]~Leaf~mass~(g))))  
+  fit <- lm(logRM~logd2h,data=subset(dat2,Treat=="Warmed"))
+  predline(fit,col=alpha("green",alpha=0.1))
+  
+  with(subset(dat2,Treat=="Pre"),points(logRM~logd2h,xlim=c(-1.3,2.2),ylim=c(-2,1.5),col=Treat,pch=15,cex=1.5,
+                                        xlab=expression(log[10]~(Total~mass~(g))),
+                                        ylab=expression(log[10]~Leaf~mass~(g))))  
+  magaxis(side=1:4,labels=c(1,1,0,0),box=T)
+  legend("bottom",legend=dat2$Taxa[1],bty="n",cex=1.5)
+}
+mtext(expression(log[10]~(logd2h~(g))),side=1,line=2,outer=T,cex=1.5)
+mtext(expression(log[10]~(Root~mass~(g))),side=2,line=2,outer=T,cex=1.5)
+legend(x=4,y=0,legend=c("Warmed","Pre","Home"),pch=15,cex=1.5,xpd=NA,col=colors[1:3])
+
+dat2 <- subset(dat,Treat!="Pre")
+dat2$Treat <- factor(dat2$Treat)
+dat2$TT <- as.factor(paste(dat2$Taxa,dat2$Treat,sep="-"))
+dat2$logRM <- log10(dat2$Rootmass)
+ancova.full <- lm(logRM~logd2h*Taxa*Treat,data=dat2)
+ancova.2 <- lm(logRM~logd2h+Taxa+Treat+logd2h:Taxa+logd2h:Treat+Taxa:Treat,data=dat2) # drop 3-way interaction
+ancova.3 <- lm(logRM~logd2h+Taxa+Treat+logd2h:Taxa+logd2h:Treat,data=dat2)
+ancova.4 <- lm(logRM~logd2h+Taxa+Treat+logd2h:Taxa,data=dat2)
+ancova.5 <- lm(logRM~logd2h*Taxa+Treat,data=dat2)
+anova(ancova.full,ancova.5)
+plot(ancova.5) 
+anova(ancova.5)
+
 #-----------------------------------
 
 
+#-----------------------------------
+#-----------------------------------
+#- plot stem allometries for all taxa
+combos <- levels(dat$Taxa)
+#names(combos) <- c("Treat","Taxa")
+windows(20,20)
+par(mfrow=c(5,4),mar=c(0,0,0,0),oma=c(6,6,1,1))
+for (i in 1:length(levels(dat$Taxa))){
+  dat2 <- subset(dat,Taxa==as.character(combos[i]))
+  dat2$logSM <- log10(dat2$Stemmass)
+  
+  with(subset(dat2,Treat=="Home"),plot(logSM~logTM,xlim=c(-1.3,2.2),ylim=c(-2,2),col=Treat,pch=15,axes=F,cex=1.5,
+                                       xlab=expression(log[10]~(Total~mass~(g))),
+                                       ylab=expression(log[10]~Stem~mass~(g))))  
+  fit <- lm(logSM~logTM,data=subset(dat2,Treat=="Home"))
+  predline(fit,col=alpha("red",alpha=0.1))
+  
+  
+  with(subset(dat2,Treat=="Warmed"),points(logSM~logTM,xlim=c(-1.3,2.2),ylim=c(-2,2),col=Treat,pch=15,cex=1.5,
+                                           xlab=expression(log[10]~(Total~mass~(g))),
+                                           ylab=expression(log[10]~Stem~mass~(g))))  
+  fit <- lm(logSM~logTM,data=subset(dat2,Treat=="Warmed"))
+  predline(fit,col=alpha("green",alpha=0.1))
+  
+  with(subset(dat2,Treat=="Pre"),points(logSM~logTM,xlim=c(-1.3,2.2),ylim=c(-2,2),col=Treat,pch=15,cex=1.5,
+                                        xlab=expression(log[10]~(Total~mass~(g))),
+                                        ylab=expression(log[10]~Stem~mass~(g))))  
+  magaxis(side=1:4,labels=c(1,1,0,0),box=T)
+  legend("bottom",legend=dat2$Taxa[1],bty="n",cex=1.5)
+}
+mtext(expression(log[10]~(Total~mass~(g))),side=1,line=2,outer=T,cex=1.5)
+mtext(expression(log[10]~(Stem~mass~(g))),side=2,line=2,outer=T,cex=1.5)
+legend(x=4,y=0,legend=c("Warmed","Pre","Home"),pch=15,cex=1.5,xpd=NA,col=colors[1:3])
+dev.copy2pdf(file="Output/StemMass_TotalMass.pdf")
+#-----------------------------------
 
+ancova.full <- lm(logSM~logTM*Taxa*Treat,data=dat2) # most higher order terms not significant
+ancova.2 <- lm(logSM~logTM+Taxa+Treat+logTM:Taxa+logTM:Treat+Taxa:Treat,data=dat2) # drop 3-way interaction
+ancova.3 <- lm(logSM~logTM+Taxa+Treat+logTM:Taxa+logTM:Treat,data=dat2)
+ancova.4 <- lm(logSM~logTM+Taxa+Treat+logTM:Taxa,data=dat2)
+plot(ancova.full) # assumptions are met pretty well. It's not perfect, but it's good.
+anova(ancova.full,ancova.4)
+
+plot(allEffects(ancova.4)) 
+
+combos <- levels(dat$Taxa)
+#names(combos) <- c("Treat","Taxa")
+windows(20,20)
+par(mfrow=c(5,4),mar=c(0,0,0,0),oma=c(6,6,1,1))
+for (i in 1:length(levels(dat$Taxa))){
+  dat2 <- subset(dat,Taxa==as.character(combos[i]))
+  dat2$logSM <- log10(dat2$Stemmass)
+  
+  with(subset(dat2,Treat=="Home"),plot(logSM~logd2h,xlim=c(-1.3,2.2),ylim=c(-2,2),col=Treat,pch=15,axes=F,cex=1.5,
+                                       xlab=expression(log[10]~(Total~mass~(g))),
+                                       ylab=expression(log[10]~Stem~mass~(g))))  
+  fit <- lm(logSM~logd2h,data=subset(dat2,Treat=="Home"))
+  predline(fit,col=alpha("red",alpha=0.1))
+  
+  
+  with(subset(dat2,Treat=="Warmed"),points(logSM~logd2h,xlim=c(-1.3,2.2),ylim=c(-2,2),col=Treat,pch=15,cex=1.5,
+                                           xlab=expression(log[10]~(Total~mass~(g))),
+                                           ylab=expression(log[10]~Stem~mass~(g))))  
+  fit <- lm(logSM~logd2h,data=subset(dat2,Treat=="Warmed"))
+  predline(fit,col=alpha("green",alpha=0.1))
+  
+  with(subset(dat2,Treat=="Pre"),points(logSM~logd2h,xlim=c(-1.3,2.2),ylim=c(-2,2),col=Treat,pch=15,cex=1.5,
+                                        xlab=expression(log[10]~(Total~mass~(g))),
+                                        ylab=expression(log[10]~Stem~mass~(g))))  
+  magaxis(side=1:4,labels=c(1,1,0,0),box=T)
+  legend("bottom",legend=dat2$Taxa[1],bty="n",cex=1.5)
+}
+mtext(expression(log[10]~(logd2h~(g))),side=1,line=2,outer=T,cex=1.5)
+mtext(expression(log[10]~(Stem~mass~(g))),side=2,line=2,outer=T,cex=1.5)
+legend(x=4,y=0,legend=c("Warmed","Pre","Home"),pch=15,cex=1.5,xpd=NA,col=colors[1:3])
+
+#-----------------------------------
+ancova.full <- lm(logSM~logd2h*Taxa*Treat,data=dat2)
+ancova.2 <- lm(logSM~logd2h+Taxa+Treat+logd2h:Taxa+logd2h:Treat+Taxa:Treat,data=dat2) # drop 3-way interaction
+ancova.3 <- lm(logSM~logd2h+Taxa+Treat+logd2h:Treat+Taxa:Treat,data=dat2)
+anova(ancova.full,ancova.3)
+plot(ancova.3) 
 
 
 #-----------------------------------
@@ -272,6 +468,70 @@ legend(x=60,y=6000,legend=c("Warmed","Pre","Home"),pch=15,cex=1.5,xpd=NA,col=col
   dev.copy2pdf(file="W:/WorkingData/GHS39/GLAHD/Share/Output/LATotalleafmass.pdf")
 
 
+  #- plot LA vs. totalmass allometries for all taxa
+  combos <- levels(dat$Taxa)
+  #names(combos) <- c("Treat","Taxa")
+  windows(20,20)
+  par(mfrow=c(5,4),mar=c(0,0,0,0),oma=c(6,6,1,1))
+  for (i in 1:length(levels(dat$Taxa))){
+    dat2 <- subset(dat,Taxa==as.character(combos[i]))
+    
+    with(subset(dat2,Treat=="Home"),plot(log(Leafarea)~logTM,xlim=c(0,2.5),ylim=c(3.5,9),col=Treat,pch=15,axes=F,cex=1.5,
+                                         xlab=expression((Leaf~mass~(g))),
+                                         ylab=expression(Leaf~area~(cm2))))  
+    fit <- lm(log(Leafarea)~logTM,data=subset(dat2,Treat=="Home"))
+    predline(fit,col=alpha("red",alpha=0.1))
+    
+    
+    with(subset(dat2,Treat=="Warmed"),points(log(Leafarea)~logTM,xlim=c(0,2.5),ylim=c(3.5,9),col=Treat,pch=15,cex=1.5,
+                                             xlab=expression((Leaf~mass~(g))),
+                                             ylab=expression(Leaf~area~(cm2))))  
+    fit <- lm(log(Leafarea)~logTM,data=subset(dat2,Treat=="Warmed"))
+    predline(fit,col=alpha("green",alpha=0.1))
+    
+    
+    with(subset(dat2,Treat=="Pre"),points(log(Leafarea)~logTM,xlim=c(0,2.5),ylim=c(3.5,9),col=Treat,pch=15,cex=1.5,
+                                          xlab=expression((Leaf~mass~(g))),
+                                          ylab=expression(Leaf~area~(cm2))))  
+    magaxis(side=1:4,labels=c(1,1,0,0),box=T)
+    legend("bottom",legend=dat2$Taxa[1],bty="n",cex=1.5)
+  }
+  mtext(expression(logTotal~mass~(g)),side=1,line=2,outer=T,cex=1.5)
+  mtext(expression(logLeaf~area~(cm^2)),side=2,line=2,outer=T,cex=1.5)
+  legend(x=60,y=6000,legend=c("Warmed","Pre","Home"),pch=15,cex=1.5,xpd=NA,col=colors[1:3])
+  
+ancova.full <- lm(log(Leafarea)~logTM*Taxa*Treat,data=dat2) 
+plot(ancova.full) 
+anova(ancova.full)  
+plot(allEffects(ancova.full)) 
 
 
+#do analysis using the mixed effects model.
+dat$Range<- as.factor(ifelse(dat$Species == "TER"|dat$Species == "CAM", "wide","narrow"))
+dat2<-droplevels(subset(dat,Treat!="Pre"))
+dat2$combotrt <- as.factor(paste(dat2$Location,dat2$Range,dat2$Treatment,sep="_"))
 
+dat2$Location <- factor(dat2$Location,levels=c("S","N")) # relevel Location so that "S" is the first level and "N" is the second
+dat2$Sp_RS_EN <- as.factor(with(dat2,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
+dat2$Prov_Sp_EN <- as.factor(with(dat2,paste(Taxa,Species)))
+dat2$Sp_Loc_EN <- as.factor(with(dat2,paste(Species,Location)))
+
+
+#Leaf mass - 3way interaction with treatment and location P=0.1465
+#            3way interaction with Location and range P=0.1641
+fm1LM <- lme(Leafmass~Totmass*Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dat2)#, method="ML")
+plot(fm1LM,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm1LM,Leafmass~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
+plot(fm1LM,Leafmass~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
+qqnorm(fm1LM, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
+hist(fm1LM$residuals[,1])
+anova(fm1LM)    
+summary(fm1LM) #The slope of LM~TM varies with treatment (P=0.0566) where warmed taxa have lower allocation to leaves
+               #the lm~TM:Treatment effect varies among the two locations (P=0.1576)
+
+plot(allEffects(fm1LM)) 
+
+library(phia)
+
+plot(interactionMeans(fm1LM, slope="Totmass"))
+interactionMeans(fm1LM, slope="Totmass")
