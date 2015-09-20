@@ -80,17 +80,130 @@ predict_LA <- function(Taxa,Treat,Diameter,Height){
   return(newdat$leafArea)
 }
 
+# function to predict total plant leaf mass from information on taxa, treatment, height, and diameter. Takes a series of vectors, returns a vector
+predict_leaf_mass <- function(Taxa,Treat,Diameter,Height,model_flag="simple"){
+  
+  #- read in the data, do a few conversions
+  allom <- read.csv("C:/Repos/GLAHD/Data/Harvests/GHS39_GLAHD_MAIN_BIOMASS_20141106-20150116_L1.csv")
+  allom$d2h <- with(allom,(Diameter/10)^2*(Height)) #calculate d2h in cm3
+  allom$logd2h <- log10(allom$d2h)
+  allom$logLM <- log10(allom$Leafmass)
+  allom$Treat <- as.factor(ifelse(allom$Pot < 20, "Home",
+                                  ifelse(allom$Pot>=40,"Pre","Warmed")))
+  allom$Taxa <- factor(allom$Taxa,levels=c("ATER","BTER","ACAM","BCAM","CCAM","BOT","LONG","SMIT",
+                                           "CTER","DTER","ETER","DCAM","ECAM","FCAM","BRA","PEL","PLAT"))
+  
+  linkdf <- data.frame(Species = c("CAM","TER","BOT","BRA","LONG","PEL","PLAT","SMIT"),Range= c("wide","wide",rep("narrow",6)))
+  allom <- merge(allom,linkdf,by="Species")
+  allom[24,] <- NA # get rid of BOT-45, which has crazy high LAR and SLA
+  
+  #-----------------------------------
+  #-- allometry ANCOVA for all taxa
+  lm.taxa_complex <- lm(logLM~logd2h*Taxa,data=allom)
+  lm.taxa_simple  <- lm(logLM~logd2h+Taxa,data=allom)
+  # -----------------------------------
+  
+  newdat.s <- data.frame(Taxa=Taxa,Treat=Treat,Diameter=Diameter,Height=Height)
+  newdat.s$logd2h <- with(newdat.s,log10((Diameter/10)^2*(Height)))
+  newdat.s$leafMass <- 10^predict(lm.taxa_simple,newdat.s)
+  
+  newdat.c <- data.frame(Taxa=Taxa,Treat=Treat,Diameter=Diameter,Height=Height)
+  newdat.c$logd2h <- with(newdat.c,log10((Diameter/10)^2*(Height)))
+  newdat.c$leafMass <- 10^predict(lm.taxa_complex,newdat.c)
+  if(model_flag=="complex") {return(newdat.c$leafMass)} # simple or complex model? Should taxa have different slopes?
+  if(model_flag=="simple") {return(newdat.s$leafMass)} # simple or complex model? Should taxa have different slopes?
+  
+}
+
+# function to predict total plant stem mass from information on taxa, treatment, height, and diameter. Takes a series of vectors, returns a vector
+predict_stem_mass <- function(Taxa,Treat,Diameter,Height){
+  
+  #- read in the data, do a few conversions
+  allom <- read.csv("C:/Repos/GLAHD/Data/Harvests/GHS39_GLAHD_MAIN_BIOMASS_20141106-20150116_L1.csv")
+  allom$d2h <- with(allom,(Diameter/10)^2*(Height)) #calculate d2h in cm3
+  allom$logd2h <- log10(allom$d2h)
+  allom$logSM <- log10(allom$Stemmass)
+  allom$Treat <- as.factor(ifelse(allom$Pot < 20, "Home",
+                                  ifelse(allom$Pot>=40,"Pre","Warmed")))
+  allom$Taxa <- factor(allom$Taxa,levels=c("ATER","BTER","ACAM","BCAM","CCAM","BOT","LONG","SMIT",
+                                           "CTER","DTER","ETER","DCAM","ECAM","FCAM","BRA","PEL","PLAT"))
+  
+  linkdf <- data.frame(Species = c("CAM","TER","BOT","BRA","LONG","PEL","PLAT","SMIT"),Range= c("wide","wide",rep("narrow",6)))
+  allom <- merge(allom,linkdf,by="Species")
+  allom[24,] <- NA # get rid of BOT-45, which has crazy high LAR and SLA
+  
+  #-----------------------------------
+  #-- allometry ANCOVA for all taxa
+  #-- allometry ANCOVA for all taxa
+  allom.2 <- subset(allom,Treatment!="Pre-treatment")
+  #get mean of pre-treatment trees and add to both treatments
+  pretre<- subset(allom, Treat== "Pre")
+  sumpre1<- summaryBy(.~Taxa, data=pretre, FUN=mean, keep.names=T);sumpre2<- summaryBy(.~Taxa, data=pretre, FUN=mean, keep.names=T)
+  sumpre1$Treat<- "Home";sumpre2$Treat<- "Warmed"; sumpre3<- droplevels(rbind(sumpre1,sumpre2))
+  sumpre3$Date<-as.Date("2014-11-06");sumpre3$Treatment<-"Pre-treatment";sumpre3$Location<-c(rep("S",8),rep("N",9), rep("S",8),rep("N",9));sumpre3$Notes<- " "
+  sumpre3$Species <-c(rep(c("TER","TER","CAM","CAM","CAM","BOT","LONG","SMIT","TER","TER","TER","CAM","CAM","CAM","BRA","PEL","PLAT"),2))
+  sumpre3$Code <- paste(sumpre3$Taxa,sumpre3$Pot, sep="-");sumpre3$Range<-c(rep(c(rep("wide",5),rep("narrow",3),rep("wide",6),rep("narrow",3)),2))
+  allom.3<- droplevels(rbind(sumpre3,allom.2))
+  allom.3$Treat<-as.factor(allom.3$Treat)
+  
+  lm.taxa <- lm(logSM~logd2h+Taxa+Treat+logd2h:Treat+Taxa:Treat,data=allom.3)
+  # -----------------------------------
+  
+  newdat <- data.frame(Taxa=Taxa,Treat=Treat,Diameter=Diameter,Height=Height)
+  newdat$logd2h <- with(newdat,log10((Diameter/10)^2*(Height)))
+  newdat$stemMass <- 10^predict(lm.taxa,newdat)
+  
+  return(newdat$stemMass)
+  
+}
+
+# function to predict total plant root mass from information on taxa, treatment, height, and diameter. Takes a series of vectors, returns a vector
+predict_root_mass <- function(Taxa,Treat,Diameter,Height){
+  
+  #- read in the data, do a few conversions
+  allom <- read.csv("C:/Repos/GLAHD/Data/Harvests/GHS39_GLAHD_MAIN_BIOMASS_20141106-20150116_L1.csv")
+  allom$d2h <- with(allom,(Diameter/10)^2*(Height)) #calculate d2h in cm3
+  allom$logd2h <- log10(allom$d2h)
+  allom$logRM <- log10(allom$Rootmass)
+  allom$Treat <- as.factor(ifelse(allom$Pot < 20, "Home",
+                                  ifelse(allom$Pot>=40,"Pre","Warmed")))
+  allom$Taxa <- factor(allom$Taxa,levels=c("ATER","BTER","ACAM","BCAM","CCAM","BOT","LONG","SMIT",
+                                           "CTER","DTER","ETER","DCAM","ECAM","FCAM","BRA","PEL","PLAT"))
+  
+  linkdf <- data.frame(Species = c("CAM","TER","BOT","BRA","LONG","PEL","PLAT","SMIT"),Range= c("wide","wide",rep("narrow",6)))
+  allom <- merge(allom,linkdf,by="Species")
+  allom[24,] <- NA # get rid of BOT-45, which has crazy high LAR and SLA
+  
+  #-----------------------------------
+  #-- allometry ANCOVA for all taxa
+  allom.2 <- subset(allom,Treatment!="Pre-treatment")
+  #get mean of pre-treatment trees and add to both treatments
+  pretre<- subset(allom, Treat== "Pre")
+  sumpre1<- summaryBy(.~Taxa, data=pretre, FUN=mean, keep.names=T);sumpre2<- summaryBy(.~Taxa, data=pretre, FUN=mean, keep.names=T)
+  sumpre1$Treat<- "Home";sumpre2$Treat<- "Warmed"; sumpre3<- droplevels(rbind(sumpre1,sumpre2))
+  sumpre3$Date<-as.Date("2014-11-06");sumpre3$Treatment<-"Pre-treatment";sumpre3$Location<-c(rep("S",8),rep("N",9), rep("S",8),rep("N",9));sumpre3$Notes<- " "
+  sumpre3$Species <-c(rep(c("TER","TER","CAM","CAM","CAM","BOT","LONG","SMIT","TER","TER","TER","CAM","CAM","CAM","BRA","PEL","PLAT"),2))
+  sumpre3$Code <- paste(sumpre3$Taxa,sumpre3$Pot, sep="-");sumpre3$Range<-c(rep(c(rep("wide",5),rep("narrow",3),rep("wide",6),rep("narrow",3)),2))
+  allom.3<- droplevels(rbind(sumpre3,allom.2))
+  allom.3$Treat<-as.factor(allom.3$Treat)
+  
+  lm.taxa <- lm(logRM~logd2h*Taxa+Treat,data=allom.3)
+  # -----------------------------------
+  
+  newdat <- data.frame(Taxa=Taxa,Treat=Treat,Diameter=Diameter,Height=Height)
+  newdat$logd2h <- with(newdat,log10((Diameter/10)^2*(Height)))
+  newdat$rootMass <- 10^predict(lm.taxa,newdat)
+  
+  return(newdat$rootMass)
+}
 
 #- read and process the height and diameter dataset. Estimate total mass based on size by calling predict_mass()
 return_size_mass <- function(model_flag="simple"){
   
   #- read in the data, do a few conversions
   #dat <- read.csv("C:/Repos/GLAHD/Data/HeightDiam/GHS39_GLAHD_MAIN_HEIGHT&DIAMETER_20141106-20150105_L1.csv")
-<<<<<<< HEAD
-  dat <- read.csv("C:/Repos/GLAHD/R/GHS39_GLAHD_MAIN_HEIGHT&DIAMETER_20141106-20150105_L3.csv")
-=======
+
   dat <- read.csv("C:/Repos/GLAHD/R/GHS39_GLAHD_MAIN_HEIGHT&DIAMETER_20141106-20150105_L3.1.csv")
->>>>>>> 8ea1116b9ef5279b5fe5238cd726d728e7b9c0ce
   dat$Date <- as.Date(dat$Date,format="%d/%m/%Y")
   dat$d2h <- with(dat,(Diameter/10)^2*(Height)) #calculate d2h in cm3
   
@@ -110,6 +223,37 @@ return_size_mass <- function(model_flag="simple"){
   dat2$TotMass <- predict_mass(Taxa=dat2$Taxa,Treat=dat2$Treatment,Diameter=dat2$Diameter,Height=dat2$Height,model_flag=model_flag)
   dat2$leafArea <- predict_LA(Taxa=dat2$Taxa,Treat=dat2$Treatment,Diameter=dat2$Diameter,Height=dat2$Height)
   
+  return(dat2)
+}
+
+#- read and process the height and diameter dataset. Estimate total mass based on size by calling predict_mass()
+return_size_mass_all <- function(model_flag="simple"){
+  
+  #- read in the data, do a few conversions
+  #dat <- read.csv("C:/Repos/GLAHD/Data/HeightDiam/GHS39_GLAHD_MAIN_HEIGHT&DIAMETER_20141106-20150105_L1.csv")
+  
+  dat <- read.csv("C:/Repos/GLAHD/R/GHS39_GLAHD_MAIN_HEIGHT&DIAMETER_20141106-20150105_L3.1.csv")
+  dat$Date <- as.Date(dat$Date,format="%d/%m/%Y")
+  dat$d2h <- with(dat,(Diameter/10)^2*(Height)) #calculate d2h in cm3
+  
+  linkdf <- data.frame(Species = c("CAM","TER","BOT","BRA","LONG","PEL","PLAT","SMIT"),Range= c("wide","wide",rep("narrow",6)))
+  dat <- merge(dat,linkdf,by="Species")
+  
+  # get rid of the initial harvest and periodic harvest data
+  dat2 <- subset(dat,Date!=as.Date("2014-11-06") & Date != as.Date("2014-11-20")& ToFit != 0)
+  dat2$Treatment <- factor(dat2$Treatment)
+  dat2$Code <- factor(dat2$Code)
+  dat2$Taxa <- factor(dat2$Taxa,levels=c("ATER","BTER","ACAM","BCAM","CCAM","BOT","LONG","SMIT",
+                                         "CTER","DTER","ETER","DCAM","ECAM","FCAM","BRA","PEL","PLAT"))
+  
+  
+  dat2 <- dat2[with(dat2,order(Taxa)),]
+  
+  dat2$TotMass <- predict_mass(Taxa=dat2$Taxa,Treat=dat2$Treatment,Diameter=dat2$Diameter,Height=dat2$Height,model_flag=model_flag)
+  dat2$leafArea <- predict_LA(Taxa=dat2$Taxa,Treat=dat2$Treatment,Diameter=dat2$Diameter,Height=dat2$Height)
+  dat2$leafMass <- predict_leaf_mass(Taxa=dat2$Taxa,Treat=dat2$Treatment,Diameter=dat2$Diameter,Height=dat2$Height)
+  dat2$stemMass <- predict_stem_mass(Taxa=dat2$Taxa,Treat=dat2$Treatment,Diameter=dat2$Diameter,Height=dat2$Height)
+  dat2$rootMass <- predict_root_mass(Taxa=dat2$Taxa,Treat=dat2$Treatment,Diameter=dat2$Diameter,Height=dat2$Height)
   return(dat2)
 }
 
