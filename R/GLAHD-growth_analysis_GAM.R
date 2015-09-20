@@ -297,7 +297,7 @@ axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(maxdydt$Taxa),las=2,cex.
 abline(v=16.5)
 
 #- Did maxRGR increase with warming?
-#Warming increases maxRGR in temperate but not tropical taxa (Treatment:Location).
+#Warming increases maxRGR in temperate but not tropical taxa (Treatment*Location).
 
 library(nlme)
 library(effects)
@@ -316,6 +316,23 @@ plot(allEffects(fm.maxdydt))
 #Model assumptions are difficult to meet to test for differences in timing of maximum RGR
 #since maxRGR often occur at Time 1
 
+#Did warming make the peak occur at a smaller mass?
+#Treatment: Location P=0.0023 Decreased more in N than S
+#Location:Range P= 0.1205 
+fm.maxdydt<- lme(log(predMass)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=maxdydt,method="REML")
+plot(fm.maxdydt,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm.maxdydt,log(predMass)~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
+plot(fm.maxdydt,log(predMass)~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
+qqnorm(fm.maxdydt, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
+hist(fm.maxdydt$residuals[,1])
+anova(fm.maxdydt)  
+
+fm.maxdydt2<- lme(log(predMass)~Treatment+Location+Range+Treatment:Location+Location:Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=maxdydt,method="REML")
+anova(fm.maxdydt2)  
+
+anova(fm.maxdydt,fm.maxdydt2) 
+
+plot(allEffects(fm.maxdydt2))
 #-------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------
@@ -463,6 +480,26 @@ mtext(text="Time",side=1,outer=T,cex=1,adj=0.5,line=1)
 mtext(text="Absolute Enhancement of RGR",side=3,outer=T,cex=1,adj=0.5,line=1)
 abline(h=0)
 
+#Relative enhancement of AGR
+rea<- summaryBy(AGR~Time+Range+Location+Treatment, data=gamfits2, FUN=mean, keep.names=T) 
+reah <- subset(rea, Treatment == "Home")
+reaw <- subset (rea, Treatment == "Warmed")
+names(reaw)<- c("Time","Range","Location","Treatment","AGRWarm" )
+rel <- merge(reah,reaw, by=c("Time","Range","Location"))
+rel$rea<- with(rel, AGRWarm/AGR)
+REA<- rel[,c(1:3,8)]
+
+windows(10,6);par(mfrow=c(1,2),mar=c(2,0,2,0),oma=c(5,9,3,5),cex.axis=1)
+
+plotBy(rea~Time|Range,data=subset(REA, Location =="S"),col=c("black","red","blue","orange"),
+       legend=F,type="o", main="South", ylim=c(0.5,2), xlim=c(0,67))
+mtext(text=expression(AGR[W]:AGR[H]),side=2,outer=T,cex=1,adj=0.5,line=3)
+abline(h=1)
+plotBy(rea~Time|Range,data=subset(REA,Location =="N"),col=c("black","red","blue","orange"),
+       legendwhere="topright",type="o", main = "North", ylim=c(0.5,2),yaxt='n', xlim=c(0,67))
+mtext(text="Time",side=1,outer=T,cex=1,adj=0.5,line=1)
+mtext(text="Relative Enhancement of RGR",side=3,outer=T,cex=1,adj=0.5,line=1)
+abline(h=1)
 
 
 #-----------------------------------------------------------------------------------------
@@ -634,7 +671,7 @@ abline(h=1)
 plotBy(ler2~Time|Range,data=subset(LER,Location =="N"),col=c("black","red","blue","orange"),
        legendwhere="topleft",type="o", main = "North",ylim=c(0.5,1.5),yaxt='n', xlim=c(0,67))
 mtext(text="Time",side=1,outer=T,cex=1,adj=0.5,line=1)
-mtext(text="Absolute Enhancement of LAR",side=3,outer=T,cex=1,adj=0.5,line=1)
+mtext(text="Relative Enhancement of LAR",side=3,outer=T,cex=1,adj=0.5,line=1)
 abline(h=1)
 
 
@@ -642,7 +679,7 @@ abline(h=1)
 
 #Extract data from specific times and test for significant differences
 #  1 11 20 25 32 39 46 53 60
-ratelar<- subset(rate,Time==60)
+ratelar<- subset(rate,Time==5)
 
 ratelar$Location <- factor(ratelar$Location,levels=c("S","N")) # relevel Location so that "S" is the first level and "N" is the second
 ratelar$Sp_RS_EN <- as.factor(with(ratelar,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
