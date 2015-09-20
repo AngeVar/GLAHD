@@ -49,8 +49,8 @@ for(i in 1:length(growth.l)){
   g <- gam(lnTotMass ~ s(Time, k=kgam), data=tofit)
   
   #- plot fit
-  smoothplot(Time, lnTotMass, data=tofit, kgam=kgam)
-  title(main=tofit$Code[1])
+#   smoothplot(Time, lnTotMass, data=tofit, kgam=kgam)
+#   title(main=tofit$Code[1])
   
   #- create a vector of "dates" on which to estimate the derivative 
   dates <- seq(min(tofit$Time), max(tofit$Time), by=1)
