@@ -202,10 +202,7 @@ return_size_mass <- function(model_flag="simple"){
   
   #- read in the data, do a few conversions
   #dat <- read.csv("C:/Repos/GLAHD/Data/HeightDiam/GHS39_GLAHD_MAIN_HEIGHT&DIAMETER_20141106-20150105_L1.csv")
-<<<<<<< HEAD
 
-=======
->>>>>>> 412d86f70fd818f22401a56e7f3f8453a2eeca45
   dat <- read.csv("C:/Repos/GLAHD/R/GHS39_GLAHD_MAIN_HEIGHT&DIAMETER_20141106-20150105_L3.1.csv")
   dat$Date <- as.Date(dat$Date,format="%d/%m/%Y")
   dat$d2h <- with(dat,(Diameter/10)^2*(Height)) #calculate d2h in cm3

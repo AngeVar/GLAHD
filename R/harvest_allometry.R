@@ -517,6 +517,9 @@ dat2$Prov_Sp_EN <- as.factor(with(dat2,paste(Taxa,Species)))
 dat2$Sp_Loc_EN <- as.factor(with(dat2,paste(Species,Location)))
 
 
+#---------------------------------------------------------------------------------------------------------------
+#- allocation tests for leaf mass and area
+
 #Leaf mass - 3way interaction with treatment and location P=0.1465
 #            3way interaction with Location and range P=0.1641
 fm1LM <- lme(Leafmass~Totmass*Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dat2)#, method="ML")
@@ -530,8 +533,92 @@ summary(fm1LM) #The slope of LM~TM varies with treatment (P=0.0566) where warmed
                #the lm~TM:Treatment effect varies among the two locations (P=0.1576)
 
 plot(allEffects(fm1LM)) 
+plot(effect("Totmass:Range",fm1LM), multiline=TRUE) #- compares slopes (overlayed)
+plot(effect("Totmass:Location",fm1LM), multiline=TRUE) #- compares slopes (overlayed)
+plot(effect("Totmass:Treatment",fm1LM), multiline=TRUE) #- compares slopes (overlayed)
+plot(effect("Totmass:Treatment:Location",fm1LM), multiline=TRUE) #- compares slopes (overlayed)
+
+# #- try recentering data
+# #- recenter the leaf mass data
+# dat2$Totmass.c <- scale(dat2$Totmass, center = TRUE, scale = FALSE)
+# fm2LM <- lme(Leafmass~Totmass.c*Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dat2)#, method="ML")
+# plot(effect("Totmass.c:Range",fm2LM), multiline=TRUE) #- compares slopes (overlayed)
+# plot(effect("Totmass.c:Location",fm1LM), multiline=TRUE) #- compares slopes (overlayed)
+# plot(effect("Totmass.c:Treatment",fm2LM), multiline=TRUE) #- compares slopes (overlayed)
+# plot(effect("Totmass.c:Treatment:Location",fm1LM), multiline=TRUE) #- compares slopes (overlayed)
+
+
+#-- REPEAT FOR LEAF AREA
+fm1LA <- lme(Leafarea~Totmass*Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dat2)#, method="ML")
+plot(fm1LA,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm1LA,Leafarea~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
+plot(fm1LA,Leafarea~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
+qqnorm(fm1LA, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
+hist(fm1LA$residuals[,1])
+anova(fm1LA)    
+summary(fm1LA) #The slope of LM~TM varies with treatment (P=0.0566) where warmed taxa have lower allocation to leaves
+#the lm~TM:Treatment effect varies among the two locations (P=0.1576)
+
+plot(allEffects(fm1LA)) 
+plot(effect("Totmass:Range",fm1LA), multiline=TRUE) #- compares slopes (overlayed)
+plot(effect("Totmass:Location",fm1LA), multiline=TRUE) #- compares slopes (overlayed)
+plot(effect("Totmass:Treatment",fm1LA), multiline=TRUE) #- compares slopes (overlayed)
+plot(effect("Totmass:Treatment:Location",fm1LA), multiline=TRUE) #- compares slopes (overlayed)
+
+
+
+
+
+#-- REPEAT FOR ROOT MASS
+fm1RM <- lme(Rootmass~Totmass*Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dat2,
+             weights=varFunc(~Totmass))#, method="ML")
+plot(fm1RM,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm1RM,Rootmass~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
+plot(fm1RM,Rootmass~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
+qqnorm(fm1RM, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
+hist(fm1RM$residuals[,1])
+anova(fm1RM)    
+summary(fm1RM) #The slope of LM~TM varies with treatment (P=0.0566) where warmed taxa have lower allocation to leaves
+#the lm~TM:Treatment effect varies among the two locations (P=0.1576)
+
+plot(allEffects(fm1RM)) 
+#plot(effect("Totmass:Range",fm1RM), multiline=TRUE) #- compares slopes (overlayed)
+plot(effect("Totmass:Location",fm1RM), multiline=TRUE) #- compares slopes (overlayed)
+plot(effect("Totmass:Treatment",fm1RM), multiline=TRUE) #- compares slopes (overlayed)
+plot(effect("Totmass:Treatment:Location",fm1RM), multiline=TRUE) #- compares slopes (overlayed)
+
+
+
+#-- REPEAT FOR STEM MASS
+fm1SM <- lme(Stemmass~Totmass*Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dat2,
+             weights=varFunc(~Totmass))#, method="ML")
+plot(fm1SM,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm1SM,Stemmass~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
+plot(fm1SM,Stemmass~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
+qqnorm(fm1SM, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
+hist(fm1SM$residuals[,1])
+anova(fm1SM)    
+summary(fm1SM) #The slope of LM~TM varies with treatment (P=0.0566) where warmed taxa have lower allocation to leaves
+#the lm~TM:Treatment effect varies among the two locations (P=0.1576)
+
+plot(allEffects(fm1SM)) 
+#plot(effect("Totmass:Range",fm1SM), multiline=TRUE) #- compares slopes (overlayed)
+plot(effect("Totmass:Location",fm1SM),multiline=T)
+plot(effect("Totmass:Treatment:Location",fm1SM), multiline=TRUE) #- compares slopes (overlayed)
+plot(effect("Totmass:Treatment",fm1SM), multiline=TRUE) #- compares slopes (overlayed)
+plot(effect("Totmass:Location:Range",fm1SM), multiline=TRUE) #- compares slopes (overlayed)
+
+#---------------------------------------------------------------------------------------------------------------
+
+
+
+
 
 library(phia)
+
+
+
+
 
 plot(interactionMeans(fm1LM, slope="Totmass"))
 interactionMeans(fm1LM, slope="Totmass")
