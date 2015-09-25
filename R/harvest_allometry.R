@@ -534,9 +534,11 @@ summary(fm1LM) #The slope of LM~TM varies with treatment (P=0.0566) where warmed
 
 plot(allEffects(fm1LM)) 
 plot(effect("Totmass:Range",fm1LM), multiline=TRUE) #- compares slopes (overlayed)
-plot(effect("Totmass:Location",fm1LM), multiline=TRUE) #- compares slopes (overlayed)
+plot(effect("Totmass:Location:Range",fm1LM), multiline=TRUE) #- compares slopes (overlayed)
 plot(effect("Totmass:Treatment",fm1LM), multiline=TRUE) #- compares slopes (overlayed)
 plot(effect("Totmass:Treatment:Location",fm1LM), multiline=TRUE) #- compares slopes (overlayed)
+
+
 
 # #- try recentering data
 # #- recenter the leaf mass data
@@ -583,8 +585,8 @@ summary(fm1RM) #The slope of LM~TM varies with treatment (P=0.0566) where warmed
 
 plot(allEffects(fm1RM)) 
 #plot(effect("Totmass:Range",fm1RM), multiline=TRUE) #- compares slopes (overlayed)
-plot(effect("Totmass:Location",fm1RM), multiline=TRUE) #- compares slopes (overlayed)
-plot(effect("Totmass:Treatment",fm1RM), multiline=TRUE) #- compares slopes (overlayed)
+plot(effect("Totmass:Location:Range",fm1RM), multiline=TRUE) #- compares slopes (overlayed)
+plot(effect("Totmass:Treatment",fm1RM), multiline=TRUE) #- compares slopes (overlaye  d)
 plot(effect("Totmass:Treatment:Location",fm1RM), multiline=TRUE) #- compares slopes (overlayed)
 
 
@@ -609,16 +611,3 @@ plot(effect("Totmass:Treatment",fm1SM), multiline=TRUE) #- compares slopes (over
 plot(effect("Totmass:Location:Range",fm1SM), multiline=TRUE) #- compares slopes (overlayed)
 
 #---------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-library(phia)
-
-
-
-
-
-plot(interactionMeans(fm1LM, slope="Totmass"))
-interactionMeans(fm1LM, slope="Totmass")
