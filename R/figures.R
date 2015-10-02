@@ -575,14 +575,14 @@ axis(side = 1, at = seq(from=0,to=60,by=5), labels = FALSE, tck = 0.01)
 mtext(side=2, text="Total biomass (g)",  line=3)
 mtext(text="Time (Days)", side=1, line=3)
 axis(side = 1, at = seq(from=0,to=60,by=5), labels = T, tck = 0.01)
-legend("topleft", legend=c("N_narrow_Home","N_narrow_Warmed","N_wide_Home","N_wide_Warmed","S_narrow_Home","S_narrow_Warmed",
-                           "S_wide_Home","S_wide_Warmed"), pch=c(15,0,16,1,17,2,25,6), col="black", pt.bg="black", lty=c(1,2,1,2,1,2,1,2))
+legend("topleft", legend=c("Tropical Narrow Home","Tropical Narrow Warmed","Tropical Wide Home","Tropical Wide Warmed","Temperate Narrow Home","Temperate Narrow Warmed",
+                           "Temperate Wide Home","Temperate Wide Warmed"), pch=c(15,0,16,1,17,2,25,6), col="black", pt.bg="black", lty=c(1,2,1,2,1,2,1,2))
 
 
 # ltys = c("22", "44", "13", "1343", "73", "2262",
 #          "12223242", "F282", "F4448444", "224282F2", "F1")
 
-windows(6,4);par(mfrow=c(1,1), mar=c(0.5,3,0.5,0.5), oma=c(3,1,1,1))
+windows(8,8);par(mfrow=c(1,1), mar=c(0.5,3,0.5,0.5), oma=c(3,1,1,1))
 plotBy(predMass.mean~Time, data=subset(g.trt, combotrt=="N_narrow_Home"),col="black",
        legend=F, xaxt='n', ylab="", type="l",ylim=c(0,70),lty="22",lwd=3,
        panel.first=adderrorbars(x=g.trt$Time,y=g.trt$predMass.mean,
@@ -606,7 +606,68 @@ axis(side = 1, at = seq(from=0,to=60,by=5), labels = FALSE, tck = 0.01)
 mtext(side=2, text="Total biomass (g)",  line=3)
 mtext(text="Time (Days)", side=1, line=2)
 axis(side = 1, at = seq(from=0,to=60,by=5), labels = T, tck = 0.01)
-legend("topleft", legend=c("N_narrow_Home","N_narrow_Warmed","N_wide_Home","N_wide_Warmed","S_narrow_Home","S_narrow_Warmed",
-                           "S_wide_Home","S_wide_Warmed"), 
+legend("topleft", legend=c("Tropical Narrow","Tropical Narrow Warmed","Tropical Wide","Tropical Wide Warmed","Temperate Narrow","Temperate Narrow Warmed",
+                           "Temperate Wide","Temperate Wide Warmed"), 
        col=c("black","red","black","red",alpha("black",0.6),alpha("red",0.6),alpha("black",0.6),alpha("red",0.6)),
-       lty=c("22","22","44","44","13","13","solid","solid"), lwd=3)
+       lty=c("22","22","44","44","13","13","solid","solid"), lwd=3, cex=0.8)
+
+#Size over time
+
+g.trt <- summaryBy(d2h+TotMass~Time+Treatment+Location+Range,data=dat3,FUN=c(mean,standard.error))
+g.trt$combotrt <- as.factor(paste(g.trt$Location,g.trt$Range,g.trt$Treatment,sep="_"))
+
+windows(18,12);par(mfrow=c(1,2), mar=c(2,0,2,0),oma=c(2,4,2,2))
+  plotBy(d2h.mean~Time, data=subset(g.trt, combotrt=="N_narrow_Home"),col="black",
+         legend=F, xaxt='n', ylab="", type="l",ylim=c(0,250),lty="22",lwd=3,
+         panel.first=adderrorbars(x=g.trt$Time,y=g.trt$d2h.mean,
+                                  SE=g.trt$d2h.standard.error,direction="updown",
+                                  col="black",0))
+  lines(d2h.mean~Time, data=subset(g.trt, combotrt=="N_narrow_Warmed"),col="red",
+        xaxt='n', ylab="", type="l",ylim=c(0,250),lty="22",lwd=3)
+  lines(d2h.mean~Time, data=subset(g.trt, combotrt=="N_wide_Home"),col="black",
+        xaxt='n', ylab="", type="l",ylim=c(0,250),lty="44",lwd=3)
+  lines(d2h.mean~Time, data=subset(g.trt, combotrt=="N_wide_Warmed"),col="red",
+        xaxt='n', ylab="", type="l",ylim=c(0,250),lty="44",lwd=3)
+  lines(d2h.mean~Time, data=subset(g.trt, combotrt=="S_narrow_Home"),col=alpha("black",0.6),
+        xaxt='n', ylab="", type="l",ylim=c(0,250),lty="13",lwd=3)
+  lines(d2h.mean~Time, data=subset(g.trt, combotrt=="S_narrow_Warmed"),col=alpha("red",0.6),
+        xaxt='n', ylab="", type="l",ylim=c(0,250),lty="13",lwd=3)
+  lines(d2h.mean~Time, data=subset(g.trt, combotrt=="S_wide_Home"),col=alpha("black",0.6),
+        xaxt='n', ylab="", type="l",ylim=c(0,250),lty="solid",lwd=3)
+  lines(d2h.mean~Time, data=subset(g.trt, combotrt=="S_wide_Warmed"),col=alpha("red",0.6),
+        xaxt='n', ylab="", type="l",ylim=c(0,250),lty="solid",lwd=3)
+  axis(side = 1, at = seq(from=0,to=90,by=5), labels = FALSE, tck = 0.01)
+  mtext(side=2, text=expression(paste('d'^'2','h',sep=' ')), line=2.5)
+  mtext(text="Time (Days)", side=1, line=2)
+  axis(side = 1, at = seq(from=0,to=90,by=5), labels = T, tck = 0.01)
+  legend("topleft", ncol=2, legend=c("Tropical Narrow","Tropical Narrow Warmed","Tropical Wide","Tropical Wide Warmed","Temperate Narrow","Temperate Narrow Warmed",
+                                     "Temperate Wide","Temperate Wide Warmed"), 
+         col=c("black","red","black","red",alpha("black",0.6),alpha("red",0.6),alpha("black",0.6),alpha("red",0.6)),
+         lty=c("22","22","44","44","13","13","solid","solid"), lwd=3, cex=0.8)
+  
+  #Size over mass
+  plotBy(d2h.mean~TotMass.mean, data=subset(g.trt, combotrt=="N_narrow_Home"),col="black",yaxt='n',
+         legend=F, xaxt='n', ylab="", type="l",ylim=c(0,250),lty="22",lwd=3,
+         panel.first=adderrorbars(x=g.trt$TotMass.mean,y=g.trt$d2h.mean,
+                                  SE=g.trt$d2h.standard.error,direction="updown",
+                                  col="black",0))
+  lines(d2h.mean~TotMass.mean, data=subset(g.trt, combotrt=="N_narrow_Warmed"),col="red",yaxt='n',
+        xaxt='n', ylab="", type="l",ylim=c(0,250),lty="22",lwd=3)
+  lines(d2h.mean~TotMass.mean, data=subset(g.trt, combotrt=="N_wide_Home"),col="black",yaxt='n',
+        xaxt='n', ylab="", type="l",ylim=c(0,250),lty="44",lwd=3)
+  lines(d2h.mean~TotMass.mean, data=subset(g.trt, combotrt=="N_wide_Warmed"),col="red",yaxt='n',
+        xaxt='n', ylab="", type="l",ylim=c(0,250),lty="44",lwd=3)
+  lines(d2h.mean~TotMass.mean, data=subset(g.trt, combotrt=="S_narrow_Home"),col=alpha("black",0.6),yaxt='n',
+        xaxt='n', ylab="", type="l",ylim=c(0,250),lty="13",lwd=3)
+  lines(d2h.mean~TotMass.mean, data=subset(g.trt, combotrt=="S_narrow_Warmed"),col=alpha("red",0.6),yaxt='n',
+        xaxt='n', ylab="", type="l",ylim=c(0,250),lty="13",lwd=3)
+  lines(d2h.mean~TotMass.mean, data=subset(g.trt, combotrt=="S_wide_Home"),col=alpha("black",0.6),yaxt='n',
+        xaxt='n', ylab="", type="l",ylim=c(0,250),lty="solid",lwd=3)
+  lines(d2h.mean~TotMass.mean, data=subset(g.trt, combotrt=="S_wide_Warmed"),col=alpha("red",0.6),yaxt='n',
+        xaxt='n', ylab="", type="l",ylim=c(0,250),lty="solid",lwd=3)
+  axis(side = 1, at = seq(from=0,to=90,by=5), labels = FALSE, tck = 0.01)
+  mtext(text="TotMass (g)", side=1, line=2)
+  axis(side = 1, at = seq(from=0,to=90,by=5), labels = T, tck = 0.01)
+#par(xpd=T)
+
+  
