@@ -372,29 +372,29 @@ windows(10,10);par(mfrow=c(2,2),mar=c(2,0,2,0),oma=c(2,4,2,2),cex.axis=1)
 SBER<- subset(BER, Location =="S")
 NBER<- subset(BER,Location =="N")
 plotBy(ber~Time,data=SBER,col="black",pch = c(1,16)[as.numeric(SBER$Range)],
-       legend=F,type="p", main="", ylim=c(0.9,1.4), xlim=c(0,64))
-text(2,1.375,labels="A",cex=2,adj=0.5)
+       legend=F,type="p", main="", ylim=c(0.8,2), xlim=c(0,64))
+text(2,1.95,labels="A",cex=2,adj=0.5)
 abline(h=1)
 plotBy(ber~Time,data=NBER,col="black",pch = c(1,16)[as.numeric(NBER$Range)],
-       legend=F,type="p", main = "", ylim=c(0.9,1.4),yaxt='n', xlim=c(0,64))
+       legend=F,type="p", main = "", ylim=c(0.8,2),yaxt='n', xlim=c(0,64))
 abline(h=1)
-text(2,1.375,labels="B",cex=2,adj=0.5)
+text(2,1.95,labels="B",cex=2,adj=0.5)
 mtext(text="Time (Days)",side=1,outer=F,cex=1,line=2.5, at=0)
-legend(45,1.4, legend=c("Wide","Narrow"), pch=c(16,1), col="black", cex=1.3, bg="white")
+legend(45,1.95, legend=c("Wide","Narrow"), pch=c(16,1), col="black", cex=1.3, bg="white")
 
 #over mass
 plotBy(ber~TotMass.x,data=subset(SBER, Range=="narrow"),col="black",pch = c(1),
-       legend=F,type="p", main="", ylim=c(0.9,1.4), xlim=c(0,33),xaxp  = c(0, 35, 7))
+       legend=F,type="p", main="", ylim=c(0.8,2), xlim=c(0,33),xaxp  = c(0, 35, 7))
 mtext(text="Diameter Enhancement Ratio",side=2,outer=T,cex=1,adj=0.5,line=2.5)
 points(ber~TotMass.x,data=subset(SBER, Range=="wide"),col="black",pch = c(16))
-text(1,1.375,labels="C",cex=2,adj=0.5)
+text(1,1.95,labels="C",cex=2,adj=0.5)
 abline(h=1)
 plotBy(ber~TotMass.x,data=subset(NBER,Range=="narrow"),col="black",pch = c(1),
-       legend=F,type="p", main = "", ylim=c(0.9,1.4),yaxt='n', xlim=c(0,80),xaxp  = c(0, 80, 8))
+       legend=F,type="p", main = "", ylim=c(0.8,2),yaxt='n', xlim=c(0,80),xaxp  = c(0, 80, 8))
 points(ber~TotMass.x,data=subset(NBER, Range=="wide"),col="black",pch = c(16))
 mtext(text="Control Mass (g)",side=1,outer=T,cex=1,adj=0.5,line=0.5)
 abline(h=1)
-text(2,1.375,labels="D",cex=2,adj=0.5)
+text(2,1.95,labels="D",cex=2,adj=0.5)
 
 
 #Height enhancement
