@@ -2,8 +2,193 @@
 source("R/GLAHD_gamfits.R") #gives you the gamfits2 output
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
+###############################################################################################################
 
-#Mass, RGR and AGR over Time
+#Figure 2: Mass over Time
+g.trt <- summaryBy(dydt+predMass+AGR~Time+Treatment+Location+Range,data=gamfits2,FUN=c(mean,standard.error))
+g.trt$combotrt <- as.factor(paste(g.trt$Location,g.trt$Range,g.trt$Treatment,sep="_"))
+g.trt.S<- subset(g.trt, Location == "S")
+g.trt.N<- subset(g.trt, Location == "N")
+
+windows(8.27,11.69);par(mfrow=c(2,1),mar=c(0,2,0,1),oma=c(4,2,2,1))
+
+plotBy(predMass.mean~Time, data=subset(g.trt, combotrt=="N_narrow_Home"),col="black",
+       legend=F, xaxt='n', ylab="", type="l",ylim=c(1,70),lty=2,lwd=2,yaxs="i",xaxs="i",
+       panel.first=adderrorbars(x=g.trt.N$Time,y=g.trt.N$predMass.mean,
+                                SE=g.trt.N$predMass.standard.error,direction="updown",
+                                col="black",0))
+lines(predMass.mean~Time, data=subset(g.trt, combotrt=="N_narrow_Warmed"),col="red",
+      xaxt='n', ylab="", type="l",ylim=c(0,70),lty=2,lwd=2)
+lines(predMass.mean~Time, data=subset(g.trt, combotrt=="N_wide_Home"),col="black",
+      xaxt='n', ylab="", type="l",ylim=c(0,70),lty=1,lwd=2)
+lines(predMass.mean~Time, data=subset(g.trt, combotrt=="N_wide_Warmed"),col="red",
+      xaxt='n', ylab="", type="l",ylim=c(0,70),lty=1,lwd=2)
+
+axis(side = 1, at = seq(from=0,to=60,by=5), labels = F, tck = 0.01)
+axis(side = 2, at = seq(from=0,to=70,by=10), labels = T, tck = 0.01)
+axis(side = 4, at = seq(from=0,to=70,by=10), labels = F, tck = 0.01)
+axis(side = 3, at = seq(from=0,to=60,by=5), labels = F, tck = 0.01)
+
+legend(0,60, legend=c("Narrow","Narrow Warmed","Wide","Wide Warmed"),
+       col=c("black","red","black","red"),lty=c(2,2,1,1), lwd=2,bty="n")
+mtext("Tropical Eucalyptus",3,line=-1.5,at=12.5, outer=F)
+
+plotBy(predMass.mean~Time, data=subset(g.trt, combotrt=="S_narrow_Home"),col="black",
+       legend=F, xaxt='n', ylab="", type="l",ylim=c(0,70),lty=2,lwd=2,yaxs="i",xaxs="i",
+       panel.first=adderrorbars(x=g.trt.S$Time,y=g.trt.S$predMass.mean,
+                                SE=g.trt.S$predMass.standard.error,direction="updown",
+                                col="black",0))
+lines(predMass.mean~Time, data=subset(g.trt, combotrt=="S_narrow_Warmed"),col="red",
+      xaxt='n', ylab="", type="l",ylim=c(0,70),lty=2,lwd=2)
+lines(predMass.mean~Time, data=subset(g.trt, combotrt=="S_wide_Home"),col="black",
+      xaxt='n', ylab="", type="l",ylim=c(0,70),lty=1,lwd=2)
+lines(predMass.mean~Time, data=subset(g.trt, combotrt=="S_wide_Warmed"),col="red",
+      xaxt='n', ylab="", type="l",ylim=c(0,70),lty=1,lwd=2)
+mtext(text="Time (Days)", side=1, line=3)
+axis(side = 1, at = seq(from=0,to=60,by=5), labels = T, tck = 0.01)
+axis(side = 2, at = seq(from=0,to=70,by=10), labels = T, tck = 0.01)
+axis(side = 3, at = seq(from=0,to=60,by=5), labels = F, tck = 0.01)
+axis(side = 4, at = seq(from=0,to=70,by=10), labels = F, tck = 0.01)
+mtext("Temperate Eucalyptus",3,line=-1.5,at=14, outer=F)
+mtext(text="Total biomass (g)", outer=T, side=2, line=1)
+
+###############################################################################################################
+#Figure 3:RGR over Time
+
+
+windows(8.27,11.69);par(mfrow=c(2,1),mar=c(0,2,0,1),oma=c(4,2,2,1))
+
+plotBy(dydt.mean~Time, data=subset(g.trt, combotrt=="N_narrow_Home"),col="black",
+       legend=F, xaxt='n', ylab="", type="l",ylim=c(0.01,0.13),lty=2,lwd=2,yaxs="i",xaxs="i",
+       panel.first=adderrorbars(x=g.trt.N$Time,y=g.trt.N$dydt.mean,
+                                SE=g.trt.N$dydt.standard.error,direction="updown",
+                                col="black",0))
+lines(dydt.mean~Time, data=subset(g.trt, combotrt=="N_narrow_Warmed"),col="red",
+      xaxt='n', ylab="", type="l",ylim=c(0,70),lty=2,lwd=2)
+lines(dydt.mean~Time, data=subset(g.trt, combotrt=="N_wide_Home"),col="black",
+      xaxt='n', ylab="", type="l",ylim=c(0,70),lty=1,lwd=2)
+lines(dydt.mean~Time, data=subset(g.trt, combotrt=="N_wide_Warmed"),col="red",
+      xaxt='n', ylab="", type="l",ylim=c(0,70),lty=1,lwd=2)
+abline(v=15, lty=2)
+axis(side = 1, at = seq(from=0,to=60,by=5), labels = F, tck = 0.01)
+axis(side = 2, at = seq(from=0,to=0.12,by=0.02), labels = T, tck = 0.01)
+axis(side = 4, at = seq(from=0,to=0.12,by=0.02), labels = F, tck = 0.01)
+axis(side = 3, at = seq(from=0,to=60,by=5), labels = F, tck = 0.01)
+
+legend(0,60, legend=c("Narrow","Narrow Warmed","Wide","Wide Warmed"),
+       col=c("black","red","black","red"),lty=c(2,2,1,1), lwd=2,bty="n")
+mtext("Tropical Eucalyptus",3,line=-1.5,at=46.5, outer=F)
+
+plotBy(dydt.mean~Time, data=subset(g.trt, combotrt=="S_narrow_Home"),col="black",
+       legend=F, xaxt='n', ylab="", type="l",ylim=c(0.01,0.13),lty=2,lwd=2,yaxs="i",xaxs="i",
+       panel.first=adderrorbars(x=g.trt.S$Time,y=g.trt.S$dydt.mean,
+                                SE=g.trt.S$dydt.standard.error,direction="updown",
+                                col="black",0))
+lines(dydt.mean~Time, data=subset(g.trt, combotrt=="S_narrow_Warmed"),col="red",
+      xaxt='n', ylab="", type="l",ylim=c(0,70),lty=2,lwd=2)
+lines(dydt.mean~Time, data=subset(g.trt, combotrt=="S_wide_Home"),col="black",
+      xaxt='n', ylab="", type="l",ylim=c(0,70),lty=1,lwd=2)
+lines(dydt.mean~Time, data=subset(g.trt, combotrt=="S_wide_Warmed"),col="red",
+      xaxt='n', ylab="", type="l",ylim=c(0,70),lty=1,lwd=2)
+abline(v=15, lty=2)
+mtext(text="Time (Days)", side=1, line=3)
+axis(side = 1, at = seq(from=0,to=60,by=5), labels = T, tck = 0.01)
+axis(side = 2, at = seq(from=0,to=0.12,by=0.02), labels = T, tck = 0.01)
+axis(side = 3, at = seq(from=0,to=60,by=5), labels = F, tck = 0.01)
+axis(side = 4, at = seq(from=0,to=0.12,by=0.02), labels = F, tck = 0.01)
+mtext("Temperate Eucalyptus",3,line=-1.5,at=45, outer=F)
+mtext(text=expression(RGR~(g~g^-1~day^-1)), outer=T, side=2, line=0.5)
+
+###############################################################################################################
+#Figure 4: Bargraph of RGR at 15 days
+
+g.trt.15<-subset(g.trt, Time=="15")
+g.trt.15$combo <- as.factor(paste(g.trt.15$Location,g.trt.15$Range,sep="_"))
+
+target <- c("S_narrow_Home", "S_narrow_Warmed","S_wide_Home","S_wide_Warmed","N_narrow_Home", "N_narrow_Warmed", "N_wide_Home", "N_wide_Warmed")
+g.trt.15<-g.trt.15[match(target, g.trt.15$combotrt),]
+
+bar<-barplot(g.trt.15$dydt.mean, space=c(0,0,0.5,0,0.5,0,0.5),ylim=c(0.05,0.12), xpd = F, col=c(rep(c("black","red"),4)), axis.lty=1, 
+        names.arg=c("H","W","H","W","H","W","H","W"))
+error.bar <- function(x, y, upper, lower=upper, length=0.1,...){
+  if(length(x) != length(y) | length(y) !=length(lower) | length(lower) != length(upper))
+    stop("vectors must be same length")
+  arrows(x,y+upper, x, y-lower, angle=90, code=3, length=length, ...)
+}
+error.bar(bar,g.trt.15$dydt.mean,g.trt.15$dydt.standard.error )
+mtext(text=expression(RGR~(g~g^-1~day^-1)), outer=T, side=2, line=-1.5)
+mtext("  Narrow                Wide                 Narrow              Wide    ", side=1, line = 2.5)
+abline(v=4.75)
+box()
+mtext("Temperate Eucalyptus",3,line=-1.5,at=1.7, outer=F)
+mtext("Tropical Eucalyptus",3,line=-1.5,at=6.5, outer=F)
+
+#LA over Total mass
+#- load libraries from script
+source("R/loadLibraries.R");source("R/gamplotfunctions.R");library(scales)
+#- read in the data, do a few conversions
+dat <- read.csv("Data/Harvests/GHS39_GLAHD_MAIN_BIOMASS_20141106-20150116_L1.csv")
+dat$Date <- as.Date(dat$Date,format="%d/%m/%Y")
+dat$Totmass <- base::rowSums(dat[,11:13]) #total mass is the sum of leaf, stem, and root mass
+dat$Treat <- as.factor(ifelse(dat$Pot < 20, "Home",
+                              ifelse(dat$Pot>=40,"Pre","Warmed")))
+dat$Taxa <- factor(dat$Taxa,levels=c("ATER","BTER","ACAM","BCAM","CCAM","BOT","LONG","SMIT",
+                                     "CTER","DTER","ETER","DCAM","ECAM","FCAM","BRA","PEL","PLAT"))
+dat[24,] <- NA # get rid of BOT-45, which has crazy high LAR and SLA
+dat2 <- subset(dat,Treat!="Pre");dat2$Treat <- factor(dat2$Treat)
+dat2$Range<- ifelse(dat2$Species == "CAM"|dat2$Species == "TER", "wide","narrow")
+
+
+la.trt <- summaryBy(Leafarea~Totmass+Treatment+Location+Range,data=dat2,FUN=c(mean,standard.error))
+la.trt$combotrt <- as.factor(paste(la.trt$Location,la.trt$Range,la.trt$Treatment,sep="_"))
+la.trt.S<- subset(la.trt, Location == "S")
+la.trt.N<- subset(la.trt, Location == "N")
+
+windows(8.27,11.69);par(mfrow=c(2,1),mar=c(0,2,0,1),oma=c(4,2,2,1))
+
+plotBy(Leafarea.mean~Totmass, data=subset(la.trt, combotrt=="N_narrow_Home"),col="black",
+       legend=F, xaxt='n', ylab="", type="p",ylim=c(0,10000),xlim=c(0,110),pch=1,yaxs="i",xaxs="i",
+       panel.first=adderrorbars(x=la.trt.N$Totmass,y=la.trt.N$Leafarea.mean,
+                                SE=la.trt.N$Leafarea.standard.error,direction="updown",
+                                col="black",0))
+points(Leafarea.mean~Totmass, data=subset(la.trt, combotrt=="N_narrow_Warmed"),col="red",
+      xaxt='n', ylab="", type="p",ylim=c(0,10000),pch=1,lwd=2)
+points(Leafarea.mean~Totmass, data=subset(la.trt, combotrt=="N_wide_Home"),col="black",
+      xaxt='n', ylab="", type="p",ylim=c(0,10000),pch=16,lwd=2)
+points(Leafarea.mean~Totmass, data=subset(la.trt, combotrt=="N_wide_Warmed"),col="red",
+      xaxt='n', ylab="", type="p",ylim=c(0,10000),pch=16,lwd=2)
+
+axis(side = 1, at = seq(from=0,to=110,by=10), labels = F, tck = 0.01)
+axis(side = 2, at = seq(from=0,to=10000,by=1000), labels = T, tck = 0.01)
+axis(side = 3, at = seq(from=0,to=110,by=10), labels = F, tck = 0.01)
+axis(side = 4, at = seq(from=0,to=10000,by=1000), labels = F, tck = 0.01)
+
+
+legend(0,60, legend=c("Narrow","Narrow Warmed","Wide","Wide Warmed"),
+       col=c("black","red","black","red"),lty=c(2,2,1,1), lwd=2,bty="n")
+mtext("Tropical Eucalyptus",3,line=-1.5,at=22, outer=F)
+
+plotBy(Leafarea.mean~Totmass, data=subset(la.trt, combotrt=="S_narrow_Home"),col="black",
+       legend=F, xaxt='n', ylab="", type="p",ylim=c(0,10000),xlim=c(0,110),pch=1,lwd=2,yaxs="i",xaxs="i",
+       panel.first=adderrorbars(x=la.trt.S$Totmass,y=la.trt.S$Leafarea.mean,
+                                SE=la.trt.S$Leafarea.standard.error,direction="updown",
+                                col="black",0))
+points(Leafarea.mean~Totmass, data=subset(la.trt, combotrt=="S_narrow_Warmed"),col="red",
+      xaxt='n', ylab="", type="p",ylim=c(0,10000),pch=1,lwd=2)
+points(Leafarea.mean~Totmass, data=subset(la.trt, combotrt=="S_wide_Home"),col="black",
+      xaxt='n', ylab="", type="p",ylim=c(0,10000),pch=16,lwd=2)
+points(Leafarea.mean~Totmass, data=subset(la.trt, combotrt=="S_wide_Warmed"),col="red",
+      xaxt='n', ylab="", type="p",ylim=c(0,10000),pch=16,lwd=2)
+mtext(text="Total biomass (g)", side=1, line=3)
+axis(side = 1, at = seq(from=0,to=110,by=10), labels = T, tck = 0.01)
+axis(side = 2, at = seq(from=0,to=10000,by=1000), labels = T, tck = 0.01)
+axis(side = 3, at = seq(from=0,to=110,by=10), labels = F, tck = 0.01)
+axis(side = 4, at = seq(from=0,to=10000,by=1000), labels = F, tck = 0.01)
+mtext("Temperate Eucalyptus",3,line=-1.5,at=25, outer=F)
+mtext(text="Leaf area", outer=T, side=2, line=1)
+
+###############################################################################################################
+
 g.trt <- summaryBy(dydt+predMass+AGR~Time+Treatment+Location+Range,data=gamfits2,FUN=c(mean,standard.error))
 g.trt$combotrt <- as.factor(paste(g.trt$Location,g.trt$Range,g.trt$Treatment,sep="_"))
 
@@ -545,38 +730,6 @@ plotBy(LAR.mean~Time|Taxa,data=nrate.trt,col=palettN,
 axis(side = 1, at = seq(from=0,to=60,by=5), labels = T, tck = 0.01)
 mtext(side=2, line=3, text=expression(LAR~(g~~day^-1)))
 mtext(text="Day", side=1, line=3)
-
-
-#Mass over Time
-g.trt <- summaryBy(dydt+predMass+AGR~Time+Treatment+Location+Range,data=gamfits2,FUN=c(mean,standard.error))
-g.trt$combotrt <- as.factor(paste(g.trt$Location,g.trt$Range,g.trt$Treatment,sep="_"))
-
-windows(60,40);par(mfrow=c(1,1), mar=c(0.5,6,0.5,3), oma=c(5,1,1,1))
-plotBy(predMass.mean~Time, data=subset(g.trt, combotrt=="N_narrow_Home"),col="black",pch = 15,
-       legend=F, xaxt='n', ylab="", type="o",ylim=c(0,70),lty=1,
-       panel.first=adderrorbars(x=g.trt$Time,y=g.trt$predMass.mean,
-                                SE=g.trt$predMass.standard.error,direction="updown",
-                                col="black",0))
-points(predMass.mean~Time, data=subset(g.trt, combotrt=="N_narrow_Warmed"),col="black",pch = 0,
-       xaxt='n', ylab="", type="o",ylim=c(0,70),lty=2)
-points(predMass.mean~Time, data=subset(g.trt, combotrt=="N_wide_Home"),col="black",pch = 16,
-       xaxt='n', ylab="", type="o",ylim=c(0,70),lty=1)
-points(predMass.mean~Time, data=subset(g.trt, combotrt=="N_wide_Warmed"),col="black",pch = 1,
-       xaxt='n', ylab="", type="o",ylim=c(0,70),lty=2)
-points(predMass.mean~Time, data=subset(g.trt, combotrt=="S_narrow_Home"),col="black",pch = 17,
-       xaxt='n', ylab="", type="o",ylim=c(0,70),lty=1)
-points(predMass.mean~Time, data=subset(g.trt, combotrt=="S_narrow_Warmed"),col="black",pch = 2,
-       xaxt='n', ylab="", type="o",ylim=c(0,70),lty=2)
-points(predMass.mean~Time, data=subset(g.trt, combotrt=="S_wide_Home"),col="black",pch = 25,bg="black",
-       xaxt='n', ylab="", type="o",ylim=c(0,70),lty=1)
-points(predMass.mean~Time, data=subset(g.trt, combotrt=="S_wide_Warmed"),col="black",pch = 6,
-       xaxt='n', ylab="", type="o",ylim=c(0,70),lty=2)
-axis(side = 1, at = seq(from=0,to=60,by=5), labels = FALSE, tck = 0.01)
-mtext(side=2, text="Total biomass (g)",  line=3)
-mtext(text="Time (Days)", side=1, line=3)
-axis(side = 1, at = seq(from=0,to=60,by=5), labels = T, tck = 0.01)
-legend("topleft", legend=c("Tropical Narrow Home","Tropical Narrow Warmed","Tropical Wide Home","Tropical Wide Warmed","Temperate Narrow Home","Temperate Narrow Warmed",
-                           "Temperate Wide Home","Temperate Wide Warmed"), pch=c(15,0,16,1,17,2,25,6), col="black", pt.bg="black", lty=c(1,2,1,2,1,2,1,2))
 
 
 # ltys = c("22", "44", "13", "1343", "73", "2262",
