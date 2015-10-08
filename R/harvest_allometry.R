@@ -551,7 +551,7 @@ plot(effect("Totmass:Treatment:Location",fm1LM), multiline=TRUE) #- compares slo
 
 
 #-- REPEAT FOR LEAF AREA
-fm1LA <- lme(Leafarea~Totmass*Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dat2)#, method="ML")
+fm1LA <- lme((Leafarea)^(2/3)~Totmass*Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dat2)#, method="ML")
 plot(fm1LA,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
 plot(fm1LA,Leafarea~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
 plot(fm1LA,Leafarea~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
@@ -567,7 +567,7 @@ plot(effect("Totmass:Location",fm1LA), multiline=TRUE) #- compares slopes (overl
 plot(effect("Totmass:Treatment",fm1LA), multiline=TRUE) #- compares slopes (overlayed)
 plot(effect("Totmass:Treatment:Location",fm1LA), multiline=TRUE) #- compares slopes (overlayed)
 
-
+coef(summary(fm1LA))
 
 
 
