@@ -56,10 +56,23 @@ slowdat <- subset(slow.dat.raw,Date >=startdate)
 
 #------------------------------------------------------------------------------------------------------------------------------
 #- get daily means for air temperature and RH, daily sums for PAR
-fast.day <- dplyr::summarize(group_by(fastdat.GLAHD,Date,Room),
+
+#- The data are duplicated for room 4 until mid-december. This dramatically affets the daily sums!
+#    So, first average by timepoint (removes duplicates), and then sum.
+xtabs(~Date+Room,data=fastdat.GLAHD) #see?
+
+fast.min <- dplyr::summarize(group_by(fastdat.GLAHD,DateTime,Date,Room),
                              Tair = mean(Tair_Avg,na.rm=T),
                              RH = mean(RH_Avg,na.rm=T),
-                             PAR = sum(PAR_Avg,na.rm=T))
+                             PAR = mean(PAR_Avg,na.rm=T))
+
+xtabs(~Date+Room,data=fast.min) # now we have equal values across all rooms.
+
+#- daily sums and means
+fast.day <- dplyr::summarize(group_by(fast.min,Date,Room),
+                             Tair = mean(Tair,na.rm=T),
+                             RH = mean(RH,na.rm=T),
+                             PAR = sum(PAR,na.rm=T))
 
 means <- summaryBy(Tair+RH+PAR~Room,data=subset(as.data.frame(fast.day),Date>=as.Date("2014-11-12") & Date <=as.Date("2014-11-22")))
 
