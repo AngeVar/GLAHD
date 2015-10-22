@@ -214,3 +214,20 @@ trt.means <- summaryBy(Tair+RH+VPD~Treat,data=fast,FUN=c(mean,standard.error))
 trt.means
 #------------------------------------------------------------------------------------------------------------------------------
 
+#Did PAR vary between rooms?
+
+fast.day$Time<-as.numeric(fast.day$Date)
+fast.day1<- subset(fast.day, Time <16405)
+fast.day$Time<-as.factor(fast.day$Time)
+
+# plot PAR
+plotBy(PAR~Time|Room,data=fast.day1,pch=15,type="b",legend=T,yaxt='n',col=colors,cex=size)
+magaxis(side=c(2,4),labels=c(1,0),box=T,las=1,cex.axis=1.5)
+axis.Date(side=1,at=seq(from=min(fast.day1$Date),max(fast.day1$Date),by="day"),labels=T,las=2,cex.axis=1.5,tcl=0.5)
+mtext(text="Sum PAR (umol m-2)",side=2,outer=F,line=5,cex=1.2)
+
+fm<-lm((PAR)^3~Room*Time, data=fast.day1) #ANOVA: Did PAR differ among rooms on a given day? - No.
+plot(fm)
+anova(fm)
+
+
