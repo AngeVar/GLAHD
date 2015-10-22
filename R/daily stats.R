@@ -37,7 +37,7 @@ dat3$Prov_Sp_EN <- as.factor(with(dat3,paste(Taxa,Species)))
 dat3$Sp_Loc_EN <- as.factor(with(dat3,paste(Species,Location)))
 #-------------------------------------------------------------------------------------
 
-dat5<- subset(gamfits2,Time==5)
+dat5<- subset(gamfits2,Time==7)
 
 fm1.mass <- lme(sqrt(predMass)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dat5)
 plot(fm1.mass,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
@@ -129,8 +129,8 @@ plot(allEffects(fm1.agr))
 
 fm1.rgr <- lme(sqrt(dydt)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dat5)
 plot(fm1.rgr,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
-plot(fm1.rgr,dydt~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
-plot(fm1.rgr,dydt~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
+plot(fm1.rgr,sqrt(dydt)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
+plot(fm1.rgr,sqrt(dydt)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
 qqnorm(fm1.rgr, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
 hist(fm1.rgr$residuals[,1])
 anova(fm1.rgr)
