@@ -79,7 +79,7 @@ dev.copy2pdf(file="Output/Leaf_size.pdf")
 #-  this is only possible for a subset of the taxa (ATER, BOT, CTER, BRA)
 
 #- read in the polynomial fits output from the script "GLAHD-RvsT.R"
-polyfits <- read.csv("W:/WorkingData/GHS39/GLAHD/Share/Data/GasEx/RvsT/poly_coefs_RvsT_JED.csv")
+polyfits <- read.csv("Data/GasEx/RvsT/poly_coefs_RvsT_JED.csv")
 
 #- merge with measured Rdark data
 gx3 <- merge(polyfits,gx2,by.x=c("Taxa","Treatment"),by.y=c("Taxa","Treatment"))
@@ -89,7 +89,7 @@ gx3 <- merge(polyfits,gx2,by.x=c("Taxa","Treatment"),by.y=c("Taxa","Treatment"))
 
 
 #- get the locaiton data in to merge with the climate data
-allom <- unique(read.csv("W:/WorkingData/GHS39/GLAHD/Share/Data/Harvests/GHS39_GLAHD_MAIN_BIOMASS_20141106-20150116_L1.csv")[,c(3,5)])
+allom <- unique(read.csv("Data/Harvests/GHS39_GLAHD_MAIN_BIOMASS_20141106-20150116_L1.csv")[,c(3,5)])
 
 
 gx4 <- merge(gx3,allom,by=c("Taxa"))
@@ -109,7 +109,7 @@ boxplot(Rpred~Treatment*Taxa,data=gx4,las=2,col=c("blue","red"),ylab="R at growt
 #Compare Rdark vs. Asat at growth temperature
 
 #- read Asat data
-sat <- read.csv(file="W:/WorkingData/GHS39/GLAHD/Share/Data/GasEx/Asat/GHS39_GLAHD_MAIN_Asat_04122014_L1.csv")
+sat <- read.csv(file="Data/GasEx/Asat/GHS39_GLAHD_MAIN_Asat_04122014_L1.csv")
 
 #- get the first bit of the code (the taxa)
 sat$Taxa <- unlist(strsplit(x=as.character(sat$Code),split="-"))[seq(from=1,to=2071,by=2)]
@@ -142,9 +142,8 @@ boxplot(AR~Treatment*Taxa,data=gx5,las=2,col=c("blue","red"),ylab="Day Asat:nigh
 dev.copy2pdf(file="W:/WorkingData/GHS39/GLAHD/Share/Output/AsatRratios.pdf")
 
 
-
-
-
+gx5.fm1<- lm(AsatR~Treatment*Range.x,data=gx5)
+gx5.fm2<- lm(AR~Treatment*Range.x,data=gx5)
 
 
 
