@@ -551,7 +551,7 @@ plot(effect("Totmass:Treatment:Location",fm1LM), multiline=TRUE) #- compares slo
 
 
 #-- REPEAT FOR LEAF AREA
-fm1LA <- lme((Leafarea)^(2/3)~Totmass*Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dat2)#, method="ML")
+fm1LA <- lme((Leafarea)~Totmass*Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dat2)#, method="ML")
 plot(fm1LA,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
 plot(fm1LA,Leafarea~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
 plot(fm1LA,Leafarea~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
@@ -611,3 +611,22 @@ plot(effect("Totmass:Treatment",fm1SM), multiline=TRUE) #- compares slopes (over
 plot(effect("Totmass:Location:Range",fm1SM), multiline=TRUE) #- compares slopes (overlayed)
 
 #---------------------------------------------------------------------------------------------------------------
+
+#Was increase in stem mass reflected in stem volume?
+dat3<-subset(dat2, Code !="BCAM-2")#d2h NA
+
+fm1d2h <- lme(log(d2h)~log(Totmass)*Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dat3)#, method="ML")
+plot(fm1d2h,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm1d2h,d2h~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
+plot(fm1d2h,d2h~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
+qqnorm(fm1d2h, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
+hist(fm1d2h$residuals[,1])
+anova(fm1d2h)    
+summary(fm1d2h) #The slope of LM~TM varies with treatment (P=0.0566) where warmed taxa have lower allocation to leaves
+#the lm~TM:Treatment effect varies among the two locations (P=0.1576)
+
+plot(allEffects(fm1d2h)) 
+#plot(effect("Totmass:Range",fm1SM), multiline=TRUE) #- compares slopes (overlayed)
+plot(effect("log(Totmass):Treatment",fm1d2h), multiline=TRUE) #- compares slopes (overlayed)
+plot(effect("log(Totmass):Treatment:Location",fm1d2h),multiline=T)
+plot(effect("log(Totmass):Treatment:Range",fm1d2h),multiline=T)
