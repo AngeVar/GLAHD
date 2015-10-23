@@ -76,7 +76,7 @@ for(i in 1:length(growth.l)){
   
   #- plot fit
   #smoothplot(Time, lnTotMass, data=tofit, kgam=kgam)
-  title(main=tofit$Code[1])
+  #title(main=tofit$Code[1])
   
   #- create a vector of "dates" on which to estimate the derivative 
   dates <- seq(min(tofit$Time), max(tofit$Time), by=1)
@@ -257,7 +257,7 @@ POLY.mean <- summaryBy(RGR~Time+Location+Range+Treatment+combotrt,data=POLY,FUN=
 POLY.l <- split(POLY.mean,POLY.mean$combotrt)
 
 windows(40,60);par(mfrow=c(4,2),mar=c(0.2,0.2,0.2,0.2),oma=c(7,7,3,3))
-ylims=c(0,0.15);xlims=c(0,60);lwidth=2
+ylims=c(0,0.18);xlims=c(0,60);lwidth=2
 for (i in 1:length(INTERVAL.l)){
   toplot <- INTERVAL.l[[i]]
   gam <- GAM.l[[i]]
@@ -267,7 +267,7 @@ for (i in 1:length(INTERVAL.l)){
   #- plot interval RGR
   plotBy(RGR.mean~Time|Treatment,data=toplot,legend=F,pch=16,xlim=xlims,ylim=ylims,cex=1.5,axes=F,
          panel.first=adderrorbars(x=toplot$Time,y=toplot$RGR.mean,SE=toplot$RGR.standard.error,direction="updown"))
-  legend("top",legend=INTERVAL.l[[i]]$combotrt[1],bty="n")
+  legend("top",legend=INTERVAL.l[[i]]$combotrt[1],bty="n",cex=1.5)
   
   #- overlay GAM
   plotBy(dydt.mean~Time|Treatment,data=gam,type="l",add=T,axes=F,legend=F,lty=1,lwd=lwidth,col=c("black","red"))
@@ -279,14 +279,14 @@ for (i in 1:length(INTERVAL.l)){
   plotBy(RGR.mean~Time|Treatment,data=poly,type="l",add=T,axes=F,legend=F,lty=3,lwd=lwidth,col=c("black","red"))
   
   
-  if(i%%2==1) magaxis(side=c(1,2,3,4),labels=c(0,1,0,0),las=1,frame.plot=T)
-  if(i%%2==0) magaxis(side=c(1,2,3,4),labels=c(0,0,0,1),las=1,frame.plot=T)
-  if(i>=7) magaxis(side=c(1),labels=c(1),las=1,frame.plot=T)
+  if(i%%2==1) magaxis(side=c(1,2,3,4),labels=c(0,1,0,0),las=1,frame.plot=T,cex.axis=1.3)
+  if(i%%2==0) magaxis(side=c(1,2,3,4),labels=c(0,0,0,0),las=1,frame.plot=T,cex.axis=1.3)
+  if(i>=7) magaxis(side=c(1),labels=c(1),las=1,frame.plot=T,cex.axis=1.3)
 
 }
-mtext(side=1,"Time",outer=T,line=4,cex=1.5,xpd=NA)
+mtext(side=1,"Time",outer=T,line=3,cex=1.3,xpd=NA)
 mtext(side=2,expression(RGR~(g~g^-1~d^-1)),outer=T,line=3,cex=1.5)
-legend(x=-80,y=0.7,xpd=NA,legend=c("GAM","Power","Polynomial"),bty="n",ncol=3,lty=c(1,2,3),lwd=lwidth,seg.len=3)
+legend(x=-75,y=0.83,xpd=NA,legend=c("GAM","Power","Polynomial"),bty="n",ncol=3,lty=c(1,2,3),lwd=lwidth,seg.len=3, cex=1.3)
 #--------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------
 
