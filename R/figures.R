@@ -121,23 +121,23 @@ anova(fm.maxdydt2)
 
 ###############################################################################################################
 #- make a table and put it in Word
-extract.lme <- function(model){
-  mod.o <- anova(model)
-  ndf <- mod.o[2:nrow(mod.o),1]
-  ddf <- mod.o[2:nrow(mod.o),2]
-  df <- (paste(ndf,ddf,sep=", "))
-  Fvalue <-round(mod.o[2:nrow(mod.o),3],1)
-  Pvalue <-round(mod.o[2:nrow(mod.o),4],3)
-  Pvalue[which(Pvalue==0)] <- "<0.001"
-  return(data.frame("df"=df, "F" = Fvalue,"P" = Pvalue))
-}
-
-table <- do.call(cbind,lapply(list(fm1.mass,fm1.rgr,fm.maxdydt,fm.maxdydt2),FUN=extract.lme))
-row.names(table) <- row.names(anova(fm1.mass))[2:8]
-
-library(R2wd)
-wdGet()
-wdTable(gxtable,autoformat=2)
+# extract.lme <- function(model){
+#   mod.o <- anova(model)
+#   ndf <- mod.o[2:nrow(mod.o),1]
+#   ddf <- mod.o[2:nrow(mod.o),2]
+#   df <- (paste(ndf,ddf,sep=", "))
+#   Fvalue <-round(mod.o[2:nrow(mod.o),3],1)
+#   Pvalue <-round(mod.o[2:nrow(mod.o),4],3)
+#   Pvalue[which(Pvalue==0)] <- "<0.001"
+#   return(data.frame("df"=df, "F" = Fvalue,"P" = Pvalue))
+# }
+# 
+# table <- do.call(cbind,lapply(list(fm1.mass,fm1.rgr,fm.maxdydt,fm.maxdydt2),FUN=extract.lme))
+# row.names(table) <- row.names(anova(fm1.mass))[2:8]
+# 
+# library(R2wd)
+# wdGet()
+# wdTable(gxtable,autoformat=2)
 ###############################################################################################################
 #Figure 3:RGR over Time
 
@@ -232,7 +232,7 @@ plotBy(ber~Time,data=SBERn,col="black",lty = 2,lwd=2,
 lines(ber~Time,data=SBERw,col="black",lty=1,lwd=2)
 #text(2,1.95,labels="A",cex=2,adj=0.5)
 abline(h=1)
-mtext(expression(M[W]:M[H]), side=2, line=3)
+mtext(expression(Delta~"Biomass"), side=2, line=3)
 plotBy(ber~Time,data=NBERn,col="black",lty = 2,lwd=2,
        legend=F,type="l", main = "", ylim=c(0.5,2),yaxt='n',xaxt='n', xlim=c(0,64),yaxp  = c(0.5, 2, 3))
 lines(ber~Time,data=NBERw,col="black",lty=1,lwd=2)
@@ -257,13 +257,113 @@ plotBy(berd~Time,data=SBERdn,col="black",lty = 2,lwd=2,
 lines(berd~Time,data=SBERdw,col="black",lty=1,lwd=2)
 #text(2,1.95,labels="C",cex=2,adj=0.5)
 abline(h=1)
-mtext(expression(RGR[W]:RGR[H]), side=2, line=3)
+mtext(expression(Delta~"RGR"), side=2, line=3)
 plotBy(berd~Time,data=NBERdn,col="black",lty = 2,lwd=2,
        legend=F,type="l", main = "", ylim=c(0.5,2),yaxt='n', xlim=c(0,64),yaxp  = c(0.5, 1.5, 2))
 lines(berd~Time,data=NBERdw,col="black",lty=1,lwd=2)
 abline(h=1)
 #text(2,1.95,labels="D",cex=2,adj=0.5)
 mtext(text="Time (Days)",side=1,outer=F,cex=1,line=2.5, at=0)
+################################################################################################################
+#Allocation
+#LEAF AREA -- Cant get this to look nice...
+dat <- read.csv("Data/Harvests/GHS39_GLAHD_MAIN_BIOMASS_20141106-20150116_L1.csv")
+dat$Date <- as.Date(dat$Date,format="%d/%m/%Y")
+dat$Totmass <- base::rowSums(dat[,11:13]) #total mass is the sum of leaf, stem, and root mass
+dat$Treat <- as.factor(ifelse(dat$Pot < 20, "Home",ifelse(dat$Pot>=40,"Pre","Warmed")))
+dat[24,] <- NA # get rid of BOT-45, which has crazy high LAR and SLA
+dat$Range <- as.factor(ifelse(dat$Species == "CAM"|dat$Species=="TER","wide","narrow"))
+dat2<-droplevels(subset(dat,Treat!="Pre"))
+dat2$combotrt <- as.factor(paste(dat2$Location,dat2$Range,dat2$Treatment,sep="_"))
+dat2$Location <- factor(dat2$Location,levels=c("S","N")) # relevel Location so that "S" is the first level and "N" is the second
+dat2$Sp_RS_EN <- as.factor(with(dat2,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
+dat2$Prov_Sp_EN <- as.factor(with(dat2,paste(Taxa,Species)))
+dat2$Sp_Loc_EN <- as.factor(with(dat2,paste(Species,Location)))
+
+fm1LA <- lme(log(Leafarea)~log(Totmass)*Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dat2)#, method="ML")
+plot(fm1LA,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm1LA,log(Leafarea)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
+plot(fm1LA,log(Leafarea)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
+qqnorm(fm1LA, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
+hist(fm1LA$residuals[,1])
+anova(fm1LA)    
+summary(fm1LA) 
+plot(effect("log(Totmass):Treatment:Location",fm1LA), multiline=TRUE) #- compares slopes (overlayed) 0.978667+0.139295
+
+sdatw<-dat[dat$Treat=="Warmed"&dat$Location=="S",];sdath<-dat[dat$Treat=="Home"&dat$Location=="S",]
+ndatw<-dat[dat$Treat=="Warmed"&dat$Location=="N",];ndath<-dat[dat$Treat=="Home"&dat$Location=="N",]
+# plot((sdath$Totmass),(sdath$Leafarea),pch=16)
+# points((Leafarea)~(Totmass), pch=16, data=sdatw, col="red")
+# 
+# abline(lm((Leafarea)~(Totmass),data=sdath), col="black",untf =T)
+# abline(lm((Leafarea)~(Totmass),data=sdatw), col="red",untf =T)
+
+windows(8.27,11.69);par(mfrow=c(2,1),mar=c(0,2,0,1),oma=c(4,2,2,1))
+plot((sdath$Totmass),(sdath$Leafarea),pch=16)
+points((Leafarea)~(Totmass), pch=16, data=sdatw, col="red")
+abline(lm((Leafarea)~(Totmass),data=sdath), col="black",untf =T)
+abline(lm((Leafarea)~(Totmass),data=sdatw), col="red",untf =T)
+
+plot((ndath$Totmass),(ndath$Leafarea),pch=16)
+points((Leafarea)~(Totmass), pch=16, data=ndatw, col="red")
+abline(lm((Leafarea)~(Totmass),data=ndath), col="black",untf =T)
+abline(lm((Leafarea)~(Totmass),data=ndatw), col="red",untf =T)
+#Mass fractions
+#stacked bargraph Root:Stem:Leaf, Home and warmed next to eachother, for the different groups
+
+library(reshape2)
+
+dat2 <- return_size_mass_all(model_flag="complex") # use common slope allometry ("simple") or taxa-specific slope ("complex")
+dat2$Time <- as.numeric(dat2$Date-(min(dat2$Date)-1)) #finds first date and labels it as Time 1 i.e. 07112014 is Day 1
+#- remove data with fewer than 6 observations through time
+obs <- unname(table(dat2$Code)); names <- names(table(dat2$Code));keeps <- names[which(obs>6)]
+dat3 <- subset(dat2,Code %in% keeps) # subset dataframe
+dat3$Code <- factor(dat3$Code)
+dat3$lnTotMass <- log(dat3$TotMass)
+
+#make new total mass form stem, root and leaf mass
+dat3$predTotMass<- with(dat3, leafMass+stemMass+rootMass)
+
+#- Calculate some new variables
+dat3$LMF<- with(dat3, leafMass/predTotMass)             #Leaf Mass Fraction
+dat3$SMF<- with(dat3, stemMass/predTotMass)             #Stem Mass Fraction
+dat3$RMF<- with(dat3, rootMass/predTotMass)             #Root Mass Fraction
+dat3$LMA<- with(dat3, leafMass/leafArea)            #Leaf Mass per Area
+dat3$SLA<- with(dat3, leafArea/leafMass)            #Specific leaf area
+dat3$LAR<- with(dat3, leafArea/TotMass)             #Leaf Area Ratio
+dat3$RSR<- with(dat3, rootMass/(stemMass+leafMass)) #Root:Shoot Ratio
+
+rate <- merge(gamfits2,dat3,by=c("Code","Time","Species","Location","Treatment","Taxa","Range"))[,c(1:10,13:14,17:30)]
+rate$ULR <- with(rate,dydt/LAR)
+
+rate11<- subset(rate, Time ==11)
+r.trt11 <- summaryBy(LMF+SMF+RMF~Treatment+Location+Range,data=rate11,FUN=mean, keep.names=T)
+r.trt11$combotrt <- as.factor(paste(r.trt11$Location,r.trt11$Range,r.trt11$Treatment,sep="_"))
+r.trt11$combo <- as.factor(paste(r.trt11$Location,r.trt11$Range,sep="_"))
+r.trt11$Treat <- as.factor(ifelse(r.trt11$Treatment == "Home", "H","W"))
+
+df1<- melt(r.trt11, c("combo","Treat"),c("RMF","SMF","LMF"),"MassFraction")
+# target <- c(rep(c("S_narrow", "S_wide","N_narrow", "N_wide"),6))
+# df1$combo<-df1[match(target, df1$combo),]
+
+df2<- df1[order(df1$combo),]
+m1 <- acast(df2, MassFraction~combo*Treat, value.var=c('value'), fill=0)
+
+windows(5.845,4.135);par(mfrow=c(1,1),mar=c(6,4,2,2))
+bar<- barplot(m1,beside=F, space=c(1,0), ylim=c(0,1), col=c(alpha("black",0.8),alpha("red",0.8),"white"), 
+        xaxt='n',ylab="Biomass Fractions",xlab=" ", main=" ")
+box()
+abline(v=6.5)
+legend("topleft", legend=c("Leaf","Stem","Root"),pch=22,pt.cex=2, pt.bg=c("white",alpha("red",0.8),alpha("black",0.8)),bg="white",ncol=3)
+mtext(c("H","W","H","W","H","W","H","W"),side=1, line=0.25, at=c(1.5,2.5,4.5,5.5,7.5,8.5,10.5,11.5))
+mtext(c("Wide","Narrow","Wide","Narrow"), side=1, line = 1.25, at=c(2,5,8,11))
+mtext("Tropical",1,line=2.25,at=3.5, outer=F)
+mtext("Temperate",1,line=2.25,at=9.5, outer=F)
+
+r.tr <- summaryBy(LMF+SMF+RMF~Treatment,data=rate11,FUN=mean, keep.names=T)
+r.tr2<- melt(r.tr, "Treatment",c("RMF","SMF","LMF"),"MassFraction")
+m2 <- acast(r.tr2, MassFraction~Treatment, value.var=c('value'), fill=0)
+barplot(m2, beside=F)
 
 ################################################################################################################
 #Asat
@@ -306,7 +406,102 @@ magaxis(c(2,4),labels=c(0,1),frame.plot=T,las=1)
 axis(side=1,at=c(1.5,3.5),labels=levels(gx2.tm$Range),las=1,cex.axis=1.5)
 
 ################################################################################################################
+#--------------------------------------------------------------------------------------------------------
+#- Respiration
+source("R/loadLibraries.R")
+library(scales)
+dat <- read.csv("Data/GasEx/RvsT/GLADH RvsT gasex processeed.csv",stringsAsFactors=T)
+dat$Date <- as.Date(dat$Date,format="%d/%m/%Y")
+dat$Taxa <- as.factor(sapply(1:nrow(dat),function(i)strsplit(as.character(dat$Code[i]),split="-")[[1]][1])) # get the "Taxa" factor out of Code. Note this could have been a loop
+dat$R_area <- dat$Photo*-1
 
+#- read in the leaf mass data, calculate R per unit leaf mass
+leafmass <- read.csv("C:/Repos/GLAHD/Data/GasEx/RvsT/GLAHD_leaf_mass_RvT.csv")
+rt <- merge(dat,leafmass,by="Code")
+rt$R_mass <- rt$R_area/10000*rt$Area/rt$mass*1000 #note mass was in g
+
+
+rt <- subset(rt,Taxa!="SMIT" & Taxa !="ACAM")
+rt$Taxa <- factor(rt$Taxa,levels=c("BOT","BTER","BRA","CTER"))
+rt$lnRmass <- log(rt$R_mass)
+rt <- subset(rt,Code!="CTER-4" & Code!="CTER-22" & Code!="CTER-27") #CTER4 looks weird... peaks much much lower than others. CTER-22 also looks bad
+rt$Code <- factor(rt$Code)
+gx2 <- getRdark()
+#- break data into bins of leaf temperatures, for averaging and plotting
+rt$Tleaf_bin <- cut(rt$Tleaf,breaks=seq(from=10,to=65,by=2))#length=60))
+rt$Tleaf_bin_mid <- sapply(strsplit(gsub("^\\W|\\W$", "", rt$Tleaf_bin), ","), function(x)sum(as.numeric(x))/2) 
+
+#- average across taxa
+gx2$Species <- factor(gx2$Species)
+gx2.tm <- summaryBy(Rmass~Taxa+Treatment+Location+Range,data=gx2,FUN=mean,keep.names=T)
+
+#- make plots
+colors <- c(alpha("black",0.8),alpha("red",0.8))
+windows(22,20);par(mfrow=c(2,2),mar=c(2,0,2,0),oma=c(5,9,3,5),cex.axis=1.2)
+
+#Rmass
+ylims=c(5,15)
+boxplot(Rmass~Treatment*Range,data=subset(gx2.tm,Location=="N"),ylim=ylims,
+        axes=F,las=2,col=colors)
+title(main="Tropical",line=0.2,cex.main=1.5,xpd=NA)
+magaxis(c(2,4),labels=c(1,0),frame.plot=T,las=1)
+mtext(text=expression(R["mass"]~"("*n*mol~g^-1~s^-1*")"),side=2,outer=T,cex=1.5,adj=0.5,line=3)
+axis(side=1,at=c(1.5,3.5),labels=c("Narrow","Wide"),las=1,cex.axis=1.5)
+legend("topleft",c("Home","Warmed"),fill=colors,cex=1.3,bty="n")
+legend("topright","a",bty="n",cex=1.3)
+boxplot(Rmass~Treatment*Range,data=subset(gx2.tm,Location=="S"),ylim=ylims,
+        axes=F,las=2,col=colors)
+title(main="Temperate",line=0.2,cex.main=1.5,xpd=NA)
+magaxis(c(2,4),labels=c(0,1),frame.plot=T,las=1)
+axis(side=1,at=c(1.5,3.5),labels=c("Narrow","Wide"),las=1,cex.axis=1.5)
+legend("topright","b",bty="n",cex=1.3)
+#mtext("Range size",side=1,cex=1.5,outer=T,line=-17)
+
+#- plot R vs. T
+rt.m <- summaryBy(R_mass+R_area~Species+Taxa+Treatment+Tleaf_bin_mid,data=rt,FUN=c(mean,standard.error))
+toplot <- subset(rt.m,Tleaf_bin_mid < 40)
+toplot.s <- subset(toplot,Taxa=="BOT" | Taxa=="BTER")
+toplot.n <- subset(toplot,Taxa=="BRA" | Taxa=="CTER")
+
+ylims <- c(0,40)
+xlims <- c(10,45)
+cexpoints=1.8
+# plot north
+plotBy(R_mass.mean~Tleaf_bin_mid|Treatment,data=subset(toplot.n,Taxa=="BRA"),xlim=xlims,ylim=ylims,pch=1,cex=cexpoints,col=colors,legend=F,
+       panel.first=adderrorbars(x=subset(toplot.n,Taxa=="BRA")$Tleaf_bin_mid,
+                                y=subset(toplot.n,Taxa=="BRA")$R_mass.mean,
+                                SE=subset(toplot.n,Taxa=="BRA")$R_mass.standard.error,direction="updown",col="black"),
+       las=1,axes=F,xlab="")
+plotBy(R_mass.mean~Tleaf_bin_mid|Treatment,data=subset(toplot.n,Taxa=="CTER"),ylim=ylims,pch=16,cex=cexpoints,col=colors,legend=F,
+       panel.first=adderrorbars(x=subset(toplot.n,Taxa=="CTER")$Tleaf_bin_mid,
+                                y=subset(toplot.n,Taxa=="CTER")$R_mass.mean,
+                                SE=subset(toplot.n,Taxa=="CTER")$R_mass.standard.error,direction="updown",col="black"),
+       add=T,las=1)
+magaxis(c(1,2,3,4),labels=c(1,1,0,0),frame.plot=T,las=1)
+#title(main="North",line=0.2,cex.main=2,xpd=NA)
+legend("topright","c",bty="n",cex=1.3)
+legend("topleft",c("Narrow","Narrow Warmed","Wide","Wide Warmed"),pch=c(1,1,16,16),col=c(alpha("black",0.8),alpha("red",0.8)),ncol=1,
+       cex=1.2,bty="n")
+
+# plot south
+plotBy(R_mass.mean~Tleaf_bin_mid|Treatment,data=subset(toplot.s,Taxa=="BOT"),xlim=xlims,ylim=ylims,pch=1,cex=cexpoints,col=colors,legend=F,
+       panel.first=adderrorbars(x=subset(toplot.s,Taxa=="BOT")$Tleaf_bin_mid,
+                                y=subset(toplot.s,Taxa=="BOT")$R_mass.mean,
+                                SE=subset(toplot.s,Taxa=="BOT")$R_mass.standard.error,direction="updown",col="black"),
+       axes=F,las=1,xlab="")
+plotBy(R_mass.mean~Tleaf_bin_mid|Treatment,data=subset(toplot.s,Taxa=="BTER"),ylim=ylims,pch=16,cex=cexpoints,col=colors,legend=F,
+       panel.first=adderrorbars(x=subset(toplot.s,Taxa=="BTER")$Tleaf_bin_mid,
+                                y=subset(toplot.s,Taxa=="BTER")$R_mass.mean,
+                                SE=subset(toplot.s,Taxa=="BTER")$R_mass.standard.error,direction="updown",col="black"),
+       add=T,las=1,axes=F,xlab="")
+#title(main="South",line=0.2,cex.main=2,xpd=NA)
+legend("topright","d",bty="n",cex=1.3)
+
+magaxis(c(1,2,3,4),labels=c(1,0,0,1),frame.plot=T,las=1)
+mtext(text=expression(T["leaf"]~"("*degree~C*")"),side=1,outer=T,cex=1.5,adj=0.5,line=3)
+#mtext(text=expression(R["mass"]~"("*n*mol~g^-1~s^-1*")"),side=2,outer=T,cex=2,adj=0.5,line=3)
+
+################################################################################################################
 
 #LA over Total mass
 #- load libraries from script
@@ -1020,4 +1215,3 @@ windows(18,12);par(mfrow=c(1,2), mar=c(2,0,2,0),oma=c(2,4,2,2))
   axis(side = 1, at = seq(from=0,to=90,by=5), labels = T, tck = 0.01)
 #par(xpd=T)
 
-  
