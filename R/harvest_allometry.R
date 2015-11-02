@@ -551,7 +551,7 @@ plot(effect("Totmass:Treatment:Location",fm1LM), multiline=TRUE) #- compares slo
 
 
 #-- REPEAT FOR LEAF AREA
-fm1LA <- lme((Leafarea)~Totmass*Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dat2)#, method="ML")
+fm1LA <- lme(sqrt(Leafarea)~Totmass*Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dat2)#, method="ML")
 plot(fm1LA,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
 plot(fm1LA,Leafarea~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
 plot(fm1LA,Leafarea~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
@@ -609,6 +609,24 @@ plot(effect("Totmass:Location",fm1SM),multiline=T)
 plot(effect("Totmass:Treatment:Location",fm1SM), multiline=TRUE) #- compares slopes (overlayed)
 plot(effect("Totmass:Treatment",fm1SM), multiline=TRUE) #- compares slopes (overlayed)
 plot(effect("Totmass:Location:Range",fm1SM), multiline=TRUE) #- compares slopes (overlayed)
+
+#-- LEAF AREA OVER LEAF MASS
+fm2LA <- lme((Leafarea)~Leafmass*Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dat2)#, method="ML")
+plot(fm2LA,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm2LA,Leafarea~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
+plot(fm2LA,Leafarea~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
+qqnorm(fm2LA, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
+hist(fm2LA$residuals[,1])
+anova(fm2LA)    
+summary(fm2LA) 
+
+plot(allEffects(fm2LA)) 
+plot(effect("Leafmass:Range",fm2LA), multiline=TRUE) #- compares slopes (overlayed)
+plot(effect("Leafmass:Location",fm2LA), multiline=TRUE) #- compares slopes (overlayed)
+plot(effect("Leafmass:Treatment",fm2LA), multiline=TRUE) #- compares slopes (overlayed)
+plot(effect("Leafmass:Treatment:Location",fm2LA), multiline=TRUE) #- compares slopes (overlayed)
+plot(effect("Leafmass:Treatment:Range",fm2LA), multiline=TRUE) #- compares slopes (overlayed)
+coef(summary(fm1LA))
 
 #---------------------------------------------------------------------------------------------------------------
 
