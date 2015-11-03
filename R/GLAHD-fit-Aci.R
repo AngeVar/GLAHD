@@ -1,6 +1,6 @@
 #- to install the newest version of plantecophys
-#library(devtools)
-#install_bitbucket("remkoduursma/plantecophys")
+# library(devtools)
+# install_bitbucket("remkoduursma/plantecophys")
 
 
 
@@ -378,7 +378,7 @@ gasex<-merge(asatshort,rdarkshort,by=c("Code", "Species","Taxa","Treatment","Loc
 gasex$photomass<-with(gasex, Photo*(leafArea/leafDW))
 asat.mass <- summaryBy(photomass~Taxa+Treatment+Location+Range,data=gasex,FUN=mean,keep.names=T)
 
-windows(20,20);par(mfrow=c(1,2),mar=c(2,0,1,0),oma=c(5,9,3,5),cex.axis=1.2)
+windows(20,15);par(mfrow=c(1,2),mar=c(2,0,1,0),oma=c(5,9,3,5),cex.axis=1.2)
 
 ylims=c(0,275)
 boxplot(photomass~Treatment*Range,data=subset(gasex,Location=="N"),ylim=ylims,
@@ -413,3 +413,8 @@ plot(effect("Treatment",fm.Asatm))                #- Asatmass increased by warmi
 plot(effect("Location",fm.Asatm))                #- Asatmass is higher in North than South
 plot(effect("Treatment:Location",fm.Asatm))       #- Asatmass only increased with warming in the South
 plot(effect("Treatment:Location:Range",fm.Asatm)) #particularly in south wide
+effect("Treatment:Location:Range",fm.Asatm)
+(exp(4.821169)-exp(4.928440))/(exp(4.928440))      # 10% reduction in Asatmass with warming of wide species in the north
+(exp(4.643088)-exp(4.536828))/(exp(4.536828))      # 11.2% increase in Asatmass with warming of narrow species in the north
+(exp(4.804445)-exp(4.264781))/(exp(4.264781))      # 71.5% increase in Asatmass with warming of wide species in the south
+(exp(4.869627)-exp(4.715007))/(exp(4.715007))      # 16.7% increase in Asatmass with warming of narrow species in the south
