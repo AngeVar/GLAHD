@@ -216,21 +216,6 @@ dev.copy2pdf(file="C:/Repos/GLAHD/Output/Photo_figure_Vcmax_Jmax_Asat.pdf")
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #- fit and interpret Vcmax
 fm.vcmax <- lme(log(Vcmax)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=acifits)
 plot(fm.vcmax,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
@@ -384,3 +369,47 @@ wdGet()
 wdTable(gxtable,autoformat=2)
 #----------------------------------------------------------------------------------
 
+
+
+asatshort<-Asat[,c("Code","Species","Taxa","Treatment", "Location", "Range","Photo")]
+rdarkshort<-Rdark[,c("Code","Species","Taxa","Treatment", "Location", "Range","leafDW","leafArea")]
+gasex<-merge(asatshort,rdarkshort,by=c("Code", "Species","Taxa","Treatment","Location","Range"))
+
+gasex$photomass<-with(gasex, Photo*(leafArea/leafDW))
+asat.mass <- summaryBy(photomass~Taxa+Treatment+Location+Range,data=gasex,FUN=mean,keep.names=T)
+
+windows(20,20);par(mfrow=c(1,2),mar=c(2,0,1,0),oma=c(5,9,3,5),cex.axis=1.2)
+
+ylims=c(0,275)
+boxplot(photomass~Treatment*Range,data=subset(gasex,Location=="N"),ylim=ylims,
+        axes=F,las=2,col=colors)
+legend("topleft","Tropical",bty="n",cex=1.5,inset=-0.05)
+magaxis(c(2,3,4),labels=c(1,0,0),frame.plot=T,las=1)
+mtext(text=expression(A["sat"]),side=2,outer=T,cex=2,line=5)
+mtext(text=expression("("*mu*mol~g~s^-1*")"),side=2,outer=T,cex=1,line=3)
+axis(side=1,at=c(1.5,3.5),labels=levels(gasex$Range),las=1,cex.axis=1.5)
+boxplot(photomass~Treatment*Range,data=subset(gasex,Location=="S"),ylim=ylims,
+        axes=F,las=2,col=colors)
+legend("topleft","Temperate",bty="n",cex=1.5,inset=-0.05)
+magaxis(c(2,3,4),labels=c(0,0,1),frame.plot=T,las=1)
+axis(side=1,at=c(1.5,3.5),labels=levels(gasex$Range),las=1,cex.axis=1.5)
+mtext(text=expression(Range~size),side=1,outer=T,cex=2,line=3)
+
+gasex$Location <- factor(gasex$Location,levels=c("S","N")) # relevel Location so that "S" is the first level and "N" is the second
+gasex$Sp_RS_EN <- as.factor(with(gasex,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
+gasex$Prov_Sp_EN <- as.factor(with(gasex,paste(Taxa,Species)))
+gasex$Sp_Loc_EN <- as.factor(with(gasex,paste(Species,Location)))
+
+fm.Asatm <- lme(log(photomass)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=gasex)
+
+plot(fm.Asatm,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm.Asatm,log(photomass)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
+plot(fm.Asatm,log(photomass)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
+qqnorm(fm.Asatm, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
+hist(fm.Asatm$residuals[,1])
+
+anova(fm.Asatm)
+plot(effect("Treatment",fm.Asatm))                #- Asatmass increased by warming
+plot(effect("Location",fm.Asatm))                #- Asatmass is higher in North than South
+plot(effect("Treatment:Location",fm.Asatm))       #- Asatmass only increased with warming in the South
+plot(effect("Treatment:Location:Range",fm.Asatm)) #particularly in south wide
