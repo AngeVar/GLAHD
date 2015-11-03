@@ -38,7 +38,7 @@ aci.fit <- subset(aci,toFit==1)
 
 
 #--- attempt to use parallel processing to speed up the A:Ci curve fitting process.
-p.flag <- T # use parallel processing?
+p.flag <- F # use parallel processing?
 if(p.flag==T){
   library(doParallel)
   cl <- makeCluster(2)
@@ -118,25 +118,26 @@ growth <- return_size_mass(model_flag="simple") # use common slope allometry ("s
 growth2 <- summaryBy(d2h+TotMass+leafArea~Species+Treatment+Location+Taxa+Code+Range,keep.names=T,data=subset(growth,Date >= as.Date("2014-12-8") & Date <=as.Date("2014-12-20")))
 
 #- merge size totalmass and leafarea data into dataframe with aci values
-acifits <- merge(fits.params,growth2,by=c("Code","Taxa"))
-acifits$JtoV <- with(acifits,Jmax/Vcmax)
-acifits$Location <- factor(acifits$Location,levels=c("S","N")) # relevel Location so that "S" is the first level and "N" is the second
-acifits$Sp_RS_EN <- as.factor(with(acifits,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
-acifits$Prov_Sp_EN <- as.factor(with(acifits,paste(Taxa,Species)))
+acifit <- merge(fits.params,growth2,by=c("Code","Taxa"))
+acifit$JtoV <- with(acifit,Jmax/Vcmax)
+acifit$Location <- factor(acifit$Location,levels=c("S","N")) # relevel Location so that "S" is the first level and "N" is the second
+acifit$Sp_RS_EN <- as.factor(with(acifit,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
+acifit$Prov_Sp_EN <- as.factor(with(acifit,paste(Taxa,Species)))
 
 
 #- does Vcmax or Jmax change with plant size? note that there will be a huge N vs. S effect in Vcmax
-pairs(acifits[,c("Vcmax","Jmax","d2h","TotMass","leafArea")])
+pairs(acifit[,c("Vcmax","Jmax","TotMass","d2h","leafArea")])
 
 
+#Get SLA
+Rdark<-getRdark()
+Rdark$SLA<- with(Rdark,(leafArea/10000)/(leafDW/1000))#m2 per g
+SLARd<- Rdark[,c("Code","SLA")]
+acifits<-merge(acifit,SLARd, by="Code")
 
-
-
-
-
-
-
-
+acifits$Jmaxm<-with(acifits,Jmax*SLA)
+acifits$Vcmaxm<-with(acifits,Vcmax*SLA)
+acifits$JtoVm<-with(acifits,Jmaxm/Vcmaxm)
 
 
 
@@ -269,6 +270,138 @@ effect("Location",fm.jtov)
 (exp(0.5103)-exp(-0.1208))/(exp(0.5103))      # 47% lower Jmax/Vcmax in N compared to S
 
 #----------------------------------------------------------------------------------
+#On a mass basis
+#----------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------
+#- make a nice plot of Vcmax and Jmax in the N vs. S for a manuscript
+Asat<- getAsat()
+Rdark<- getRdark()
+asatshort<-Asat[,c("Code","Species","Taxa","Treatment", "Location", "Range","Photo")]
+rdarkshort<-Rdark[,c("Code","Species","Taxa","Treatment", "Location", "Range","leafDW","leafArea")]
+gasex<-merge(asatshort,rdarkshort,by=c("Code", "Species","Taxa","Treatment","Location","Range"))
+gasex$SLA<- with(gasex,(leafArea/10000)/(leafDW/1000))#m2 per g
+
+gasex$photomass<-with(gasex, Photo*(leafArea/leafDW)/10000*1000) # convert to umol CO2 g-1 s-1
+
+#- average across taxa
+acifits$Species <- factor(acifits$Species)
+acifits.tm <- summaryBy(Vcmaxm+Jmaxm~Taxa+Treatment+Location+Range,data=acifits,FUN=mean,keep.names=T)
+asat.tm <- summaryBy(photomass~Taxa+Treatment+Location+Range,data=gasex,FUN=mean,keep.names=T)
+
+#- make plots
+colors <- c("blue","red")
+windows(20,20);par(mfrow=c(3,2),mar=c(2,0,1,0),oma=c(5,9,3,5),cex.axis=1.2)
+
+#Vcmax
+ylims=c(0,150)
+boxplot(Vcmaxm~Treatment*Range,data=subset(acifits.tm,Location=="N"),ylim=ylims,
+        axes=F,las=2,col=colors)
+legend("topleft","a",bty="n",cex=1.5,inset=-0.05)
+title(main="North",line=0.2,cex.main=2,xpd=NA)
+magaxis(c(2,3,4),labels=c(1,0,0),frame.plot=T,las=1)
+mtext(text=expression(V["c,max"]),side=2,outer=T,cex=2,adj=0.9,line=5)
+mtext(text=expression("("*mu*mol~g^-1~s^-1*")"),side=2,outer=T,cex=1,adj=0.92,line=3)
+axis(side=1,at=c(1.5,3.5),labels=levels(acifits.tm$Range),las=1,cex.axis=1.5)
+boxplot(Vcmaxm~Treatment*Range,data=subset(acifits.tm,Location=="S"),ylim=ylims,
+        axes=F,las=2,col=colors)
+legend("topleft","b",bty="n",cex=1.5,inset=-0.05)
+legend("topright",c("Home","Warmed"),fill=colors,cex=1.3)
+title(main="South",line=0.2,cex.main=2,xpd=NA)
+magaxis(c(2,3,4),labels=c(0,0,1),frame.plot=T,las=1)
+axis(side=1,at=c(1.5,3.5),labels=levels(acifits.tm$Range),las=1,cex.axis=1.5)
+
+#Jmax
+ylims=c(0,150)
+boxplot(Jmaxm~Treatment*Range,data=subset(acifits.tm,Location=="N"),ylim=ylims,
+        axes=F,las=2,col=colors)
+legend("topleft","c",bty="n",cex=1.5,inset=-0.05)
+magaxis(c(2,3,4),labels=c(1,0,0),frame.plot=T,las=1)
+mtext(text=expression(J["max"]),side=2,outer=T,cex=2,adj=0.5,line=5)
+mtext(text=expression("("*mu*mol~g^-1~s^-1*")"),side=2,outer=T,cex=1,adj=0.52,line=3)
+axis(side=1,at=c(1.5,3.5),labels=levels(acifits.tm$Range),las=1,cex.axis=1.5)
+boxplot(Jmaxm~Treatment*Range,data=subset(acifits.tm,Location=="S"),ylim=ylims,
+        axes=F,las=2,col=colors)
+legend("topleft","d",bty="n",cex=1.5,inset=-0.05)
+magaxis(c(2,3,4),labels=c(0,0,1),frame.plot=T,las=1)
+axis(side=1,at=c(1.5,3.5),labels=levels(acifits.tm$Range),las=1,cex.axis=1.5)
+
+#Asat
+ylims=c(0,20)
+boxplot(photomass~Treatment*Range,data=subset(asat.tm,Location=="N"),ylim=ylims,
+        axes=F,las=2,col=colors)
+legend("topleft","e",bty="n",cex=1.5,inset=-0.05)
+magaxis(c(2,3,4),labels=c(1,0,0),frame.plot=T,las=1)
+mtext(text=expression(A["sat"]),side=2,outer=T,cex=2,adj=0.15,line=5)
+mtext(text=expression("("*mu*mol~g^-1~s^-1*")"),side=2,outer=T,cex=1,adj=0.1,line=3)
+axis(side=1,at=c(1.5,3.5),labels=levels(acifits.tm$Range),las=1,cex.axis=1.5)
+boxplot(photomass~Treatment*Range,data=subset(asat.tm,Location=="S"),ylim=ylims,
+        axes=F,las=2,col=colors)
+legend("topleft","f",bty="n",cex=1.5,inset=-0.05)
+magaxis(c(2,3,4),labels=c(0,0,1),frame.plot=T,las=1)
+axis(side=1,at=c(1.5,3.5),labels=levels(acifits.tm$Range),las=1,cex.axis=1.5)
+
+mtext(text=expression(Range~size),side=1,outer=T,cex=2,line=3)
+dev.copy2pdf(file="C:/Repos/GLAHD/Output/Photo_figure_Vcmax_Jmax_Asat_mass.pdf")
+
+
+#- fit and interpret Vcmax
+fm.vcmaxm <- lme(log(Vcmaxm)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=acifits)
+plot(fm.vcmaxm,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm.vcmaxm,log(Vcmaxm)~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
+plot(fm.vcmaxm,log(Vcmaxm)~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
+qqnorm(fm.vcmaxm, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
+hist(fm.vcmaxm$residuals[,1])
+anova(fm.vcmaxm)    
+
+plot(effect("Treatment",fm.vcmaxm))               #Warming increased Vcmax
+plot(effect("Location",fm.vcmaxm))                #Tropical taxa had higher Vcmax than temperate
+plot(effect("Treatment:Location",fm.vcmaxm))      #Warming increased Vcmax in the south but not in the north. No range interactions
+plot(effect("Treatment:Location:Range",fm.vcmaxm))
+
+(exp(4.399115)-exp(4.483795))/(exp(4.483795))    #  8.1 % reduction in Vcmax in North Wide
+(exp(4.268271)-exp(4.114689))/(exp(4.114689))    #  16.6 % increase in Vcmax in North Narrow
+(exp(3.688584)-exp(3.274452))/(exp(3.274452))    #  51.3 % Increase in Vcmax in South Wide
+(exp(3.719271)-exp(3.632618))/(exp(3.632618))    #  9 % increase in Vcmax in South Narrow
+
+#- fit and interpret Jmax
+fm.jmaxm <- lme(log(Jmaxm)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=acifits)
+plot(fm.jmaxm,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm.jmaxm,log(Jmaxm)~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
+plot(fm.jmaxm,log(Jmaxm)~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
+qqnorm(fm.jmaxm, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
+hist(fm.jmaxm$residuals[,1])
+anova(fm.jmaxm)    
+
+plot(effect("Treatment",fm.jmaxm))               #Warming did not increase Jmax
+plot(effect("Location",fm.jmaxm))                #Tropical taxa had higher Jmax than temperate
+plot(effect("Treatment:Location",fm.jmaxm))      #Warming increased Jmax in the south, decreased in the north
+plot(effect("Location:Range",fm.jmaxm))          #N wide higher than S wide. N narrow lower than S narrow.
+plot(effect("Treatment:Location:Range",fm.jmaxm))
+
+(exp(4.257304)-exp(4.404200))/(exp(4.404200))    #  13.7 % reduction in Jmax in North Wide
+(exp(4.087280)-exp(4.014411))/(exp(4.014411))    #  7.6 % increase in Jmax in North Narrow
+(exp(4.139475)-exp(3.779167))/(exp(3.779167))    #  43.4 % Increase in Jmax in South Wide
+(exp(4.251939)-exp(4.235751))/(exp(4.235751))    #  1.6 % increase in Jmax in South Narrow
+
+
+
+
+#- fit and interpret Jmax/Vcmax
+fm.jtovm <- lme(log(JtoVm)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=acifits)
+plot(fm.jtovm,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm.jtovm,log(JtoVm)~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
+plot(fm.jtovm,log(JtoVm)~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
+qqnorm(fm.jtovm, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
+hist(fm.jtovm$residuals[,1])
+anova(fm.jtovm)    
+
+plot(effect("Location",fm.jtovm))                #- Jmax/Vcmax much higher in S than north. No range interactions
+plot(effect("Treatment",fm.jtovm))               #- warming reduced Jmax/Vcmax overall
+effect("Treatment",fm.jtovm)
+(exp(0.1495140)-exp(0.2136865))/(exp(0.2136865))      # 6.2% reduction in Jmax/Vcmax with warming
+effect("Location",fm.jtovm)
+(exp(0.5109005)-exp(-0.1213559))/(exp(0.5109005))      # 46.9% lower Jmax/Vcmax in N compared to S
 
 
 
@@ -369,12 +502,57 @@ wdGet()
 wdTable(gxtable,autoformat=2)
 #----------------------------------------------------------------------------------
 
-
-
+################################################################################################################
+#Is SLA different? Yes - three way interaction 
+Asat<- getAsat()
+Rdark<- getRdark()
 asatshort<-Asat[,c("Code","Species","Taxa","Treatment", "Location", "Range","Photo")]
 rdarkshort<-Rdark[,c("Code","Species","Taxa","Treatment", "Location", "Range","leafDW","leafArea")]
 gasex<-merge(asatshort,rdarkshort,by=c("Code", "Species","Taxa","Treatment","Location","Range"))
+gasex$SLA<- with(gasex,(leafArea/10000)/(leafDW/1000))#m2 per g
 
+
+gasex$Location <- factor(gasex$Location,levels=c("S","N")) # relevel Location so that "S" is the first level and "N" is the second
+gasex$Sp_RS_EN <- as.factor(with(gasex,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
+gasex$Prov_Sp_EN <- as.factor(with(gasex,paste(Taxa,Species)))
+gasex$Sp_Loc_EN <- as.factor(with(gasex,paste(Species,Location)))
+
+fm.SLA <- lme(log(SLA)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=gasex)
+plot(fm.SLA,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm.SLA,log(SLA)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
+plot(fm.SLA,log(SLA)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
+qqnorm(fm.SLA, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
+hist(fm.SLA$residuals[,1])
+
+anova(fm.SLA) #SLA is significantly different 
+plot(effect("Treatment",fm.SLA))                     #- SLA increased by warming P<.0001
+plot(effect("Treatment:Location",fm.SLA))            #- SLA only increased with warming in the South P<.0001
+plot(effect("Treatment:Location:Range",fm.SLA))      #particularly in south wide P=0.0049
+effect("Treatment:Location:Range",fm.SLA)
+(exp(-0.7940645)-exp(-0.7644813))/(exp(-0.7644813))      # 2.9% reduction in SLA with warming of wide species in the north
+(exp(-0.8559911)-exp(-1.0351236))/(exp(-1.0351236))      # 19.6% increase in SLA with warming of narrow species in the north
+(exp(-0.8233543)-exp(-1.4017938))/(exp(-1.4017938))      # 78.3% increase in SLA with warming of wide species in the south
+(exp(-0.6261996)-exp(-0.8563303))/(exp(-0.8563303))      # 25.9% increase in SLA with warming of narrow species in the south
+
+windows(20,15);par(mfrow=c(1,2),mar=c(2,0,1,0),oma=c(5,9,3,5),cex.axis=1.2)
+
+ylims=c(0,1.3)
+boxplot(SLA~Treatment*Range,data=subset(gasex,Location=="N"),ylim=ylims,
+        axes=F,las=2,col=colors)
+legend("topleft","Tropical",bty="n",cex=1.5,inset=-0.05)
+magaxis(c(2,3,4),labels=c(1,0,0),frame.plot=T,las=1)
+mtext(text=expression(SLA),side=2,outer=T,cex=2,line=5)
+mtext(text=expression("("*m^2~g^-1*")"),side=2,outer=T,cex=1,line=3)
+axis(side=1,at=c(1.5,3.5),labels=levels(gasex$Range),las=1,cex.axis=1.5)
+boxplot(SLA~Treatment*Range,data=subset(gasex,Location=="S"),ylim=ylims,
+        axes=F,las=2,col=colors)
+legend("topleft","Temperate",bty="n",cex=1.5,inset=-0.05)
+magaxis(c(2,3,4),labels=c(0,0,1),frame.plot=T,las=1)
+axis(side=1,at=c(1.5,3.5),labels=levels(gasex$Range),las=1,cex.axis=1.5)
+mtext(text=expression(Range~size),side=1,outer=T,cex=2,line=3)
+
+################################################################################################################
+#Is Asat on mass basis different? Yes - three way interaction 
 gasex$photomass<-with(gasex, Photo*(leafArea/leafDW)/10000*1000) # convert to umol CO2 g-1 s-1
 asat.mass <- summaryBy(photomass~Taxa+Treatment+Location+Range,data=gasex,FUN=mean,keep.names=T)
 
@@ -386,7 +564,7 @@ boxplot(photomass~Treatment*Range,data=subset(gasex,Location=="N"),ylim=ylims,
 legend("topleft","Tropical",bty="n",cex=1.5,inset=-0.05)
 magaxis(c(2,3,4),labels=c(1,0,0),frame.plot=T,las=1)
 mtext(text=expression(A["sat"]),side=2,outer=T,cex=2,line=5)
-mtext(text=expression("("*mu*mol~g~s^-1*")"),side=2,outer=T,cex=1,line=3)
+mtext(text=expression("("*mu*mol~g^-1~s^-1*")"),side=2,outer=T,cex=1,line=3)
 axis(side=1,at=c(1.5,3.5),labels=levels(gasex$Range),las=1,cex.axis=1.5)
 boxplot(photomass~Treatment*Range,data=subset(gasex,Location=="S"),ylim=ylims,
         axes=F,las=2,col=colors)
@@ -395,10 +573,7 @@ magaxis(c(2,3,4),labels=c(0,0,1),frame.plot=T,las=1)
 axis(side=1,at=c(1.5,3.5),labels=levels(gasex$Range),las=1,cex.axis=1.5)
 mtext(text=expression(Range~size),side=1,outer=T,cex=2,line=3)
 
-gasex$Location <- factor(gasex$Location,levels=c("S","N")) # relevel Location so that "S" is the first level and "N" is the second
-gasex$Sp_RS_EN <- as.factor(with(gasex,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
-gasex$Prov_Sp_EN <- as.factor(with(gasex,paste(Taxa,Species)))
-gasex$Sp_Loc_EN <- as.factor(with(gasex,paste(Species,Location)))
+
 
 fm.Asatm <- lme(log(photomass)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=gasex)
 
@@ -410,11 +585,13 @@ hist(fm.Asatm$residuals[,1])
 
 anova(fm.Asatm)
 plot(effect("Treatment",fm.Asatm))                #- Asatmass increased by warming
-plot(effect("Location",fm.Asatm))                #- Asatmass is higher in North than South
+plot(effect("Location",fm.Asatm))                 #- Asatmass is higher in North than South
 plot(effect("Treatment:Location",fm.Asatm))       #- Asatmass only increased with warming in the South
 plot(effect("Treatment:Location:Range",fm.Asatm)) #particularly in south wide
 effect("Treatment:Location:Range",fm.Asatm)
-(exp(4.821169)-exp(4.928440))/(exp(4.928440))      # 10% reduction in Asatmass with warming of wide species in the north
-(exp(4.643088)-exp(4.536828))/(exp(4.536828))      # 11.2% increase in Asatmass with warming of narrow species in the north
-(exp(4.804445)-exp(4.264781))/(exp(4.264781))      # 71.5% increase in Asatmass with warming of wide species in the south
-(exp(4.869627)-exp(4.715007))/(exp(4.715007))      # 16.7% increase in Asatmass with warming of narrow species in the south
+(exp(2.518584)-exp(2.625855))/(exp(2.625855))      # 10.2% reduction in Asatmass with warming of wide species in the north
+(exp(2.340503)-exp(2.234243))/(exp(2.234243))      # 11.2% increase in Asatmass with warming of narrow species in the north
+(exp(2.501859)-exp(1.962196))/(exp(1.962196))      # 71.5% increase in Asatmass with warming of wide species in the south
+(exp(2.567042)-exp(2.412422))/(exp(2.412422))      # 16.7% increase in Asatmass with warming of narrow species in the south
+
+
