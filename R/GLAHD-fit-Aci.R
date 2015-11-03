@@ -166,7 +166,7 @@ boxplot(Vcmax~Treatment*Range,data=subset(acifits.tm,Location=="N"),ylim=ylims,
         axes=F,las=2,col=colors)
 legend("topleft","a",bty="n",cex=1.5,inset=-0.05)
 title(main="North",line=0.2,cex.main=2,xpd=NA)
-magaxis(c(2,3,4),labels=c(1,0,0),box=T,las=1)
+magaxis(c(2,3,4),labels=c(1,0,0),frame.plot=T,las=1)
 mtext(text=expression(V["c,max"]),side=2,outer=T,cex=2,adj=0.9,line=5)
 mtext(text=expression("("*mu*mol~m^-2~s^-1*")"),side=2,outer=T,cex=1,adj=0.92,line=3)
 axis(side=1,at=c(1.5,3.5),labels=levels(acifits.tm$Range),las=1,cex.axis=1.5)
@@ -175,7 +175,7 @@ boxplot(Vcmax~Treatment*Range,data=subset(acifits.tm,Location=="S"),ylim=ylims,
         axes=F,las=2,col=colors)
 legend("topleft","b",bty="n",cex=1.5,inset=-0.05)
 title(main="South",line=0.2,cex.main=2,xpd=NA)
-magaxis(c(2,3,4),labels=c(0,0,1),box=T,las=1)
+magaxis(c(2,3,4),labels=c(0,0,1),frame.plot=T,las=1)
 axis(side=1,at=c(1.5,3.5),labels=levels(acifits.tm$Range),las=1,cex.axis=1.5)
 
 #Jmax
@@ -183,14 +183,14 @@ ylims=c(100,210)
 boxplot(Jmax~Treatment*Range,data=subset(acifits.tm,Location=="N"),ylim=ylims,
         axes=F,las=2,col=colors)
 legend("topleft","c",bty="n",cex=1.5,inset=-0.05)
-magaxis(c(2,3,4),labels=c(1,0,0),box=T,las=1)
+magaxis(c(2,3,4),labels=c(1,0,0),frame.plot=T,las=1)
 mtext(text=expression(J["max"]),side=2,outer=T,cex=2,adj=0.5,line=5)
 mtext(text=expression("("*mu*mol~m^-2~s^-1*")"),side=2,outer=T,cex=1,adj=0.52,line=3)
 axis(side=1,at=c(1.5,3.5),labels=levels(acifits.tm$Range),las=1,cex.axis=1.5)
 boxplot(Jmax~Treatment*Range,data=subset(acifits.tm,Location=="S"),ylim=ylims,
         axes=F,las=2,col=colors)
 legend("topleft","d",bty="n",cex=1.5,inset=-0.05)
-magaxis(c(2,3,4),labels=c(0,0,1),box=T,las=1)
+magaxis(c(2,3,4),labels=c(0,0,1),frame.plot=T,las=1)
 axis(side=1,at=c(1.5,3.5),labels=levels(acifits.tm$Range),las=1,cex.axis=1.5)
 
 #Asat
@@ -198,14 +198,14 @@ ylims=c(20,35)
 boxplot(Photo~Treatment*Range,data=subset(asat.tm,Location=="N"),ylim=ylims,
         axes=F,las=2,col=colors)
 legend("topleft","e",bty="n",cex=1.5,inset=-0.05)
-magaxis(c(2,3,4),labels=c(1,0,0),box=T,las=1)
+magaxis(c(2,3,4),labels=c(1,0,0),frame.plot=T,las=1)
 mtext(text=expression(A["sat"]),side=2,outer=T,cex=2,adj=0.15,line=5)
 mtext(text=expression("("*mu*mol~m^-2~s^-1*")"),side=2,outer=T,cex=1,adj=0.1,line=3)
 axis(side=1,at=c(1.5,3.5),labels=levels(acifits.tm$Range),las=1,cex.axis=1.5)
 boxplot(Photo~Treatment*Range,data=subset(asat.tm,Location=="S"),ylim=ylims,
         axes=F,las=2,col=colors)
 legend("topleft","f",bty="n",cex=1.5,inset=-0.05)
-magaxis(c(2,3,4),labels=c(0,0,1),box=T,las=1)
+magaxis(c(2,3,4),labels=c(0,0,1),frame.plot=T,las=1)
 axis(side=1,at=c(1.5,3.5),labels=levels(acifits.tm$Range),las=1,cex.axis=1.5)
 
 mtext(text=expression(Range~size),side=1,outer=T,cex=2,line=3)
@@ -284,21 +284,21 @@ colors <- c("blue","red")
 #plot Vcmax
 ylims=c(10,35)
 boxplot(Vcmax~Treat+Taxa,data=acifits,axes=F,las=2,col=colors)
-magaxis(c(2,3,4),labels=c(1,0,1),box=T,las=1)
+magaxis(c(2,3,4),labels=c(1,0,1),frame.plot=T,las=1)
 title(ylab=expression(V["c,max"]),cex.lab=2,line=2.5)
 axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(acifits$Taxa),las=2,cex.axis=1.5)
 abline(v=16.4)
 
 #plot Jmax
 boxplot(Jmax~Treat+Taxa,data=acifits,axes=F,las=2,col=colors)
-magaxis(c(2,3,4),labels=c(1,0,1),box=T,las=1)
+magaxis(c(2,3,4),labels=c(1,0,1),frame.plot=T,las=1)
 title(ylab=expression(J["max"]),cex.lab=2,line=2.5)
 axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(acifits$Taxa),las=2,cex.axis=1.5)
 abline(v=16.4)
 
 #plot Jmax:Vcmax
 boxplot(JtoV~Treat+Taxa,data=acifits,axes=F,las=2,col=colors)
-magaxis(c(2,3,4),labels=c(1,0,1),box=T,las=1)
+magaxis(c(2,3,4),labels=c(1,0,1),frame.plot=T,las=1)
 title(ylab=expression(J["max"]~"/"~V["cmax"]),cex.lab=2,line=2.5)
 axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(acifits$Taxa),las=2,cex.axis=1.5)
 abline(v=16.4)
@@ -375,12 +375,12 @@ asatshort<-Asat[,c("Code","Species","Taxa","Treatment", "Location", "Range","Pho
 rdarkshort<-Rdark[,c("Code","Species","Taxa","Treatment", "Location", "Range","leafDW","leafArea")]
 gasex<-merge(asatshort,rdarkshort,by=c("Code", "Species","Taxa","Treatment","Location","Range"))
 
-gasex$photomass<-with(gasex, Photo*(leafArea/leafDW))
+gasex$photomass<-with(gasex, Photo*(leafArea/leafDW)/10000*1000) # convert to umol CO2 g-1 s-1
 asat.mass <- summaryBy(photomass~Taxa+Treatment+Location+Range,data=gasex,FUN=mean,keep.names=T)
 
 windows(20,15);par(mfrow=c(1,2),mar=c(2,0,1,0),oma=c(5,9,3,5),cex.axis=1.2)
 
-ylims=c(0,275)
+ylims=c(0,25)
 boxplot(photomass~Treatment*Range,data=subset(gasex,Location=="N"),ylim=ylims,
         axes=F,las=2,col=colors)
 legend("topleft","Tropical",bty="n",cex=1.5,inset=-0.05)
