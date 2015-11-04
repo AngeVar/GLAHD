@@ -134,8 +134,8 @@ Rdark<-getRdark()
 SLARd<- Rdark[,c("Code","SLA")]
 acifits<-merge(acifit,SLARd, by="Code")
 
-acifits$Jmaxm<-with(acifits,Jmax*SLA)
-acifits$Vcmaxm<-with(acifits,Vcmax*SLA)
+acifits$Jmaxm<-with(acifits,Jmax*SLA/10000)
+acifits$Vcmaxm<-with(acifits,Vcmax*SLA/10000)
 acifits$JtoVm<-with(acifits,Jmaxm/Vcmaxm)
 
 
@@ -277,11 +277,11 @@ effect("Location",fm.jtov)
 Asat<- getAsat()
 Rdark<- getRdark()
 asatshort<-Asat[,c("Code","Species","Taxa","Treatment", "Location", "Range","Photo")]
-rdarkshort<-Rdark[,c("Code","Species","Taxa","Treatment", "Location", "Range","leafDW","leafArea")]
+rdarkshort<-Rdark[,c("Code","Species","Taxa","Treatment", "Location", "Range","SLA")]
 gasex<-merge(asatshort,rdarkshort,by=c("Code", "Species","Taxa","Treatment","Location","Range"))
-gasex$SLA<- with(gasex,(leafArea/10000)/(leafDW/1000))#m2 per g
+#gasex$SLA<- with(gasex,(leafArea/10000)/(leafDW/1000))#m2 per g
 
-gasex$photomass<-with(gasex, Photo*(leafArea/leafDW)/10000*1000) # convert to umol CO2 g-1 s-1
+gasex$photomass<-with(gasex, Photo*SLA/10000)
 
 #- average across taxa
 acifits$Species <- factor(acifits$Species)
@@ -293,7 +293,7 @@ colors <- c("blue","red")
 windows(20,20);par(mfrow=c(3,2),mar=c(2,0,1,0),oma=c(5,9,3,5),cex.axis=1.2)
 
 #Vcmax
-ylims=c(0,150)
+ylims=c(0,5)
 boxplot(Vcmaxm~Treatment*Range,data=subset(acifits.tm,Location=="N"),ylim=ylims,
         axes=F,las=2,col=colors)
 legend("topleft","a",bty="n",cex=1.5,inset=-0.05)
@@ -311,7 +311,7 @@ magaxis(c(2,3,4),labels=c(0,0,1),frame.plot=T,las=1)
 axis(side=1,at=c(1.5,3.5),labels=levels(acifits.tm$Range),las=1,cex.axis=1.5)
 
 #Jmax
-ylims=c(0,150)
+ylims=c(0,5)
 boxplot(Jmaxm~Treatment*Range,data=subset(acifits.tm,Location=="N"),ylim=ylims,
         axes=F,las=2,col=colors)
 legend("topleft","c",bty="n",cex=1.5,inset=-0.05)
@@ -326,7 +326,7 @@ magaxis(c(2,3,4),labels=c(0,0,1),frame.plot=T,las=1)
 axis(side=1,at=c(1.5,3.5),labels=levels(acifits.tm$Range),las=1,cex.axis=1.5)
 
 #Asat
-ylims=c(0,20)
+ylims=c(0,1)
 boxplot(photomass~Treatment*Range,data=subset(asat.tm,Location=="N"),ylim=ylims,
         axes=F,las=2,col=colors)
 legend("topleft","e",bty="n",cex=1.5,inset=-0.05)
