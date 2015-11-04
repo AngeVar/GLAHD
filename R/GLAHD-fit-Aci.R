@@ -131,7 +131,6 @@ pairs(acifit[,c("Vcmax","Jmax","TotMass","d2h","leafArea")])
 
 #Get SLA
 Rdark<-getRdark()
-Rdark$SLA<- with(Rdark,(leafArea/10000)/(leafDW/1000))#m2 per g
 SLARd<- Rdark[,c("Code","SLA")]
 acifits<-merge(acifit,SLARd, by="Code")
 
