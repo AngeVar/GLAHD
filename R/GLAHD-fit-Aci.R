@@ -126,22 +126,14 @@ acifit$Prov_Sp_EN <- as.factor(with(acifit,paste(Taxa,Species)))
 
 
 #- does Vcmax or Jmax change with plant size? note that there will be a huge N vs. S effect in Vcmax
-<<<<<<< HEAD
 pairs(acifit[,c("Vcmax","Jmax","TotMass","d2h","leafArea")])
-=======
-pairs(acifits[,c("Vcmax","Jmax","d2h","TotMass","leafArea")])
->>>>>>> fd9c34e9d34a199b0e8495e1623c1666c78b1a0a
 
 
 #Get SLA
 Rdark<-getRdark()
 Rdark$SLA<- with(Rdark,(leafArea/10000)/(leafDW/1000))#m2 per g
 SLARd<- Rdark[,c("Code","SLA")]
-<<<<<<< HEAD
 acifits<-merge(acifit,SLARd, by="Code")
-=======
-acifits<-merge(acifits,SLARd, by="Code")
->>>>>>> fd9c34e9d34a199b0e8495e1623c1666c78b1a0a
 
 acifits$Jmaxm<-with(acifits,Jmax*SLA)
 acifits$Vcmaxm<-with(acifits,Vcmax*SLA)
@@ -279,7 +271,6 @@ effect("Location",fm.jtov)
 
 #----------------------------------------------------------------------------------
 #On a mass basis
-<<<<<<< HEAD
 #----------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------
@@ -353,8 +344,6 @@ axis(side=1,at=c(1.5,3.5),labels=levels(acifits.tm$Range),las=1,cex.axis=1.5)
 mtext(text=expression(Range~size),side=1,outer=T,cex=2,line=3)
 dev.copy2pdf(file="C:/Repos/GLAHD/Output/Photo_figure_Vcmax_Jmax_Asat_mass.pdf")
 
-=======
->>>>>>> fd9c34e9d34a199b0e8495e1623c1666c78b1a0a
 
 #- fit and interpret Vcmax
 fm.vcmaxm <- lme(log(Vcmaxm)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=acifits)
@@ -521,13 +510,7 @@ asatshort<-Asat[,c("Code","Species","Taxa","Treatment", "Location", "Range","Pho
 rdarkshort<-Rdark[,c("Code","Species","Taxa","Treatment", "Location", "Range","leafDW","leafArea")]
 gasex<-merge(asatshort,rdarkshort,by=c("Code", "Species","Taxa","Treatment","Location","Range"))
 gasex$SLA<- with(gasex,(leafArea/10000)/(leafDW/1000))#m2 per g
-<<<<<<< HEAD
-
-
-=======
-
-
->>>>>>> fd9c34e9d34a199b0e8495e1623c1666c78b1a0a
+ 
 gasex$Location <- factor(gasex$Location,levels=c("S","N")) # relevel Location so that "S" is the first level and "N" is the second
 gasex$Sp_RS_EN <- as.factor(with(gasex,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
 gasex$Prov_Sp_EN <- as.factor(with(gasex,paste(Taxa,Species)))
