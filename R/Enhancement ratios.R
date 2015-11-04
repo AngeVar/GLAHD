@@ -29,7 +29,7 @@ dat3$LMF<- with(dat3, leafMass/TotMass)             #Leaf Mass Fraction
 dat3$SMF<- with(dat3, stemMass/TotMass)             #Stem Mass Fraction
 dat3$RMF<- with(dat3, rootMass/TotMass)             #Root Mass Fraction
 dat3$LMA<- with(dat3, leafMass/leafArea)            #Leaf Mass per Area
-dat3$SLA<- with(dat3, leafArea/leafMass)            #Specific leaf area
+dat3$SLA<- with(dat3, (leafArea/10000)/leafMass)    #Specific leaf area
 dat3$LAR<- with(dat3, leafArea/TotMass)             #Leaf Area Ratio
 dat3$RSR<- with(dat3, rootMass/(stemMass+leafMass)) #Root:Shoot Ratio
 
@@ -476,6 +476,25 @@ text(2,1.275,labels="D",cex=2,adj=0.5)
 
 summary(lm(ber~Time*Location*Range, data=BER))
 plot(allEffects(lm(ber~Time*Location*Range, data=BER)))  
+
+
+#plot sla
+windows(20,15);par(mfrow=c(1,2),mar=c(2,0,1,0),oma=c(5,9,3,5),cex.axis=1.2)
+
+ylims=c(0.01,0.04)
+boxplot(SLA~Treatment*Range,data=subset(dat3,Location=="N"),ylim=ylims,
+        axes=F,las=2,col=c("red","blue"))
+legend("topleft","Tropical",bty="n",cex=1.5,inset=-0.05)
+magaxis(c(2,3,4),labels=c(1,0,0),frame.plot=T,las=1)
+mtext(text=expression(SLA),side=2,outer=T,cex=2,line=5)
+mtext(text=expression("("*m^2~g^-1*")"),side=2,outer=T,cex=1,line=3)
+axis(side=1,at=c(1.5,3.5),labels=levels(dat3$Range),las=1,cex.axis=1.5)
+boxplot(SLA~Treatment*Range,data=subset(dat3,Location=="S"),ylim=ylims,
+        axes=F,las=2,col=c("red","blue"))
+legend("topleft","Temperate",bty="n",cex=1.5,inset=-0.05)
+magaxis(c(2,3,4),labels=c(0,0,1),frame.plot=T,las=1)
+axis(side=1,at=c(1.5,3.5),labels=levels(dat3$Range),las=1,cex.axis=1.5)
+mtext(text=expression(Range~size),side=1,outer=T,cex=2,line=3)
 
 #SLA enhancement
 ber<- summaryBy(SLA+TotMass~Time+Range+Location+Treatment, data=dat3, FUN=mean, keep.names=T) 

@@ -401,16 +401,16 @@ dat2$combotrt <- as.factor(paste(dat2$Location,dat2$Range,dat2$Treatment,sep="_"
 
 windows(20,15);par(mfrow=c(1,2),mar=c(2,0,1,0),oma=c(5,9,3,5),cex.axis=1.2)
 
-ylims=c(0,0.04)
+ylims=c(0.01,0.04)
 boxplot(SLA~Treatment*Range,data=subset(dat2,Location=="N"),ylim=ylims,
-        axes=F,las=2,col=c("red","blue"))
+        axes=F,las=2,col=c("blue","red"))
 legend("topleft","Tropical",bty="n",cex=1.5,inset=-0.05)
 magaxis(c(2,3,4),labels=c(1,0,0),frame.plot=T,las=1)
 mtext(text=expression(SLA),side=2,outer=T,cex=2,line=5)
 mtext(text=expression("("*m^2~g^-1*")"),side=2,outer=T,cex=1,line=3)
 axis(side=1,at=c(1.5,3.5),labels=levels(dat2$Range),las=1,cex.axis=1.5)
 boxplot(SLA~Treatment*Range,data=subset(dat2,Location=="S"),ylim=ylims,
-        axes=F,las=2,col=c("red","blue"))
+        axes=F,las=2,col=c("blue","red"))
 legend("topleft","Temperate",bty="n",cex=1.5,inset=-0.05)
 magaxis(c(2,3,4),labels=c(0,0,1),frame.plot=T,las=1)
 axis(side=1,at=c(1.5,3.5),labels=levels(dat2$Range),las=1,cex.axis=1.5)
