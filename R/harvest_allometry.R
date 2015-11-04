@@ -13,11 +13,7 @@ dat <- read.csv("Data/Harvests/GHS39_GLAHD_MAIN_BIOMASS_20141106-20150116_L1.csv
 dat$Date <- as.Date(dat$Date,format="%d/%m/%Y")
 dat$Totmass <- base::rowSums(dat[,11:13]) #total mass is the sum of leaf, stem, and root mass
 dat$LAR <- with(dat,Leafarea/Totmass)
-<<<<<<< HEAD
 dat$SLA <- with(dat,(Leafarea/10000)/(Leafmass))#m2/g
-=======
-dat$SLA <- with(dat,(Leafarea/10000)/(Leafmass/1000))#m2/g
->>>>>>> 79536e13318ec1b971c3ee32f3b73ab07bc43866
 dat$d2h <- with(dat,(Diameter/10)^2*(Height)) #calculate d2h in cm3
 dat$logd2h <- log10(dat$d2h)
 dat$logTM <- log10(dat$Totmass)
@@ -405,26 +401,16 @@ dat2$combotrt <- as.factor(paste(dat2$Location,dat2$Range,dat2$Treatment,sep="_"
 
 windows(20,15);par(mfrow=c(1,2),mar=c(2,0,1,0),oma=c(5,9,3,5),cex.axis=1.2)
 
-<<<<<<< HEAD
 ylims=c(0.01,0.04)
 boxplot(SLA~Treatment*Range,data=subset(dat2,Location=="N"),ylim=ylims,
         axes=F,las=2,col=c("blue","red"))
-=======
-ylims=c(5,40)
-boxplot(SLA~Treatment*Range,data=subset(dat2,Location=="N"),ylim=ylims,
-        axes=F,las=2,col=c("red","blue"))
->>>>>>> 79536e13318ec1b971c3ee32f3b73ab07bc43866
 legend("topleft","Tropical",bty="n",cex=1.5,inset=-0.05)
 magaxis(c(2,3,4),labels=c(1,0,0),frame.plot=T,las=1)
 mtext(text=expression(SLA),side=2,outer=T,cex=2,line=5)
 mtext(text=expression("("*m^2~g^-1*")"),side=2,outer=T,cex=1,line=3)
 axis(side=1,at=c(1.5,3.5),labels=levels(dat2$Range),las=1,cex.axis=1.5)
 boxplot(SLA~Treatment*Range,data=subset(dat2,Location=="S"),ylim=ylims,
-<<<<<<< HEAD
         axes=F,las=2,col=c("blue","red"))
-=======
-        axes=F,las=2,col=c("red","blue"))
->>>>>>> 79536e13318ec1b971c3ee32f3b73ab07bc43866
 legend("topleft","Temperate",bty="n",cex=1.5,inset=-0.05)
 magaxis(c(2,3,4),labels=c(0,0,1),frame.plot=T,las=1)
 axis(side=1,at=c(1.5,3.5),labels=levels(dat2$Range),las=1,cex.axis=1.5)
