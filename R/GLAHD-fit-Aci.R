@@ -279,7 +279,7 @@ Rdark<- getRdark()
 asatshort<-Asat[,c("Code","Species","Taxa","Treatment", "Location", "Range","Photo")]
 rdarkshort<-Rdark[,c("Code","Species","Taxa","Treatment", "Location", "Range","SLA")]
 gasex<-merge(asatshort,rdarkshort,by=c("Code", "Species","Taxa","Treatment","Location","Range"))
-#gasex$SLA<- with(gasex,(leafArea/10000)/(leafDW/1000))#m2 per g
+
 
 gasex$photomass<-with(gasex, Photo*SLA/10000)
 
@@ -345,7 +345,7 @@ dev.copy2pdf(file="C:/Repos/GLAHD/Output/Photo_figure_Vcmax_Jmax_Asat_mass.pdf")
 
 
 #- fit and interpret Vcmax
-fm.vcmaxm <- lme(log(Vcmaxm)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=acifits)
+fm.vcmaxm <- lme((Vcmaxm)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=acifits)
 plot(fm.vcmaxm,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
 plot(fm.vcmaxm,log(Vcmaxm)~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
 plot(fm.vcmaxm,log(Vcmaxm)~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
@@ -475,50 +475,44 @@ plot(effect("Treatment:Range",fm.Rmass))                         #- wide range s
 #----------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------
-#- create ANOVA table of results, embed that table into a word document. 
-#- the table needs cleaning in word to embed the degrees of freedom and label the columns, etc.
-vcmax.o <- anova(fm.vcmax)
-
-extract.lme <- function(model){
-  mod.o <- anova(model)
-  
-  ndf <- mod.o[2:nrow(mod.o),1]
-  ddf <- mod.o[2:nrow(mod.o),2]
-  df <- (paste(ndf,ddf,sep=", "))
-  Fvalue <-round(mod.o[2:nrow(mod.o),3],1)
-  Pvalue <-round(mod.o[2:nrow(mod.o),4],3)
-  Pvalue[which(Pvalue==0)] <- "<0.001"
-  return(data.frame("df"=df, "F" = Fvalue,"P" = Pvalue))
-}
-
-
-#- make a big table
-gxtable <- do.call(cbind,lapply(list(fm.vcmax,fm.jmax,fm.jtov,fm.Asat,fm.Rmass),FUN=extract.lme))
-row.names(gxtable) <- row.names(anova(fm.vcmax))[2:8]
-
-library(R2wd)
-wdGet()
-wdTable(gxtable,autoformat=2)
+# #- create ANOVA table of results, embed that table into a word document. 
+# #- the table needs cleaning in word to embed the degrees of freedom and label the columns, etc.
+# vcmax.o <- anova(fm.vcmax)
+# 
+# extract.lme <- function(model){
+#   mod.o <- anova(model)
+#   
+#   ndf <- mod.o[2:nrow(mod.o),1]
+#   ddf <- mod.o[2:nrow(mod.o),2]
+#   df <- (paste(ndf,ddf,sep=", "))
+#   Fvalue <-round(mod.o[2:nrow(mod.o),3],1)
+#   Pvalue <-round(mod.o[2:nrow(mod.o),4],3)
+#   Pvalue[which(Pvalue==0)] <- "<0.001"
+#   return(data.frame("df"=df, "F" = Fvalue,"P" = Pvalue))
+# }
+# 
+# 
+# #- make a big table
+# gxtable <- do.call(cbind,lapply(list(fm.vcmax,fm.jmax,fm.jtov,fm.Asat,fm.Rmass),FUN=extract.lme))
+# row.names(gxtable) <- row.names(anova(fm.vcmax))[2:8]
+# 
+# library(R2wd)
+# wdGet()
+# wdTable(gxtable,autoformat=2)
 #----------------------------------------------------------------------------------
 
 ################################################################################################################
 #Is SLA different? Yes - three way interaction 
-Asat<- getAsat()
-Rdark<- getRdark()
-asatshort<-Asat[,c("Code","Species","Taxa","Treatment", "Location", "Range","Photo")]
-rdarkshort<-Rdark[,c("Code","Species","Taxa","Treatment", "Location", "Range","leafDW","leafArea")]
-gasex<-merge(asatshort,rdarkshort,by=c("Code", "Species","Taxa","Treatment","Location","Range"))
-gasex$SLA<- with(gasex,(leafArea/10000)/(leafDW/1000))#m2 per g
  
 gasex$Location <- factor(gasex$Location,levels=c("S","N")) # relevel Location so that "S" is the first level and "N" is the second
 gasex$Sp_RS_EN <- as.factor(with(gasex,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
 gasex$Prov_Sp_EN <- as.factor(with(gasex,paste(Taxa,Species)))
 gasex$Sp_Loc_EN <- as.factor(with(gasex,paste(Species,Location)))
 
-fm.SLA <- lme(log(SLA)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=gasex)
+fm.SLA <- lme((SLA)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=gasex)
 plot(fm.SLA,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
-plot(fm.SLA,log(SLA)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
-plot(fm.SLA,log(SLA)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
+plot(fm.SLA,(SLA)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
+plot(fm.SLA,(SLA)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
 qqnorm(fm.SLA, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
 hist(fm.SLA$residuals[,1])
 
@@ -527,14 +521,19 @@ plot(effect("Treatment",fm.SLA))                     #- SLA increased by warming
 plot(effect("Treatment:Location",fm.SLA))            #- SLA only increased with warming in the South P<.0001
 plot(effect("Treatment:Location:Range",fm.SLA))      #particularly in south wide P=0.0049
 effect("Treatment:Location:Range",fm.SLA)
-(exp(-0.7940645)-exp(-0.7644813))/(exp(-0.7644813))      # 2.9% reduction in SLA with warming of wide species in the north
-(exp(-0.8559911)-exp(-1.0351236))/(exp(-1.0351236))      # 19.6% increase in SLA with warming of narrow species in the north
-(exp(-0.8233543)-exp(-1.4017938))/(exp(-1.4017938))      # 78.3% increase in SLA with warming of wide species in the south
-(exp(-0.6261996)-exp(-0.8563303))/(exp(-0.8563303))      # 25.9% increase in SLA with warming of narrow species in the south
+(185.0789-193.7101)/193.7101     # 4.4 % reduction in SLA with warming of wide species in the north
+(197.9415-192.6063)/192.6063     # 2.7 % increase in SLA with warming of narrow species in the north
+(183.2336-165.9987)/165.9987     # 10.3% increase in SLA with warming of wide species in the south
+(215.4669-171.5054)/171.5054     # 25.6% increase in SLA with warming of narrow species in the south
+
+# (exp(-0.7940645)-exp(-0.7644813))/(exp(-0.7644813))      # 2.9% reduction in SLA with warming of wide species in the north
+# (exp(-0.8559911)-exp(-1.0351236))/(exp(-1.0351236))      # 19.6% increase in SLA with warming of narrow species in the north
+# (exp(-0.8233543)-exp(-1.4017938))/(exp(-1.4017938))      # 78.3% increase in SLA with warming of wide species in the south
+# (exp(-0.6261996)-exp(-0.8563303))/(exp(-0.8563303))      # 25.9% increase in SLA with warming of narrow species in the south
 
 windows(20,15);par(mfrow=c(1,2),mar=c(2,0,1,0),oma=c(5,9,3,5),cex.axis=1.2)
 
-ylims=c(0,1.3)
+ylims=c(0,250)
 boxplot(SLA~Treatment*Range,data=subset(gasex,Location=="N"),ylim=ylims,
         axes=F,las=2,col=colors)
 legend("topleft","Tropical",bty="n",cex=1.5,inset=-0.05)

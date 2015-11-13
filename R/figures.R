@@ -1,5 +1,5 @@
 #Figures for GAM output
-source("R/GLAHD_gamfits.R") #gives you the gamfits2 output
+source("R/GLAHD-growth-analysis-L1.R") #Takes a while, runs through the full analysis and gives you all the data
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 ###############################################################################################################
@@ -30,9 +30,9 @@ axis(side = 2, at = seq(from=0,to=70,by=10), labels = T, tck = 0.01)
 axis(side = 4, at = seq(from=0,to=70,by=10), labels = F, tck = 0.01)
 axis(side = 3, at = seq(from=0,to=60,by=5), labels = F, tck = 0.01)
 
-legend(0,60, legend=c("Narrow","Narrow Warmed","Wide","Wide Warmed"),
+legend(0,60, legend=c("Narrow Home","Narrow +3.5","Wide Home","Wide +3.5"),
        col=c("black","red","black","red"),lty=c(2,2,1,1), lwd=2,bty="n")
-mtext("Tropical Eucalyptus",3,line=-1.5,at=12.5, outer=F)
+mtext("Tropical",3,line=-2,at=12.5, cex=1.5, outer=F)
 
 plotBy(predMass.mean~Time, data=subset(g.trt, combotrt=="S_narrow_Home"),col="black",
        legend=F, xaxt='n', ylab="", type="l",ylim=c(0,70),lty=2,lwd=2,yaxs="i",xaxs="i",
@@ -45,82 +45,27 @@ lines(predMass.mean~Time, data=subset(g.trt, combotrt=="S_wide_Home"),col="black
       xaxt='n', ylab="", type="l",ylim=c(0,70),lty=1,lwd=2)
 lines(predMass.mean~Time, data=subset(g.trt, combotrt=="S_wide_Warmed"),col="red",
       xaxt='n', ylab="", type="l",ylim=c(0,70),lty=1,lwd=2)
-mtext(text="Time (Days)", side=1, line=3)
+mtext(text="Time (Days)", side=1, line=3, cex=1.2)
 axis(side = 1, at = seq(from=0,to=60,by=5), labels = T, tck = 0.01)
 axis(side = 2, at = seq(from=0,to=70,by=10), labels = T, tck = 0.01)
 axis(side = 3, at = seq(from=0,to=60,by=5), labels = F, tck = 0.01)
 axis(side = 4, at = seq(from=0,to=70,by=10), labels = F, tck = 0.01)
-mtext("Temperate Eucalyptus",3,line=-1.5,at=14, outer=F)
-mtext(text="Total biomass (g)", outer=T, side=2, line=1)
+mtext("Temperate",3,line=-2,at=14,cex=1.5, outer=F)
+mtext(text="Total biomass (g)", outer=T, side=2, line=1, cex=1.2)
 
 ###############################################################################################################
-#anova Mass Day 60
-dat5<- subset(gamfits2,Time==60)
-
-dat5$Location <- factor(dat5$Location,levels=c("S","N")) # relevel Location so that "S" is the first level and "N" is the second
-dat5$Sp_RS_EN <- as.factor(with(dat5,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
-dat5$Prov_Sp_EN <- as.factor(with(dat5,paste(Taxa,Species)))
-dat5$Sp_Loc_EN <- as.factor(with(dat5,paste(Species,Location)))
-
-fm1.mass <- lme((predMass)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dat5)
-plot(fm1.mass,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
-plot(fm1.mass,predMass~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
-plot(fm1.mass,predMass~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
-qqnorm(fm1.mass, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
-hist(fm1.mass$residuals[,1])
-anova(fm1.mass)  
-
-dat5$combotrt <- as.factor(paste(dat5$Location,dat5$Range,dat5$Treatment,sep="_"))
-summaryBy(predMass~combotrt, data=dat5, FUN=c(mean,standard.error))
-
-###############################################################################################################
-#anova Rgr Day 15
-dat6<- subset(gamfits2,Time==15)
-
-dat6$Location <- factor(dat6$Location,levels=c("S","N")) # relevel Location so that "S" is the first level and "N" is the second
-dat6$Sp_RS_EN <- as.factor(with(dat6,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
-dat6$Prov_Sp_EN <- as.factor(with(dat6,paste(Taxa,Species)))
-dat6$Sp_Loc_EN <- as.factor(with(dat6,paste(Species,Location)))
-
-fm1.rgr <- lme(log(dydt)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dat6)
-plot(fm1.rgr,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
-plot(fm1.rgr,log(dydt)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
-plot(fm1.rgr,log(dydt)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
-qqnorm(fm1.rgr, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
-hist(fm1.rgr$residuals[,1])
-anova(fm1.rgr)  
-
-dat6$combotrt <- as.factor(paste(dat6$Location,dat6$Range,dat6$Treatment,sep="_"))
-summaryBy(dydt~combotrt, data=dat6, FUN=c(mean,standard.error))
-
-###############################################################################################################
-#MaxRGR
-maxdydt<-gamfits2[ gamfits2$dydt %in% tapply(gamfits2$dydt, gamfits2$Code, max), ]#max RGR per Code
-
-maxdydt$Location <- factor(maxdydt$Location,levels=c("S","N")) # relevel Location so that "S" is the first level and "N" is the second
-maxdydt$Sp_RS_EN <- as.factor(with(maxdydt,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
-maxdydt$Prov_Sp_EN <- as.factor(with(maxdydt,paste(Taxa,Species)))
-maxdydt$Sp_Loc_EN <- as.factor(with(maxdydt,paste(Species,Location)))
-
-fm.maxdydt<- lme(log(dydt)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=maxdydt)
-plot(fm.maxdydt,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
-plot(fm.maxdydt,log(dydt)~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
-plot(fm.maxdydt,log(dydt)~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
-qqnorm(fm.maxdydt, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
-hist(fm.maxdydt$residuals[,1])
-anova(fm.maxdydt)
-
-#Mass @maxRGR
-fm.maxdydt2<- lme(log(predMass)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=maxdydt)
-plot(fm.maxdydt2,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
-plot(fm.maxdydt2,log(predMass)~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
-plot(fm.maxdydt2,log(predMass)~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
-qqnorm(fm.maxdydt2, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
-hist(fm.maxdydt2$residuals[,1])
-anova(fm.maxdydt2)  
-
-###############################################################################################################
-#- make a table and put it in Word
+# #anova Mass Day 1, 15 and 60
+# 
+# # fm1m1
+# # fm1m15
+# # fm1m60
+# 
+# #anova Rgr Day 15, RGRmax and MassRGRmax
+# # fm1.rgr
+# # fm.maxdydt
+# # fm.maxdydt2
+# 
+# #- make a table and put it in Word
 # extract.lme <- function(model){
 #   mod.o <- anova(model)
 #   ndf <- mod.o[2:nrow(mod.o),1]
@@ -132,19 +77,29 @@ anova(fm.maxdydt2)
 #   return(data.frame("df"=df, "F" = Fvalue,"P" = Pvalue))
 # }
 # 
-# table <- do.call(cbind,lapply(list(fm1.mass,fm1.rgr,fm.maxdydt,fm.maxdydt2),FUN=extract.lme))
-# row.names(table) <- row.names(anova(fm1.mass))[2:8]
+# table1 <- do.call(cbind,lapply(list(fm1m1,fm1m15,fm1m60),FUN=extract.lme))
+# table2 <- do.call(cbind,lapply(list(fm1.rgr,fm.maxdydt,fm.maxdydt2),FUN=extract.lme))
 # 
+# row.names(table1) <- row.names(anova(fm1m1))[2:8]
+# tablenames<- data.frame(a= numeric(1),b= integer(1),c= integer(1),d= numeric(1),e= integer(1),f= integer(1),g= numeric(1),h= integer(1),i= integer(1))
+# colnames(tablenames)<-c(" "," ","MASS1"," "," ","MASS15"," "," ","MASS60")
+# 
+# row.names(table2) <- row.names(anova(fm1m1))[2:8]
+# table2names<- data.frame(a= numeric(1),b= integer(1),c= integer(1),d= numeric(1),e= integer(1),f= integer(1),g= numeric(1),h= integer(1),i= integer(1))
+# colnames(table2names)<-c("","","RGR15","","","MAXRGR","","","MASSRGRmax")
 # library(R2wd)
 # wdGet()
-# wdTable(gxtable,autoformat=2)
+# wdTable(tablenames,autoformat=2,caption="")
+# wdTable(table1,autoformat=2)
+# wdTable(table2names,autoformat=2)
+# wdTable(table2,autoformat=2)
 ###############################################################################################################
 #Figure 3:RGR over Time
 
 windows(8.27,11.69);par(mfrow=c(2,1),mar=c(0,2,0,1),oma=c(4,2,2,1))
 
 plotBy(dydt.mean~Time, data=subset(g.trt, combotrt=="N_narrow_Home"),col="black",
-       legend=F, xaxt='n', ylab="", type="l",ylim=c(0.01,0.13),lty=2,lwd=2,yaxs="i",xaxs="i",
+       legend=F, xaxt='n', ylab="", type="l",ylim=c(0.035,0.13),lty=2,lwd=2,yaxs="i",xaxs="i",
        panel.first=adderrorbars(x=g.trt.N$Time,y=g.trt.N$dydt.mean,
                                 SE=g.trt.N$dydt.standard.error,direction="updown",
                                 col="black",0))
@@ -160,12 +115,13 @@ axis(side = 2, at = seq(from=0,to=0.12,by=0.02), labels = T, tck = 0.01)
 axis(side = 4, at = seq(from=0,to=0.12,by=0.02), labels = F, tck = 0.01)
 axis(side = 3, at = seq(from=0,to=60,by=5), labels = F, tck = 0.01)
 
-legend(32,0.115, legend=c("Narrow","Narrow Warmed","Wide","Wide Warmed"),
+legend(32,0.115, legend=c("Narrow Home",expression(paste("Narrow +3.5",degree,"C")),"Wide Home",expression(paste("Wide +3.5",degree,"C"))),
        col=c("black","red","black","red"),lty=c(2,2,1,1), lwd=2,bty="n")
-mtext("Tropical Eucalyptus",3,line=-1.5,at=44.5, outer=F)
+mtext("Tropical",3,line=-1.5,at=44.5,cex=1.5, outer=F)
+#plotBy(dydt.mean~Time,data=subset(g.trt, combotrt=="S_narrow_Home"),col="white", legend=F, axes=F, ylab='',xlab='')
 
 plotBy(dydt.mean~Time, data=subset(g.trt, combotrt=="S_narrow_Home"),col="black",
-       legend=F, xaxt='n', ylab="", type="l",ylim=c(0.01,0.13),lty=2,lwd=2,yaxs="i",xaxs="i",
+       legend=F, xaxt='n', ylab="", type="l",ylim=c(0.035,0.13),lty=2,lwd=2,yaxs="i",xaxs="i",
        panel.first=adderrorbars(x=g.trt.S$Time,y=g.trt.S$dydt.mean,
                                 SE=g.trt.S$dydt.standard.error,direction="updown",
                                 col="black",0))
@@ -181,21 +137,20 @@ axis(side = 1, at = seq(from=0,to=60,by=5), labels = T, tck = 0.01)
 axis(side = 2, at = seq(from=0,to=0.12,by=0.02), labels = T, tck = 0.01)
 axis(side = 3, at = seq(from=0,to=60,by=5), labels = F, tck = 0.01)
 axis(side = 4, at = seq(from=0,to=0.12,by=0.02), labels = F, tck = 0.01)
-mtext("Temperate Eucalyptus",3,line=-1.5,at=45, outer=F)
+mtext("Temperate ",3,line=-1.5,at=47.5, cex=1.5, outer=F)
 mtext(text=expression(RGR~(g~g^-1~day^-1)), outer=T, side=2, line=0.5)
 
 
 ################################################################################################################
-#Figure 4: Bargraph of RGR at 15 days
+#Figure 3c: Bargraph of RGR at 15 days
 
 g.trt.15<-subset(g.trt, Time=="15")
 g.trt.15$combo <- as.factor(paste(g.trt.15$Location,g.trt.15$Range,sep="_"))
-
+windows(5.513333,4.135);par(mar=c(6,6,6,4))
 target <- c("S_narrow_Home", "S_narrow_Warmed","S_wide_Home","S_wide_Warmed","N_narrow_Home", "N_narrow_Warmed", "N_wide_Home", "N_wide_Warmed")
 g.trt.15<-g.trt.15[match(target, g.trt.15$combotrt),]
 
-windows(5,4)
-bar<-barplot(g.trt.15$dydt.mean, space=c(0,0,1,0,1,0,1),ylim=c(0.05,0.15), xpd = F, col=c(rep(c(alpha("black",0.6),alpha("red",0.8)),4)), 
+bar<-barplot(g.trt.15$dydt.mean, space=c(0,0,1,0,1,0,1,0),ylim=c(0.05,0.15), xpd = F, col=c(rep(c(alpha("black",0.6),alpha("red",0.8)),4)), 
              axis.lty=0)
 error.bar <- function(x, y, upper, lower=upper, length=0.1,...){
   if(length(x) != length(y) | length(y) !=length(lower) | length(lower) != length(upper))
@@ -203,13 +158,14 @@ error.bar <- function(x, y, upper, lower=upper, length=0.1,...){
   arrows(x,y+upper, x, y-lower, angle=90, code=3, length=length, ...)
 }
 error.bar(bar,g.trt.15$dydt.mean,g.trt.15$dydt.standard.error )
-mtext(text=expression(RGR~(g~g^-1~day^-1)), outer=T, side=2, line=-1.5)
 mtext(c("Narrow","Wide","Narrow","Wide"), side=1, line = 1, at=c(1,4,7,10))
 abline(v=5.5)
 box()
-mtext("Temperate Eucalyptus",3,line=-1.5,at=2.5, outer=F)
-mtext("Tropical Eucalyptus",3,line=-1.5,at=8.5, outer=F)
+mtext("Temperate ",3,line=-1.5,at=2.5,cex=1.5, outer=F)
+mtext("Tropical ",3,line=-1.5,at=8.5,cex=1.5, outer=F)
 legend(-0.1,0.135, legend=c("H","W"),pch=22,pt.cex=2, pt.bg=c(alpha("black",0.6),"red"),bty="n")
+mtext(text="RGR Day 15", outer=T, side=2, line=-2)
+mtext(text=expression((g~g^-1~day^-1)), outer=T, side=2, line=-3.5)
 ################################################################################################################
 #Response ratios
 
@@ -222,7 +178,7 @@ bio <- merge(berh,berw, by=c("Time","Range","Location"))
 bio$ber<- with(bio, predMassWarm/predMass)
 BER<- bio[,c(1:3,5,8)]
 
-windows(5.845,4.135);par(mfrow=c(2,2),mar=c(0,0,0,0),oma=c(4,6,1,1),cex.axis=1)
+windows(5.845,4.135);par(mfrow=c(2,2),mar=c(0,0,0,0),oma=c(4,6,2,1),cex.axis=1)
 SBERn<- subset(BER, Location =="S"&Range=="narrow"); SBERn<-SBERn[order(SBERn$Time),]
 SBERw<- subset(BER, Location =="S"&Range=="wide"); SBERw<-SBERw[order(SBERw$Time),]
 NBERn<- subset(BER,Location =="N"&Range=="narrow"); NBERn<-NBERn[order(NBERn$Time),]
@@ -230,12 +186,13 @@ NBERw<- subset(BER,Location =="N"&Range=="wide"); NBERw<-NBERw[order(NBERw$Time)
 plotBy(ber~Time,data=SBERn,col="black",lty = 2,lwd=2,
        legend=F,type="l", main="", ylim=c(0.5,2), xaxt='n',xlim=c(0,64),yaxp  = c(0.5, 2, 3))
 lines(ber~Time,data=SBERw,col="black",lty=1,lwd=2)
-#text(2,1.95,labels="A",cex=2,adj=0.5)
+mtext(side=3,outer=T,text="Temperate", adj=0.2)
 abline(h=1)
 mtext(expression(Delta~"Biomass"), side=2, line=3)
 plotBy(ber~Time,data=NBERn,col="black",lty = 2,lwd=2,
        legend=F,type="l", main = "", ylim=c(0.5,2),yaxt='n',xaxt='n', xlim=c(0,64),yaxp  = c(0.5, 2, 3))
 lines(ber~Time,data=NBERw,col="black",lty=1,lwd=2)
+mtext(side=3,outer=T,text="Tropical", adj=0.8)
 abline(h=1)
 legend(35,2, legend=c("Wide","Narrow"), lty=c(1,2), col="black",cex=1,lwd=2, bty="n")
 #text(2,1.95,labels="B",cex=2,adj=0.5)
@@ -266,48 +223,73 @@ abline(h=1)
 mtext(text="Time (Days)",side=1,outer=F,cex=1,line=2.5, at=0)
 ################################################################################################################
 #Allocation
-#LEAF AREA -- Cant get this to look nice...
-dat <- read.csv("Data/Harvests/GHS39_GLAHD_MAIN_BIOMASS_20141106-20150116_L1.csv")
-dat$Date <- as.Date(dat$Date,format="%d/%m/%Y")
-dat$Totmass <- base::rowSums(dat[,11:13]) #total mass is the sum of leaf, stem, and root mass
-dat$Treat <- as.factor(ifelse(dat$Pot < 20, "Home",ifelse(dat$Pot>=40,"Pre","Warmed")))
-dat[24,] <- NA # get rid of BOT-45, which has crazy high LAR and SLA
-dat$Range <- as.factor(ifelse(dat$Species == "CAM"|dat$Species=="TER","wide","narrow"))
-dat2<-droplevels(subset(dat,Treat!="Pre"))
-dat2$combotrt <- as.factor(paste(dat2$Location,dat2$Range,dat2$Treatment,sep="_"))
-dat2$Location <- factor(dat2$Location,levels=c("S","N")) # relevel Location so that "S" is the first level and "N" is the second
-dat2$Sp_RS_EN <- as.factor(with(dat2,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
-dat2$Prov_Sp_EN <- as.factor(with(dat2,paste(Taxa,Species)))
-dat2$Sp_Loc_EN <- as.factor(with(dat2,paste(Species,Location)))
+#LEAF AREA Ratio (fm1LA) = slope of log(leaf area) over log(total biomass) 
+#LEAF MASS FRACTION (fm1LM) = slope of log(leaf mass) over log(total biomass) 
+#Canopy SLA (fm1SLA) = slope of log(leaf area) over log(leaf mass) 
 
-fm1LA <- lme(log(Leafarea)~log(Totmass)*Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dat2)#, method="ML")
-plot(fm1LA,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
-plot(fm1LA,log(Leafarea)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
-plot(fm1LA,log(Leafarea)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
-qqnorm(fm1LA, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
-hist(fm1LA$residuals[,1])
-anova(fm1LA)    
-summary(fm1LA) 
-plot(effect("log(Totmass):Treatment:Location",fm1LA), multiline=TRUE) #- compares slopes (overlayed) 0.978667+0.139295
+mysettings<- list(
+  superpose.polygon=list(col="transparent", border="transparent"),
+  strip.background=list(col="transparent"),
+  strip.border=list(col="transparent"),
+  axis.components = list(left = list(tck=1), right = list(tck=1), top = list(tck=0)),
+  fontsize = list(text= 14),
+  par.main.text = list(col="white"),
+  scales=list(
+    x=list(alternating=c(1, 1, 1),axs="i",limits=c(10,108),log=T),
+    y=list(axs="i",log=T))
+)
+data2$Region<-as.factor(ifelse(data2$Location=="S","Temperate","Tropical"))
+fm1LM <- lme(log(Leafmass)~log(Totmass)*Treatment*Range*Region,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=data2)#, method="ML")
 
-sdatw<-dat[dat$Treat=="Warmed"&dat$Location=="S",];sdath<-dat[dat$Treat=="Home"&dat$Location=="S",]
-ndatw<-dat[dat$Treat=="Warmed"&dat$Location=="N",];ndath<-dat[dat$Treat=="Home"&dat$Location=="N",]
-# plot((sdath$Totmass),(sdath$Leafarea),pch=16)
-# points((Leafarea)~(Totmass), pch=16, data=sdatw, col="red")
-# 
-# abline(lm((Leafarea)~(Totmass),data=sdath), col="black",untf =T)
-# abline(lm((Leafarea)~(Totmass),data=sdatw), col="red",untf =T)
+eff.log<-effect("log(Totmass):Treatment:Region",fm1LM)#,transformation= list(link=log, inverse=exp))#makes yaxis arithmetic, 
+sumeff.log<- summary(eff.log)
+fit<-sumeff.log$effect
+lower<-sumeff.log$lower
+upper<-sumeff.log$upper
 
-windows(8.27,11.69);par(mfrow=c(2,1),mar=c(0,2,0,1),oma=c(4,2,2,1))
-plot((sdath$Totmass),(sdath$Leafarea),pch=16)
-points((Leafarea)~(Totmass), pch=16, data=sdatw, col="red")
-abline(lm((Leafarea)~(Totmass),data=sdath), col="black",untf =T)
-abline(lm((Leafarea)~(Totmass),data=sdatw), col="red",untf =T)
+p<-plot(eff.log,multiline = T, rug=F, par.settings=mysettings,rescale.axis = T)
 
-plot((ndath$Totmass),(ndath$Leafarea),pch=16)
-points((Leafarea)~(Totmass), pch=16, data=ndatw, col="red")
-abline(lm((Leafarea)~(Totmass),data=ndath), col="black",untf =T)
-abline(lm((Leafarea)~(Totmass),data=ndatw), col="red",untf =T)
+update(p,
+       scales=list(
+         x=list(alternating=c(1, 1, 1),axs="i",limits=c(10,108),log=T),
+         y=list(axs="i",log=T)),
+       strip=strip.custom(factor.levels=c("Temperate","Tropical")),
+       key = list(type = c("l"),
+                  text = list(label = levels(data2$Treatment)),
+                  lines = list(col=c("black","red"), lty = c(1,2)),
+                  column = 1,
+                  title="",
+                  border=F, 
+                  space = "top")
+)
+
+
+
+trellis.focus("panel", 1, 1)
+llines()
+trellis.unfocus()
+
+
+
+windows(5.513333,4.135)
+plot(eff.log,transform.x=list("log(Leafmass):Treatment:Region"=c(trans=log, inverse=exp)),
+            ticks.x=list("log(Leafmass):Treatment:Region"=list(at=c(1, 10, 100))),
+     multiline=T,par.settings=mysettings,rug=F, type="response",
+     xlab="Total biomass (g)",ylab="Canopy leaf mass (g)")
+
+fm1SLA <- lme(log(Leafarea)~log(Leafmass)*Treatment*Range*Region,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=data2)
+windows(5.513333,4.135)
+plot(effect("log(Leafmass):Treatment:Region",fm1SLA,transformation= list(link=log, inverse=exp)),multiline=T, 
+     par.settings=mysettings,rug=F, xlab="Canopy leaf mass (g)",ylab=expression("Canopy leaf area"~" (cm"^"2"~")"))
+
+Rdark$Region<-as.factor(ifelse(Rdark$Location=="S","Temperate","Tropical"))
+fm1SLAleaf <- lme(SLA~Treatment*Range*Region,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=Rdark)#, method="ML")
+windows(5.513333,4.135)
+plot(effect("Treatment:Range:Region",fm1SLAleaf),multiline=T, ylim=c(160,230),
+       par.settings=mysettings,rug=F, ylab=expression("Leaf SLA"~" (cm"^"2"~"g"^"-1"~")"))
+
+
+
 #Mass fractions
 #stacked bargraph Root:Stem:Leaf, Home and warmed next to eachother, for the different groups
 
@@ -336,7 +318,7 @@ dat3$RSR<- with(dat3, rootMass/(stemMass+leafMass)) #Root:Shoot Ratio
 rate <- merge(gamfits2,dat3,by=c("Code","Time","Species","Location","Treatment","Taxa","Range"))[,c(1:10,13:14,17:30)]
 rate$ULR <- with(rate,dydt/LAR)
 
-rate11<- subset(rate, Time ==11)
+rate11<- subset(rate, Time ==20)
 r.trt11 <- summaryBy(LMF+SMF+RMF~Treatment+Location+Range,data=rate11,FUN=mean, keep.names=T)
 r.trt11$combotrt <- as.factor(paste(r.trt11$Location,r.trt11$Range,r.trt11$Treatment,sep="_"))
 r.trt11$combo <- as.factor(paste(r.trt11$Location,r.trt11$Range,sep="_"))
@@ -366,46 +348,115 @@ m2 <- acast(r.tr2, MassFraction~Treatment, value.var=c('value'), fill=0)
 barplot(m2, beside=F)
 
 ################################################################################################################
-#Asat
-Asat <- getAsat()
-asat.tm <- summaryBy(Photo~Taxa+Treatment+Location+Range,data=Asat,FUN=mean,keep.names=T)
-gx2 <- getRdark()
-gx2$Species <- factor(gx2$Species)
-gx2.tm <- summaryBy(Rmass~Taxa+Treatment+Location+Range,data=gx2,FUN=mean,keep.names=T)
 
+asat.tm <- summaryBy(Photo~Taxa+Treatment+Location+Range,data=Asat,FUN=mean,keep.names=T)
+asatm.tm <- summaryBy(Photom~Taxa+Treatment+Location+Range,data=Asatm,FUN=mean,keep.names=T)
+Rmass.tm <- summaryBy(Rmass~Taxa+Treatment+Location+Range,data=Rdark,FUN=mean,keep.names=T)
+jmax.tm <- summaryBy(Jmax~Taxa+Treatment+Location+Range,data=acifit,FUN=mean,keep.names=T)
+vcmax.tm <- summaryBy(Vcmax~Taxa+Treatment+Location+Range,data=acifit,FUN=mean,keep.names=T)
+jmaxm.tm <- summaryBy(Jmaxm~Taxa+Treatment+Location+Range,data=acifits,FUN=mean,keep.names=T)
+vcmaxm.tm <- summaryBy(Vcmaxm~Taxa+Treatment+Location+Range,data=acifits,FUN=mean,keep.names=T)
 #- make plots
 colors <- c(alpha("black",0.6),"red")
 windows(5.845,4.135);par(mfrow=c(2,2),mar=c(0,0,0,0),oma=c(5,9,3,5),cex.axis=1.2)
 
 #Rmass
 ylims=c(5,20)
-boxplot(Rmass~Treatment*Range,data=subset(gx2.tm,Location=="S"),ylim=ylims,
+boxplot(Rmass~Treatment*Range,data=subset(Rmass.tm,Location=="S"),ylim=ylims,
         axes=F,las=2,col=colors)
 magaxis(c(2,4),labels=c(1,0),frame.plot=T,las=1)
 
-mtext(text=expression(R["mass"]),side=2,outer=F,cex=1,adj=0.5,line=3.5)
-mtext(text=expression("("*n*mol~g^-1~s^-1*")"),side=2,outer=F,cex=1,adj=0.5,line=2)
+mtext(text=expression(R["mass"]),side=2,outer=F,cex=1,adj=0.5,line=4)
+mtext(text=expression("("*n*mol~g^-1~s^-1*")"),side=2,outer=F,cex=1,adj=0.5,line=2.5)
 legend(-0.2,21.2,"Temperate", bty="n", cex=1.3)
 
-boxplot(Rmass~Treatment*Range,data=subset(gx2.tm,Location=="N"),ylim=ylims,
-        axes=F,las=2,col=colors)
-magaxis(c(2,4),labels=c(0,0),frame.plot=T,las=1)
-legend(-0.2,21.2,"Tropical", bty="n", cex=1.3)
-legend("topright",legend=c("H","W"),ncol=1, fill=colors,cex=1, bty="n")
-#Asat
-ylims=c(18,38)
-boxplot(Photo~Treatment*Range,data=subset(asat.tm,Location=="N"),ylim=ylims,
-        axes=F,las=2,col=colors)
-axis(side=1,at=c(1.5,3.5),labels=levels(gx2.tm$Range),las=1,cex.axis=1.5)
-magaxis(c(2,4),labels=c(1,0),frame.plot=T,las=1)
-mtext(text=expression(A["sat"]),side=2,outer=F,cex=1,adj=0.5,line=3.5)
-mtext(text=expression("("*mu*mol~m^-2~s^-1*")"),side=2,outer=T,cex=1,adj=0.1,line=2)
-boxplot(Photo~Treatment*Range,data=subset(asat.tm,Location=="S"),ylim=ylims,
+boxplot(Rmass~Treatment*Range,data=subset(Rmass.tm,Location=="N"),ylim=ylims,
         axes=F,las=2,col=colors)
 magaxis(c(2,4),labels=c(0,1),frame.plot=T,las=1)
-axis(side=1,at=c(1.5,3.5),labels=levels(gx2.tm$Range),las=1,cex.axis=1.5)
+legend(-0.2,21.2,"Tropical", bty="n", cex=1.3)
+legend("topright",legend=c("H","W"),ncol=1, fill=colors,cex=1, bty="n")
+
+colors <- c(alpha("black",0.6),"red")
+windows(5.845,4.135);par(mfrow=c(2,2),mar=c(0,0,0,0),oma=c(5,9,3,5),cex.axis=1.2)
+#Asat
+ylims=c(20,35)
+boxplot(Photo~Treatment*Range,data=subset(asat.tm,Location=="S"),ylim=ylims,
+        axes=F,las=2,col=colors)
+magaxis(c(2,4),labels=c(1,0),frame.plot=T,las=1)
+mtext(text=expression(A["sat"]),side=2,outer=F,cex=1,adj=0.5,line=4)
+mtext(text=expression("("*mu*mol~m^-2~s^-1*")"),side=2,outer=T,cex=1,adj=0.9,line=2.5)
+legend(-0,36,"Temperate", bty="n", cex=1.3)
+boxplot(Photo~Treatment*Range,data=subset(asat.tm,Location=="N"),ylim=ylims,
+        axes=F,las=2,col=colors)
+magaxis(c(2,4),labels=c(0,1),frame.plot=T,las=1)
+legend(-0,36,"Tropical", bty="n", cex=1.3)
+#Asat mass
+ylims=c(0.25,0.75)
+boxplot(Photom~Treatment*Range,data=subset(asatm.tm,Location=="S"),ylim=ylims,
+        axes=F,las=2,col=colors)
+axis(side=1,at=c(1.5,3.5),labels=levels(asatm.tm$Range),las=1,cex.axis=1.5)
+magaxis(c(2,4),labels=c(1,0),frame.plot=T,las=1)
+mtext(text=expression(A["sat"]),side=2,outer=F,cex=1,adj=0.5,line=4)
+mtext(text=expression("("*mu*mol~g^-1~s^-1*")"),side=2,outer=T,cex=1,adj=0.1,line=2.5)
+boxplot(Photom~Treatment*Range,data=subset(asatm.tm,Location=="N"),ylim=ylims,
+        axes=F,las=2,col=colors)
+magaxis(c(2,4),labels=c(0,1),frame.plot=T,las=1)
+axis(side=1,at=c(1.5,3.5),labels=levels(asatm.tm$Range),las=1,cex.axis=1.5)
 
 ################################################################################################################
+colors <- c(alpha("black",0.6),"red")
+windows(5.845,4.135);par(mfrow=c(2,2),mar=c(0,0,0,0),oma=c(5,9,3,5),cex.axis=1.2)
+#Jmax
+ylims=c(90,250)
+boxplot(Jmax~Treatment*Range,data=subset(jmax.tm,Location=="S"),ylim=ylims,
+        axes=F,las=2,col=colors)
+magaxis(c(2,4),labels=c(1,0),frame.plot=T,las=1)
+mtext(text=expression(J["max"]),side=2,outer=F,cex=1,adj=0.5,line=4)
+mtext(text=expression("("*mu*mol~m^-2~s^-1*")"),side=2,outer=T,cex=1,adj=0.9,line=2.5)
+legend(-0,36,"Temperate", bty="n", cex=1.3)
+boxplot(Jmax~Treatment*Range,data=subset(jmax.tm,Location=="N"),ylim=ylims,
+        axes=F,las=2,col=colors)
+magaxis(c(2,4),labels=c(0,1),frame.plot=T,las=1)
+legend(-0,36,"Tropical", bty="n", cex=1.3)
+#Asat mass
+ylims=c(2,4.3)
+boxplot(Jmaxm~Treatment*Range,data=subset(jmaxm.tm,Location=="S"),ylim=ylims,
+        axes=F,las=2,col=colors)
+axis(side=1,at=c(1.5,3.5),labels=levels(jmaxm.tm$Range),las=1,cex.axis=1.5)
+magaxis(c(2,4),labels=c(1,0),frame.plot=T,las=1)
+mtext(text=expression(J["max"]),side=2,outer=F,cex=1,adj=0.5,line=4)
+mtext(text=expression("("*mu*mol~g^-1~s^-1*")"),side=2,outer=T,cex=1,adj=0.1,line=2.5)
+boxplot(Jmaxm~Treatment*Range,data=subset(jmaxm.tm,Location=="N"),ylim=ylims,
+        axes=F,las=2,col=colors)
+magaxis(c(2,4),labels=c(0,1),frame.plot=T,las=1)
+axis(side=1,at=c(1.5,3.5),labels=levels(jmaxm.tm$Range),las=1,cex.axis=1.5)
+################################################################################################################
+colors <- c(alpha("black",0.6),"red")
+windows(5.845,4.135);par(mfrow=c(2,2),mar=c(0,0,0,0),oma=c(5,9,3,5),cex.axis=1.2)
+#Vcmax
+ylims=c(60,220)
+boxplot(Vcmax~Treatment*Range,data=subset(vcmax.tm,Location=="S"),ylim=ylims,
+        axes=F,las=2,col=colors)
+magaxis(c(2,4),labels=c(1,0),frame.plot=T,las=1)
+mtext(text=expression(V["cmax"]),side=2,outer=F,cex=1,adj=0.5,line=4)
+mtext(text=expression("("*mu*mol~m^-2~s^-1*")"),side=2,outer=T,cex=1,adj=0.9,line=2.5)
+legend(-0,240,"Temperate", bty="n", cex=1.3)
+boxplot(Vcmax~Treatment*Range,data=subset(vcmax.tm,Location=="N"),ylim=ylims,
+        axes=F,las=2,col=colors)
+magaxis(c(2,4),labels=c(0,1),frame.plot=T,las=1)
+legend(-0,240,"Tropical", bty="n", cex=1.3)
+#Asat mass
+ylims=c(1,4.3)
+boxplot(Vcmaxm~Treatment*Range,data=subset(vcmaxm.tm,Location=="S"),ylim=ylims,
+        axes=F,las=2,col=colors)
+axis(side=1,at=c(1.5,3.5),labels=levels(vcmaxm.tm$Range),las=1,cex.axis=1.5)
+magaxis(c(2,4),labels=c(1,0),frame.plot=T,las=1)
+mtext(text=expression(V["cmax"]),side=2,outer=F,cex=1,adj=0.5,line=4)
+mtext(text=expression("("*mu*mol~g^-1~s^-1*")"),side=2,outer=T,cex=1,adj=0.1,line=2.5)
+boxplot(Vcmaxm~Treatment*Range,data=subset(vcmaxm.tm,Location=="N"),ylim=ylims,
+        axes=F,las=2,col=colors)
+magaxis(c(2,4),labels=c(0,1),frame.plot=T,las=1)
+axis(side=1,at=c(1.5,3.5),labels=levels(vcmaxm.tm$Range),las=1,cex.axis=1.5)
 #--------------------------------------------------------------------------------------------------------
 #- Respiration
 source("R/loadLibraries.R")
@@ -503,7 +554,8 @@ mtext(text=expression(T["leaf"]~"("*degree~C*")"),side=1,outer=T,cex=1.5,adj=0.5
 
 ################################################################################################################
 
-#LA over Total mass
+#LA over Total mass _ work in progress
+
 #- load libraries from script
 source("R/loadLibraries.R");source("R/gamplotfunctions.R");library(scales)
 #- read in the data, do a few conversions
@@ -517,6 +569,56 @@ dat$Taxa <- factor(dat$Taxa,levels=c("ATER","BTER","ACAM","BCAM","CCAM","BOT","L
 dat[24,] <- NA # get rid of BOT-45, which has crazy high LAR and SLA
 dat2 <- subset(dat,Treat!="Pre");dat2$Treat <- factor(dat2$Treat)
 dat2$Range<- ifelse(dat2$Species == "CAM"|dat2$Species == "TER", "wide","narrow")
+#do analysis using the mixed effects model.
+dat2$combotrt <- as.factor(paste(dat2$Location,dat2$Range,dat2$Treatment,sep="_"))
+
+dat2$Location <- factor(dat2$Location,levels=c("S","N")) # relevel Location so that "S" is the first level and "N" is the second
+dat2$Sp_RS_EN <- as.factor(with(dat2,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
+dat2$Prov_Sp_EN <- as.factor(with(dat2,paste(Taxa,Species)))
+dat2$Sp_Loc_EN <- as.factor(with(dat2,paste(Species,Location)))
+#-- REPEAT FOR LEAF AREA
+fm1LA <- lme(sqrt(Leafarea)~Totmass*Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dat2)#, method="ML")
+plot(fm1LA,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm1LA,Leafarea~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
+plot(fm1LA,Leafarea~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
+qqnorm(fm1LA, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
+hist(fm1LA$residuals[,1])
+anova(fm1LA)    
+summary(fm1LA) #The slope of LM~TM varies with treatment (P=0.0566) where warmed taxa have lower allocation to leaves
+#the lm~TM:Treatment effect varies among the two locations (P=0.1576)
+
+plot(allEffects(fm1LA)) 
+plot(effect("Totmass:Range",fm1LA), multiline=TRUE) #- compares slopes (overlayed)
+plot(effect("Totmass:Location",fm1LA), multiline=TRUE) #- compares slopes (overlayed)
+plot(effect("Totmass:Treatment",fm1LA), multiline=TRUE) #- compares slopes (overlayed)
+
+dat2$Region<-ifelse(dat2$Location=="S","Temperate","Tropical")
+
+############################################
+#Change plot settings
+set<-trellis.par.get()
+myColours <- c("#ffffff")
+my.settings <- list(
+  superpose.polygon=list(col=myColours[1:5], border="transparent"),
+  strip.background=list(col=myColours[1]),
+  strip.border = list(col=myColours[1]),
+  fontsize=list(text="14"),
+  axis.components = list(top =list(tck=0,pad1=0,pad2=0)),
+  plot.line=list(lty=1,col=c("black","red")),
+  clip=list(strip="off")
+)
+trellis.par.set(my.settings)
+#########################################
+
+windows(10,7)
+plot(effect("Totmass:Treatment:Location",fm1LA), colors=c("black", "red"), rug=FALSE, multiline=TRUE, xlab = "Total biomass",
+     main="",
+     ticks.x=list(Totmass=list(at=c(0, 20, 40, 60, 80,100))),key.args=list(x=1,y=0.9,corner=c(x=1, y=1)))) #- compares slopes (overlayed)
+
+
+
+
+
 
 
 la.trt <- summaryBy(Leafarea~Totmass+Treatment+Location+Range,data=dat2,FUN=c(mean,standard.error))
