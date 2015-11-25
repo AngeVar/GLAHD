@@ -63,7 +63,7 @@ ascm$Photom<-with(ascm,Photo*SLA/10000)
 ascm2<- subset(ascm, Photom >0.1)
 ascm3<-droplevels(subset(ascm2, Species!=17)) #when SMIT is removed there is only a treatment effect.
 
-fm.Asataci <- lme((Photom)~Treat*Range*Location,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=ascm3)
+fm.Asataci <- lme((Photom)~Treat*Range*Location,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=ascm2)
 plot(fm.Asataci,resid(.,type="p")~fitted(.) | Treat,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
 plot(fm.Asataci,(Photom)~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
 plot(fm.Asataci,(Photom)~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
@@ -83,7 +83,7 @@ plot(effect("Treat:Range:Location",fm.Asataci),multiline=T)
 ((0.4235843)-(0.4619698))/(0.4619698 )     # -9.7 % in N -8.3%
 ((0.4443223)-(0.4297173))/(0.4297173 )     # 10.2 % in S +3.4%
 
-ascm.tm <- summaryBy(Photom~Taxa+Treat+Location+Range,data=ascm,FUN=mean,keep.names=T)
+ascm.tm <- summaryBy(Photom~Taxa+Treat+Location+Range,data=ascm,FUN=c(mean,standard.error))
 
 colors <- c(alpha("black",0.6),"red")
 windows(5.845,4.135);par(mfrow=c(2,2),mar=c(0,0,0,0),oma=c(5,9,3,5),cex.axis=1.2)
@@ -91,15 +91,44 @@ windows(5.845,4.135);par(mfrow=c(2,2),mar=c(0,0,0,0),oma=c(5,9,3,5),cex.axis=1.2
 
 #Asat
 ylims=c(0.25,0.65)
-boxplot(Photom~Treat*Range,data=subset(ascm.tm,Location=="S"),ylim=ylims,
+boxplot(Photom.mean~Treat*Range,data=subset(ascm.tm,Location=="S"),ylim=ylims,
         axes=F,las=2,col=colors)
 magaxis(c(2,4),labels=c(1,0),frame.plot=T,las=1)
 mtext(text=expression(A["sat"]),side=2,outer=F,cex=1,adj=0.5,line=4)
 mtext(text=expression("("*mu*mol~g^-1~s^-1*")"),side=2,outer=T,cex=1,adj=0.2,line=2.5)
 #legend(-0,36,"Temperate", bty="n", cex=1.3)
 axis(side=1,at=c(1.5,3.5),labels=levels(ascm.tm$Range),las=1,cex.axis=1.5)
-boxplot(Photom~Treat*Range,data=subset(ascm.tm,Location=="N"),ylim=ylims,
+g.sp.Sn4<- subset(ascm.tm,Location=="S"&Range=="Narrow"&Treat=="ACiHome")
+g.sp.Snw4<- subset(ascm.tm,Location=="S"&Range=="Narrow"&Treat=="ACiWarmed")
+g.sp.Sw4<- subset(ascm.tm,Location=="S"&Range=="Wide"&Treat=="ACiHome")
+g.sp.Sww4<- subset(ascm.tm,Location=="S"&Range=="Wide"&Treat=="ACiWarmed")
+points(rep(1,length(g.sp.Sn4$Photom.mean)),g.sp.Sn4$Photom.mean, pch=16) #Sn home
+points(rep(2,length(g.sp.Snw4$Photom.mean)),g.sp.Snw4$Photom.mean, pch=16) #Sn warmed
+points(rep(3,length(g.sp.Sw4$Photom.mean)),g.sp.Sw4$Photom.mean, pch=16) #Sw home
+points(rep(4,length(g.sp.Sww4$Photom.mean)),g.sp.Sww4$Photom.mean, pch=16) #Sw warmed
+
+meansA1<-c(g.sp.Sn4$Photom.mean,g.sp.Snw4$Photom.mean,g.sp.Sw4$Photom.mean,g.sp.Sww4$Photom.mean)
+sesA1<-c(g.sp.Sn4$Photom.standard.error,g.sp.Snw4$Photom.standard.error,g.sp.Sw4$Photom.standard.error,
+         g.sp.Sww4$Photom.standard.error)
+error.bar(c(rep(1,3),rep(2,3),rep(3,5),rep(4,5)),meansA1,sesA1, length=0)
+
+
+boxplot(Photom.mean~Treat*Range,data=subset(ascm.tm,Location=="N"),ylim=ylims,
         axes=F,las=2,col=colors)
 magaxis(c(2,4),labels=c(0,1),frame.plot=T,las=1)
 #legend(-0,36,"Tropical", bty="n", cex=1.3)
 axis(side=1,at=c(1.5,3.5),labels=levels(ascm.tm$Range),las=1,cex.axis=1.5)
+g.sp.Nn4<- subset(ascm.tm,Location=="N"&Range=="Narrow"&Treat=="ACiHome")
+g.sp.Nnw4<- subset(ascm.tm,Location=="N"&Range=="Narrow"&Treat=="ACiWarmed")
+g.sp.Nw4<- subset(ascm.tm,Location=="N"&Range=="Wide"&Treat=="ACiHome")
+g.sp.Nww4<- subset(ascm.tm,Location=="N"&Range=="Wide"&Treat=="ACiWarmed")
+points(rep(1,length(g.sp.Nn4$Photom.mean)),g.sp.Nn4$Photom.mean, pch=16) #Sn home
+points(rep(2,length(g.sp.Nnw4$Photom.mean)),g.sp.Nnw4$Photom.mean, pch=16) #Sn warmed
+points(rep(3,length(g.sp.Nw4$Photom.mean)),g.sp.Nw4$Photom.mean, pch=16) #Sw home
+points(rep(4,length(g.sp.Nww4$Photom.mean)),g.sp.Nww4$Photom.mean, pch=16) #Sw warmed
+
+meansA1<-c(g.sp.Nn4$Photom.mean,g.sp.Nnw4$Photom.mean,g.sp.Nw4$Photom.mean,g.sp.Nww4$Photom.mean)
+sesA1<-c(g.sp.Nn4$Photom.standard.error,g.sp.Nnw4$Photom.standard.error,g.sp.Nw4$Photom.standard.error,
+         g.sp.Nww4$Photom.standard.error)
+error.bar(c(rep(1,3),rep(2,3),rep(3,6),rep(4,6)),meansA1,sesA1, length=0)
+
