@@ -487,26 +487,28 @@ gx2$Species <- factor(gx2$Species)
 gx2.tm <- summaryBy(Rmass~Taxa+Treatment+Location+Range,data=gx2,FUN=mean,keep.names=T)
 
 #- make plots
-colors <- c(alpha("black",0.8),alpha("red",0.8))
-windows(22,20);par(mfrow=c(2,2),mar=c(2,0,2,0),oma=c(5,9,3,5),cex.axis=1.2)
+colors <- c(alpha("black",0.6),alpha("red",0.6))
+windows(8.27,7.7154);par(mfrow=c(2,2),mar=c(2,0,2,0),oma=c(5,9,3,5),cex.axis=1.2)
 
 #Rmass
-ylims=c(5,15)
-boxplot(Rmass~Treatment*Range,data=subset(gx2.tm,Location=="N"),ylim=ylims,
-        axes=F,las=2,col=colors)
-title(main="Tropical",line=0.2,cex.main=1.5,xpd=NA)
-magaxis(c(2,4),labels=c(1,0),frame.plot=T,las=1)
-mtext(text=expression(R["mass"]~"("*n*mol~g^-1~s^-1*")"),side=2,outer=T,cex=1.5,adj=0.5,line=3)
-axis(side=1,at=c(1.5,3.5),labels=c("Narrow","Wide"),las=1,cex.axis=1.5)
-legend("topleft",c("Home","Warmed"),fill=colors,cex=1.3,bty="n")
-legend("topright","a",bty="n",cex=1.3)
+ylims=c(5,17)
 boxplot(Rmass~Treatment*Range,data=subset(gx2.tm,Location=="S"),ylim=ylims,
         axes=F,las=2,col=colors)
-title(main="Temperate",line=0.2,cex.main=1.5,xpd=NA)
-magaxis(c(2,4),labels=c(0,1),frame.plot=T,las=1)
+mtext(text="Temperate",side=3, cex=1.5,outer=F, line =-1.5, at=1.5)
+magaxis(c(2,4),minorn=5, majorn=3,labels=c(1,0),frame.plot=T,las=1)
 axis(side=1,at=c(1.5,3.5),labels=c("Narrow","Wide"),las=1,cex.axis=1.5)
-legend("topright","b",bty="n",cex=1.3)
+#legend("topright","b",bty="n",cex=1.3)
 #mtext("Range size",side=1,cex=1.5,outer=T,line=-17)
+
+boxplot(Rmass~Treatment*Range,data=subset(gx2.tm,Location=="N"),ylim=ylims,
+        axes=F,las=2,col=colors)
+mtext(text="Tropical",side=3, cex=1.5,outer=F, line=-1.5, at=1.5)
+magaxis(c(2,4),minorn=5, majorn=3,labels=c(0,0),frame.plot=T,las=1)
+mtext(text=expression(R["mass"]~"("*n*mol~g^-1~s^-1*")"),side=2,outer=T,cex=1.5,adj=0.5,line=3)
+axis(side=1,at=c(1.5,3.5),labels=c("Narrow","Wide"),las=1,cex.axis=1.5)
+#legend("topright","a",bty="n",cex=1.3)
+legend("topright", legend=c("Home",expression(paste("+3.5",degree,"C"))),pch=22,pt.cex=2, pt.bg=c(alpha("black",0.6),alpha("red",0.6)),
+       bty="n",cex=1.5)
 
 #- plot R vs. T
 rt.m <- summaryBy(R_mass+R_area~Species+Taxa+Treatment+Tleaf_bin_mid,data=rt,FUN=c(mean,standard.error))
@@ -517,22 +519,6 @@ toplot.n <- subset(toplot,Taxa=="BRA" | Taxa=="CTER")
 ylims <- c(0,40)
 xlims <- c(10,45)
 cexpoints=1.8
-# plot north
-plotBy(R_mass.mean~Tleaf_bin_mid|Treatment,data=subset(toplot.n,Taxa=="BRA"),xlim=xlims,ylim=ylims,pch=1,cex=cexpoints,col=colors,legend=F,
-       panel.first=adderrorbars(x=subset(toplot.n,Taxa=="BRA")$Tleaf_bin_mid,
-                                y=subset(toplot.n,Taxa=="BRA")$R_mass.mean,
-                                SE=subset(toplot.n,Taxa=="BRA")$R_mass.standard.error,direction="updown",col="black"),
-       las=1,axes=F,xlab="")
-plotBy(R_mass.mean~Tleaf_bin_mid|Treatment,data=subset(toplot.n,Taxa=="CTER"),ylim=ylims,pch=16,cex=cexpoints,col=colors,legend=F,
-       panel.first=adderrorbars(x=subset(toplot.n,Taxa=="CTER")$Tleaf_bin_mid,
-                                y=subset(toplot.n,Taxa=="CTER")$R_mass.mean,
-                                SE=subset(toplot.n,Taxa=="CTER")$R_mass.standard.error,direction="updown",col="black"),
-       add=T,las=1)
-magaxis(c(1,2,3,4),labels=c(1,1,0,0),frame.plot=T,las=1)
-#title(main="North",line=0.2,cex.main=2,xpd=NA)
-legend("topright","c",bty="n",cex=1.3)
-legend("topleft",c("Narrow","Narrow Warmed","Wide","Wide Warmed"),pch=c(1,1,16,16),col=c(alpha("black",0.8),alpha("red",0.8)),ncol=1,
-       cex=1.2,bty="n")
 
 # plot south
 plotBy(R_mass.mean~Tleaf_bin_mid|Treatment,data=subset(toplot.s,Taxa=="BOT"),xlim=xlims,ylim=ylims,pch=1,cex=cexpoints,col=colors,legend=F,
@@ -546,11 +532,30 @@ plotBy(R_mass.mean~Tleaf_bin_mid|Treatment,data=subset(toplot.s,Taxa=="BTER"),yl
                                 SE=subset(toplot.s,Taxa=="BTER")$R_mass.standard.error,direction="updown",col="black"),
        add=T,las=1,axes=F,xlab="")
 #title(main="South",line=0.2,cex.main=2,xpd=NA)
-legend("topright","d",bty="n",cex=1.3)
+#legend("topright","d",bty="n",cex=1.3)
 
-magaxis(c(1,2,3,4),labels=c(1,0,0,1),frame.plot=T,las=1)
+magaxis(c(1,2,3,4),labels=c(1,1,0,0),frame.plot=T,las=1)
 mtext(text=expression(T["leaf"]~"("*degree~C*")"),side=1,outer=T,cex=1.5,adj=0.5,line=3)
 #mtext(text=expression(R["mass"]~"("*n*mol~g^-1~s^-1*")"),side=2,outer=T,cex=2,adj=0.5,line=3)
+legend("topleft",legend=c("Narrow Home",expression(paste("Narrow","+3.5",degree,"C")), "Wide Home",
+                          expression(paste("Wide","+3.5",degree,"C"))),pch=c(1,1,16,16),col=c(alpha("black",0.8),alpha("red",0.8)),ncol=1,
+       cex=1.5,bty="n")
+
+# plot north
+plotBy(R_mass.mean~Tleaf_bin_mid|Treatment,data=subset(toplot.n,Taxa=="BRA"),xlim=xlims,ylim=ylims,pch=1,cex=cexpoints,col=colors,legend=F,
+       panel.first=adderrorbars(x=subset(toplot.n,Taxa=="BRA")$Tleaf_bin_mid,
+                                y=subset(toplot.n,Taxa=="BRA")$R_mass.mean,
+                                SE=subset(toplot.n,Taxa=="BRA")$R_mass.standard.error,direction="updown",col="black"),
+       las=1,axes=F,xlab="")
+plotBy(R_mass.mean~Tleaf_bin_mid|Treatment,data=subset(toplot.n,Taxa=="CTER"),ylim=ylims,pch=16,cex=cexpoints,col=colors,legend=F,
+       panel.first=adderrorbars(x=subset(toplot.n,Taxa=="CTER")$Tleaf_bin_mid,
+                                y=subset(toplot.n,Taxa=="CTER")$R_mass.mean,
+                                SE=subset(toplot.n,Taxa=="CTER")$R_mass.standard.error,direction="updown",col="black"),
+       add=T,las=1)
+magaxis(c(1,2,3,4),labels=c(1,0,0,0),frame.plot=T,las=1)
+#title(main="North",line=0.2,cex.main=2,xpd=NA)
+#legend("topright","c",bty="n",cex=1.3)
+
 
 ################################################################################################################
 
@@ -1317,3 +1322,31 @@ windows(18,12);par(mfrow=c(1,2), mar=c(2,0,2,0),oma=c(2,4,2,2))
   axis(side = 1, at = seq(from=0,to=90,by=5), labels = T, tck = 0.01)
 #par(xpd=T)
 
+
+lmdataH<- subset(data2, Treatment=="Home")
+lmdataW<- subset(data2, Treatment=="Warmed")
+plotBy(log(Leafmass)~log(Totmass), data=lmdataH, col="black")
+abline(-0.6448694,0.9768951, col="black")
+points(log(Leafmass)~log(Totmass), data=lmdataW, col="red")
+abline(-0.5605081,0.9151297, col="red")
+
+lmdataS<- subset(data2, Location=="S")
+lmdataN<- subset(data2, Location=="N")
+plotBy(log(Leafmass)~log(Totmass), data=lmdataS, col="black")
+abline(-0.6448694,0.9768951, col="black")
+points(log(Leafmass)~log(Totmass), data=lmdataN, col="red")
+abline(-0.3462149,0.8972112, col="red")
+
+lmdataSH<-subset(data2, Location=="S"&Treatment=="Home")
+lmdataSW<-subset(data2, Location=="S"&Treatment=="Warmed")
+lmdataNH<-subset(data2, Location=="N"&Treatment=="Home")
+lmdataNW<-subset(data2, Location=="N"&Treatment=="Warmed")
+
+plotBy(log(Leafmass)~log(Totmass), data=lmdataSH, col="black")
+abline(-0.6448694,1.017579275, col="black")
+points(log(Leafmass)~log(Totmass), data=lmdataSW, col="red")
+abline(-0.5605081,0.971747952, col="black", lty=2)
+
+
+
+lme(log(Leafmass)~log(Totmass)*Treatment*Range*Location,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=data2)
