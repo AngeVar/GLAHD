@@ -13,7 +13,7 @@ dat <- read.csv("Data/Harvests/GHS39_GLAHD_MAIN_BIOMASS_20141106-20150116_L1.csv
 dat$Date <- as.Date(dat$Date,format="%d/%m/%Y")
 dat$Totmass <- base::rowSums(dat[,11:13]) #total mass is the sum of leaf, stem, and root mass
 dat$LAR <- with(dat,Leafarea/Totmass)
-dat$SLA <- with(dat,(Leafarea/10000)/(Leafmass))#m2/g
+dat$SLA <- with(dat,(Leafarea)/(Leafmass))#cm2/g
 dat$d2h <- with(dat,(Diameter/10)^2*(Height)) #calculate d2h in cm3
 dat$logd2h <- log10(dat$d2h)
 dat$logTM <- log10(dat$Totmass)
@@ -426,21 +426,21 @@ par(mfrow=c(5,4),mar=c(0,0,0,0),oma=c(6,6,1,1))
 for (i in 1:length(levels(dat2$Taxa))){
   dat2 <- subset(dat,Taxa==as.character(combos[i]))
   
-  with(subset(dat2,Treat=="Home"),plot(SLA~logTM,xlim=c(-1.3,2.2),ylim=c(4,40),col="green",pch=15,axes=F,cex=1.5,
+  with(subset(dat2,Treat=="Home"),plot(SLA~logTM,xlim=c(-1.3,2.2),ylim=c(0,300),col="green",pch=15,axes=F,cex=1.5,
                                          xlab=expression(log[10]~(Total~mass~(g))),
                                          ylab=expression(log[10]~Leaf~mass~(g))))  
   fit <- lm(SLA~logTM,data=subset(dat2,Treat=="Home"))
   predline(fit,col=alpha("green",alpha=0.1))
   
   
-  with(subset(dat2,Treat=="Warmed"),points(SLA~logTM,xlim=c(-1.3,2.2),ylim=c(4,40),col="red",pch=15,cex=1.5,
+  with(subset(dat2,Treat=="Warmed"),points(SLA~logTM,xlim=c(-1.3,2.2),ylim=c(0,300),col="red",pch=15,cex=1.5,
                                          xlab=expression(log[10]~(Total~mass~(g))),
                                          ylab=expression(log[10]~Leaf~mass~(g))))  
   fit <- lm(SLA~logTM,data=subset(dat2,Treat=="Warmed"))
   predline(fit,col=alpha("red",alpha=0.1))
   
   
-  with(subset(dat2,Treat=="Pre"),points(SLA~logTM,xlim=c(-1.3,2.2),ylim=c(4,40),col="black",pch=15,cex=1.5,
+  with(subset(dat2,Treat=="Pre"),points(SLA~logTM,xlim=c(-1.3,2.2),ylim=c(0,300),col="black",pch=15,cex=1.5,
                                            xlab=expression(log[10]~(Total~mass~(g))),
                                            ylab=expression(log[10]~Leaf~mass~(g))))  
   magaxis(side=1:4,labels=c(1,1,0,0),box=T)
@@ -590,11 +590,11 @@ plot(effect("Totmass:Treatment",fm1LA), multiline=TRUE) #- compares slopes (over
 
 
 #-- REPEAT FOR ROOT MASS
-fm1RM <- lme(Rootmass~Totmass*Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dat2,
+fm1RM <- lme(sqrt(Rootmass)~Totmass*Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dat2,
              weights=varFunc(~Totmass))#, method="ML")
 plot(fm1RM,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
-plot(fm1RM,Rootmass~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
-plot(fm1RM,Rootmass~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
+plot(fm1RM,sqrt(Rootmass)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
+plot(fm1RM,sqrt(Rootmass)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
 qqnorm(fm1RM, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
 hist(fm1RM$residuals[,1])
 anova(fm1RM)    
