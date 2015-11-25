@@ -555,3 +555,6 @@ plot(effect("Treatment:Range:Location",fm.Rmass), multiline = T)   #-0.0236 Narr
 
 
 #Respiration Temperature sensitivity curves: See GLAHD-RvsT.R
+
+
+
