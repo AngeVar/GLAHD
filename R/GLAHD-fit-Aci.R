@@ -502,17 +502,14 @@ plot(effect("Treatment:Range",fm.Rmass))                         #- wide range s
 #----------------------------------------------------------------------------------
 
 ################################################################################################################
-<<<<<<< HEAD
-#Is SLA different? Yes - three way interaction 
-=======
-#Is SLA different? Yes - three way interaction (Nope, warming increased SLA but only in the South) 
+
+#Is SLA different? warming increased SLA but only in the South
 Asat<- getAsat()
 Rdark<- getRdark()
 asatshort<-Asat[,c("Code","Species","Taxa","Treatment", "Location", "Range","Photo")]
 rdarkshort<-Rdark[,c("Code","Species","Taxa","Treatment", "Location", "Range","SLA")]
 gasex<-merge(asatshort,rdarkshort,by=c("Code", "Species","Taxa","Treatment","Location","Range"))
 #gasex$SLA<- with(gasex,(leafArea/10000)/(leafDW/1000))#m2 per g. This was wrong, the gx-leaf SLA values were already in Rdark (JED)
->>>>>>> 3eb63373ca7b8c8863ed20db8dcef92cc7b6c88d
  
 gasex$Location <- factor(gasex$Location,levels=c("S","N")) # relevel Location so that "S" is the first level and "N" is the second
 gasex$Sp_RS_EN <- as.factor(with(gasex,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
@@ -531,7 +528,7 @@ plot(effect("Treatment",fm.SLA))                     #- SLA increased by warming
 plot(effect("Treatment:Location",fm.SLA))            #- SLA only increased with warming in the South P<.0001
 plot(effect("Treatment:Location:Range",fm.SLA))      #particularly in south wide P=0.0049
 effect("Treatment:Location:Range",fm.SLA)
-<<<<<<< HEAD
+
 (185.0789-193.7101)/193.7101     # 4.4 % reduction in SLA with warming of wide species in the north
 (197.9415-192.6063)/192.6063     # 2.7 % increase in SLA with warming of narrow species in the north
 (183.2336-165.9987)/165.9987     # 10.3% increase in SLA with warming of wide species in the south
@@ -541,14 +538,14 @@ effect("Treatment:Location:Range",fm.SLA)
 # (exp(-0.8559911)-exp(-1.0351236))/(exp(-1.0351236))      # 19.6% increase in SLA with warming of narrow species in the north
 # (exp(-0.8233543)-exp(-1.4017938))/(exp(-1.4017938))      # 78.3% increase in SLA with warming of wide species in the south
 # (exp(-0.6261996)-exp(-0.8563303))/(exp(-0.8563303))      # 25.9% increase in SLA with warming of narrow species in the south
-=======
+
 
 #-- the following probably need changing (JED)
 (exp(-0.7940645)-exp(-0.7644813))/(exp(-0.7644813))      # 2.9% reduction in SLA with warming of wide species in the north
 (exp(-0.8559911)-exp(-1.0351236))/(exp(-1.0351236))      # 19.6% increase in SLA with warming of narrow species in the north
 (exp(-0.8233543)-exp(-1.4017938))/(exp(-1.4017938))      # 78.3% increase in SLA with warming of wide species in the south
 (exp(-0.6261996)-exp(-0.8563303))/(exp(-0.8563303))      # 25.9% increase in SLA with warming of narrow species in the south
->>>>>>> 3eb63373ca7b8c8863ed20db8dcef92cc7b6c88d
+
 
 windows(20,15);par(mfrow=c(1,2),mar=c(2,0,1,0),oma=c(5,9,3,5),cex.axis=1.2)
 
