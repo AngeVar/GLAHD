@@ -180,6 +180,11 @@ legend(-0.1,0.145, legend=c("Home",expression(paste("+3.5",degree,"C"))),pch=22,
 mtext(text="RGR Day 15", outer=T, side=2, line=-1.5, cex=1.3)
 mtext(text=expression((g~g^-1~day^-1)), outer=T, side=2, line=-3.5)
 
+#% increase
+(0.10174500-0.08872640)/0.08872640 #14.7% increase Sn
+(0.10372688-0.08076066)/0.08076066 #28.4% increase Sw
+(0.10204003-0.10442129)/0.10442129 #-2.2% Nn
+(0.11170755-0.11088574)/0.11088574 #+0.7% Nw
 #add dots with errorbars for individual species
 
 g.sp2 <- summaryBy(dydt+predMass+AGR~Time+Taxa+Treatment+Location+Range,data=gamfits2,FUN=c(mean,standard.error))
