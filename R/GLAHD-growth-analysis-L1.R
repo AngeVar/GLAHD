@@ -130,6 +130,16 @@ effect("Treatment:Range:Location",fm1size)
 (205.2237-120.5232)/(120.5232)  # 70.3 %  Sw
 (78.91821-51.43743)/(51.43743)  # 53.4 %  Sn
 
+#Compare Tropical Home and Warmed for treatment effects - no effect
+trop<- subset(T60,Location=="N")
+fm2size <- lme(log(d2h)~Treatment*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=trop)#, method="ML")
+plot(fm2size,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm2size,log(d2h)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
+plot(fm2size,log(d2h)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
+qqnorm(fm2size, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
+hist(fm2size$residuals[,1])
+anova(fm2size)    
+
 ###########################################################
 
 #Did warming affect biomass?
@@ -148,7 +158,7 @@ plot(effect("Treatment:Location",fm1m60), multiline = T) #<.0001 warming increas
 (66.11438-68.46033)/(68.46033)  #-3.4 % N
 (47.92213-32.21786)/(32.21786)  # 48.7% S
 
-plot(effect("Treatment:Range:Location",fm1m60), multiline = T) #<.0001 warming increased biomass more in S than N
+plot(effect("Treatment:Range:Location",fm1m60), multiline = T) #<.0001 warming increased biomass more in S than N but range size didn't matter (p=0.28)
 
 (68.63780-69.81766)/(69.81766)  #-1.7% N wide
 (61.59325-66.02844)/(66.02844)  # -6.7% Nnarrow
@@ -156,7 +166,7 @@ plot(effect("Treatment:Range:Location",fm1m60), multiline = T) #<.0001 warming i
 (42.38279-29.51355)/(29.51355)  # 43.6% S narrow
 
 
-#mass at start
+#mass at start did not differ (North slightly higher mass than South)
 T1<-subset(gamfits2, Time==1)
 fm1m1 <- lme(sqrt(predMass)~Treatment*Range*Location,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=T1)#, method="ML")
 plot(fm1m1,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
@@ -169,7 +179,7 @@ plot(effect("Location",fm1m1))                      #0.0586 slightly higher biom
 #plot(effect("Location", fm1m1, transformation=list(link=sqrt, inverse=function(x) x^2)))#changes scale on plot
 ((0.7742488^2)-(0.6423764^2))/(0.6423764^2)  #45.2 % higher in N
 
-#mass at 15 days
+#mass at 15 days S increased more in biomass than N
 T15<-subset(gamfits2, Time==15)
 fm1m15 <- lme(sqrt(predMass)~Treatment*Range*Location,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=T15)#, method="ML")
 plot(fm1m15,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
@@ -183,6 +193,16 @@ plot(effect("Location", fm1m15))                              # 0.0010 higher in
 plot(effect("Treatment:Location",fm1m15),multiline = T)       #0.0358 increased more in S than N
 ((1.639580^2)-(1.544822^2))/(1.544822^2)     #12.6 % N
 ((1.252935^2)-(1.062812^2))/(1.062812^2)     #39 % S
+
+#Compare Tropical Home and Warmed for treatment effects - no effect
+trop2<- subset(T60,Location=="N")
+fm2m60 <- lme(predMass~Treatment*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=trop2)#, method="ML")
+plot(fm2m60,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm2m60,predMass~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
+plot(fm2m60,predMass~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
+qqnorm(fm2m60, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
+hist(fm2m60$residuals[,1])
+anova(fm2m60)    
 
 ###########################################################
 
@@ -204,7 +224,7 @@ plot(effect("Treatment:Range",fm1.rgr))                  #0.0382 up more in wide
 ((0.3277034^2)-(0.3070671^2))/(0.3070671^2)              #13.9 % in wide
 ((0.3179942^2)-(0.3087487^2))/(0.3087487^2)              #6.1 % in narrow
 
-#RGRmax
+#RGRmax (Maximum RGR was increased by warming, moreso in temperate taxa)
 maxdydt<-gamfits2[ gamfits2$dydt %in% tapply(gamfits2$dydt, gamfits2$Code, max), ]#max RGR per Code
 
 maxdydt$Location <- factor(maxdydt$Location,levels=c("S","N")) # relevel Location so that "S" is the first level and "N" is the second
@@ -226,7 +246,7 @@ plot(effect("Treatment:Location",fm.maxdydt),multiline=T) # <.0001 increase more
 (exp(-2.176796)-exp(-2.190548))/(exp(-2.190548))  # 1.3 %  N
 (exp(-2.223111)-exp(-2.403854))/(exp(-2.403854))  # 19.8 %  S
 
-#MassRGRmax
+#MassRGRmax (the mass at which the maxRGR occurred decreased among tropical taxa, i.e. the peak occurred earlier)
 fm.maxdydt2<- lme(log(predMass)~Treatment*Range*Location,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=maxdydt)
 plot(fm.maxdydt2,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
 plot(fm.maxdydt2,log(predMass)~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
@@ -235,9 +255,10 @@ qqnorm(fm.maxdydt2, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to a
 hist(fm.maxdydt2$residuals[,1])
 anova(fm.maxdydt2)  
 plot(effect("Treatment",fm.maxdydt2))                 #0.0001 decreased with warming
-plot(effect("Treatment:Location",fm.maxdydt2))        #0.0024 decreased more in N then s
+plot(effect("Treatment:Location",fm.maxdydt2))        #0.0024 decreased more in N than S
 (exp(0.0927346)-exp(0.8952484))/(exp(0.8952484))  # -55 %  N
 (exp(0.3357711)-exp(0.4649718))/(exp(0.4649718))  # -12 %  S
+
 
 ###########################################################
 
@@ -252,9 +273,12 @@ SBER[ SBER$RR %in% tapply(SBER$RR, SBER$Range, max), ] #Max ratio 96.8 on Day 37
 NBER[ NBER$RR %in% tapply(NBER$RR, NBER$Range, max), ] #Max ratio 13.3 on Day 16 Wide, 10.6 on Day 12 Narrow
 
 ###########################################################
+###########################################################
+###########################################################
+###########################################################
 
 #Did warming change allocation change? (Harvested data over total mass, slope is mass fraction, 
-#i.e. Totmass:Treatment, Totmass:treatment:Location, Totmass:treatment:range, Totmass:treatment:Location:range)
+#i.e. did the slope of Totmass:Treatment, Totmass:treatment:Location, Totmass:treatment:range, Totmass:treatment:Location:range change)
 
 #Leaf mass 
 
@@ -270,7 +294,21 @@ plot(effect("log(Totmass):Location",fm1LM),multiline=T)             #P=<.0001 N 
 plot(effect("log(Totmass):Treatment:Location",fm1LM,transformation=
               list(link=log, inverse=exp)),multiline=T)             #P=0.0411 S warmed allocated less to leaf mass 
 
-#Stem mass
+ef <-effect("log(Totmass):Treatment:Location",fm1LM)
+x<-as.data.frame(ef)
+
+#very very small reduction
+windows(11.69,8.27);par(mfrow=c(1,2),mar=c(0,2,0,1),oma=c(4,2,2,1))
+plotBy(log(Leafmass)~log(Totmass)|Treatment, data=subset(data2, Location=="S"))
+mtext(text="log(Leaf Mass) (g)",side=2,outer=T,line=0,cex=1.2)
+abline(lm(fit~log(Totmass), data=subset(x,Location == "S"&Treatment=="Home")), col="black")
+abline(lm(fit~log(Totmass), data=subset(x,Location == "S"&Treatment=="Warmed")), col="red")#-3.35% decrease in slope
+plotBy(log(Leafmass)~log(Totmass)|Treatment, data=subset(data2, Location=="N"), legend=F)
+abline(lm(fit~log(Totmass), data=subset(x,Location == "N"&Treatment=="Home")), col="black")
+abline(lm(fit~log(Totmass), data=subset(x,Location == "N"&Treatment=="Warmed")), col="red")#No difference (+0.01% in slope)
+mtext(text="log(Total Mass) (g)",side=1,outer=T,line=2,cex=1.2)
+
+#Stem mass (warming did not change stem mass, but tropical taxa allocated more to stems than temperate regardless of treatment)
 fm1SM <- lme(log(Stemmass)~log(Totmass)*Treatment*Range*Location,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=data2)#,
              #weights=varFunc(~Totmass))#, method="ML")
 plot(fm1SM,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
@@ -282,7 +320,8 @@ anova(fm1SM)
 plot(effect("Treatment",fm1SM))                                  #P=<.0001 Warmed trees had more stem mass from the start
 plot(effect("log(Totmass):Location",fm1SM),multiline=T)          #P=0.0004 N taxa allocated more to stem mass 
 
-#Root mass
+
+#Root mass (increased among temperate, reduced among tropical)
 fm1RM <- lme(log(Rootmass)~log(Totmass)*Treatment*Range*Location,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=data2)#,
              #weights=varFunc(~Totmass))#, method="ML")
 plot(fm1RM,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
@@ -297,25 +336,51 @@ plot(effect("Location",fm1RM))                                         #P=0.0005
 plot(effect("log(Totmass):Treatment",fm1RM),multiline=T)               #P=0.0381 Warmed trees had lower allocation to root mass
 plot(effect("log(Totmass):Treatment:Location",fm1RM),multiline=T)      #P=0.0002 N taxa allocated less to root mass whereas S allocated more 
 
+ef2 <-effect("log(Totmass):Treatment:Location",fm1RM)
+x2<-as.data.frame(ef2)
+
+windows(11.69,8.27);par(mfrow=c(1,2),mar=c(0,2,0,1),oma=c(4,2,2,1))
+plotBy(log(Rootmass)~log(Totmass)|Treatment, data=subset(data2, Location=="S"))
+mtext(text="log(Root Mass) (g)",side=2,outer=T,line=0,cex=1.2)
+abline(lm(fit~log(Totmass), data=subset(x2,Location == "S"&Treatment=="Home")), col="black")
+abline(lm(fit~log(Totmass), data=subset(x2,Location == "S"&Treatment=="Warmed")), col="red")#+7.2%
+plotBy(log(Rootmass)~log(Totmass)|Treatment, data=subset(data2, Location=="N"), legend=F)
+abline(lm(fit~log(Totmass), data=subset(x2,Location == "N"&Treatment=="Home")), col="black")
+abline(lm(fit~log(Totmass), data=subset(x2,Location == "N"&Treatment=="Warmed")), col="red")#-10.6%
+mtext(text="log(Total Mass) (g)",side=1,outer=T,line=2,cex=1.2)
 
 
-#LEAF AREA (i.e. LAR) #no treatment effects
-fm1LA <- lme((Leafarea)~(Totmass)*Treatment*Range*Location,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=data2)#, method="ML")
+#LEAF AREA (i.e. LAR)
+fm1LA <- lme(log(Leafarea)~log(Totmass)*Treatment*Range*Location,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=data2)#, method="ML")
 plot(fm1LA,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
-plot(fm1LA,(Leafarea)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
-plot(fm1LA,(Leafarea)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
+plot(fm1LA,log(Leafarea)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
+plot(fm1LA,log(Leafarea)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
 qqnorm(fm1LA, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
 hist(fm1LA$residuals[,1])
 anova(fm1LA)
 
 plot(effect("Totmass:Range",fm1LA), multiline=TRUE) #P=0.0657 wide had lower leaf area than narrow
-plot(effect("Totmass:Location ",fm1LA), multiline=TRUE) #P=0.0882 N had slightly lower leaf area than S towards the end
+plot(effect("Totmass:Location ",fm1LA), multiline=TRUE) #P=0.0882 N had slightly lower leaf area than S
+#with log-log transformation
+plot(effect("log(Totmass):Location",fm1LA), multiline=TRUE)#P<.0001 N had lower allocation to LA than S
+ef3<-effect("log(Totmass):Treatment:Location",fm1LA)#P<.0001 La decreased in S but increased in N
+x3<-as.data.frame(ef3)
+      
+windows(11.69,8.27);par(mfrow=c(1,2),mar=c(0,2,0,1),oma=c(4,2,2,1))
+plotBy(log(Leafarea)~log(Totmass)|Treatment, data=subset(data2, Location=="S"))
+mtext(text="log(Leaf area) (cm2)",side=2,outer=T,line=0,cex=1.2)
+abline(lm(fit~log(Totmass), data=subset(x3,Location == "S"&Treatment=="Home")), col="black")
+abline(lm(fit~log(Totmass), data=subset(x3,Location == "S"&Treatment=="Warmed")), col="red")#-6.6%
+plotBy(log(Leafarea)~log(Totmass)|Treatment, data=subset(data2, Location=="N"), legend=F)
+abline(lm(fit~log(Totmass), data=subset(x3,Location == "N"&Treatment=="Home")), col="black")
+abline(lm(fit~log(Totmass), data=subset(x3,Location == "N"&Treatment=="Warmed")), col="red")#+10.0%
+mtext(text="log(Total Mass) (g)",side=1,outer=T,line=2,cex=1.2)
 
 ###########################################################
 
 #Did SLA change?
 #Canopy SLA
-fm1SLA <- lme(log(Leafarea)~log(Leafmass)*Treatment*Range*Location,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=data2)#, method="ML")
+fm1SLA <- lme(log(Leafarea)~log(Leafmass)*Treatment*Range*Location,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=subset(data2, Taxa!="SMIT"& SLA<350))#, method="ML")
 plot(fm1SLA,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
 plot(fm1SLA,log(Leafarea)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
 plot(fm1SLA,log(Leafarea)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
@@ -324,12 +389,29 @@ hist(fm1SLA$residuals[,1])
 anova(fm1SLA)
 
 plot(effect("Treatment",fm1SLA), multiline=TRUE)                         #P=0.0929 Warmed had slightly higher SLA
-plot(effect("log(Leafmass):Location",fm1SLA), multiline=TRUE)            #P=0.0082 N had slightly lower SLA than S towards the end
+plot(effect("log(Leafmass):Location",fm1SLA), multiline=TRUE)            #P=0.0082 N had slightly lower SLA than S
 plot(effect("Treatment:Location",fm1SLA), multiline=TRUE)                #P=0.0039 WS had lower sla than HS, HN had higher sla than WN
 plot(effect("log(Leafmass):Treatment:Location",fm1SLA), multiline=TRUE)  #P=0.0018 Warming increased SLA in S but not N early
 plot(effect("log(Leafmass):Range:Location",fm1SLA), multiline=TRUE)      #P=0.0781 SW had lower SLA than SN
 
-#Leaf level gasexchange SLA
+ef4<-effect("log(Leafmass):Treatment:Location",fm1SLA)
+x4<-as.data.frame(ef4)
+
+windows(11.69,8.27);par(mfrow=c(1,2),mar=c(0,2,0,1),oma=c(4,2,2,1))
+plotBy(log(Leafarea)~log(Leafmass)|Treatment, data=subset(data2, Location=="S"))
+mtext(text="log(Leaf area) (cm2)",side=2,outer=T,line=0,cex=1.2)
+abline(lm(fit~log(Leafmass), data=subset(x4,Location == "S"&Treatment=="Home")), col="black")
+polygon(x4$upper,x4$lower, density=1)
+abline(lm(fit~log(Leafmass), data=subset(x4,Location == "S"&Treatment=="Warmed")), col="red")#-2.7%
+
+plotBy(log(Leafarea)~log(Leafmass)|Treatment, data=subset(data2, Location=="N"), legend=F)
+abline(lm(fit~log(Leafmass), data=subset(x4,Location == "N"&Treatment=="Home")), col="black")
+abline(lm(fit~log(Leafmass), data=subset(x4,Location == "N"&Treatment=="Warmed")), col="red")#+8.9%
+mtext(text="log(Leaf Mass) (g)",side=1,outer=T,line=2,cex=1.2)
+
+
+
+#Leaf level gasexchange SLA (shows opposite result to canopy scale SLA)
 fm1SLAleaf <- lme(SLA~Treatment*Range*Location,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=Rdark)#, method="ML")
 plot(fm1SLAleaf,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
 plot(fm1SLAleaf,SLA~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
@@ -349,12 +431,12 @@ plot(effect("Treatment:Location",fm1SLAleaf), multiline=TRUE)           #P=<.000
 (196.5071-167.2035)/167.2035         #SLA increased by 17.5 % in the South with warming
 
 plot(effect("Treatment:Range:Location",fm1SLAleaf), multiline=TRUE) #0.3250
-(185.5669-197.2897)/197.2897        #-5.9%  NW
-(195.5060-192.6063)/192.6063        #1.5%   NN
-(184.2853-165.8999)/165.8999        #11.1%  SW
-(218.6067-169.5606)/169.5606        #28.9%  SN
+# (185.5669-197.2897)/197.2897        #-5.9%  NW
+# (195.5060-192.6063)/192.6063        #1.5%   NN
+# (184.2853-165.8999)/165.8999        #11.1%  SW
+# (218.6067-169.5606)/169.5606        #28.9%  SN
 
-
+# 
 # windows(14,14);par(mfrow=c(1,1),mar=c(6,5,2,1),cex.lab=1.3,cex.axis=1.3)
 # #colors <- c(rep("white",5),rep("grey",3),rep("white",6),rep("grey",3))
 # colors <- c("blue","red")
@@ -367,6 +449,23 @@ plot(effect("Treatment:Range:Location",fm1SLAleaf), multiline=TRUE) #0.3250
 # abline(v=16.5)
 
 
+# data2$SLA<-with(data2, Leafarea/Leafmass)
+# windows(14,14);par(mfrow=c(1,1),mar=c(6,5,2,1),cex.lab=1.3,cex.axis=1.3)
+# #colors <- c(rep("white",5),rep("grey",3),rep("white",6),rep("grey",3))
+# colors <- c("blue","red")
+# #ylims=c(0,500)#SLA
+# #ylims=c(0,10000)#Leafarea
+# ylims=c(0,50)#Leafmass
+# boxplot(Leafmass~Treatment+Taxa,data=data2,ylim=ylims,ylab=expression(SLA~(cm^2~g^-1)),axes=F,las=2,col=colors)
+# magaxis(c(2,3,4),labels=c(1,0,0),frame.plot=T)
+# axis(side=1,at=seq(from=1.5,to=34.5,by=2),labels=levels(Rdark$Taxa),las=2)
+# abline(v=16.5)
+
+###########################################################
+###########################################################
+###########################################################
+###########################################################
+###########################################################
 ###########################################################
 
 #Photosynthsis
@@ -390,13 +489,13 @@ plot(effect("Range", fm.vcmax))                  #0.0128 Wide had higher Vcmax t
 (exp(4.913126)-exp(4.793873))/(exp(4.793873))    #- Vcmax is 12.7% lower in narrow ranged species
 
 plot(effect("Treatment:Location",fm.vcmax),multiline =T) #-0.0002 warming reduced Vcmax more in S than N
-(exp(4.613478)-exp(4.441802))/(exp(4.441802))    # 15.9% reduction in Vcmax in S
+(exp(4.613478)-exp(4.441802))/(exp(4.441802))    # 18.7% reduction in Vcmax in S
 (exp(5.187537)-exp(5.166953))/(exp(5.166953))    # 2.1 % reduction in Vcmax in N
 
 plot(effect("Treatment:Range:Location",fm.vcmax),multiline =T) 
 (exp(5.188676)-exp(5.218933))/(exp(5.218933))    # 2.9  % reduction in Vcmax in Nw
 (exp(5.126655)-exp(5.129296))/(exp(5.129296))    # 0.2  % reduction in Vcmax in Nn
-(exp(4.482517)-exp(4.685262))/(exp(4.685262))    # 18   %reduction in Vcmax in Sw
+(exp(4.482517)-exp(4.685262))/(exp(4.685262))    # 18.4 % reduction in Vcmax in Sw
 (exp(4.366272)-exp(4.480313))/(exp(4.480313))    # 10.8 % reduction in Vcmax in Sn
 
 acifits2<-droplevels(subset(acifits, Species!="SMIT"))#only an effect of treatment (Warmed<Home) and location (N>S) for V and J
