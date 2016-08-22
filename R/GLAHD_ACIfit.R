@@ -34,7 +34,7 @@ aci <- aci[with(aci,order(Code)),]
 
 #- extract the data to fit (exclude lines that I've manually decided to remove from the curve fitting)
 aci.fit <- subset(aci,toFit==1)
-
+aci.fit$PPFD<-aci.fit$PARi
 
 
 
@@ -62,7 +62,7 @@ if(p.flag==T){
 #- fit the aci curves for each plant
 if(p.flag==F){
   starttime <- Sys.time()
-  fits <- fitacis(aci.fit,group="Code",PPFD="PARi",Tcorrect=F,citransition=450)
+  fits <- fitacis(aci.fit,group="Code",fitmethod="bilinear",Tcorrect=F,citransition=450)
   fits.params <- coef(fits) #extract the Vcmax and Jmax parameters
   Sys.time()-starttime
   

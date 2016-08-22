@@ -129,6 +129,8 @@ effect("Treatment:Range:Location",fm1size)
 (164.5839-186.6049)/(186.6049)  #-11.8 %  Nn
 (205.2237-120.5232)/(120.5232)  # 70.3 %  Sw
 (78.91821-51.43743)/(51.43743)  # 53.4 %  Sn
+(206.189-218.759)/(218.759) #-5.7% in tropical
+
 
 #Compare Tropical Home and Warmed for treatment effects - no effect
 trop<- subset(T60,Location=="N")
@@ -177,7 +179,7 @@ hist(fm1m1$residuals[,1])
 anova(fm1m1)
 plot(effect("Location",fm1m1))                      #0.0586 slightly higher biomass in N
 #plot(effect("Location", fm1m1, transformation=list(link=sqrt, inverse=function(x) x^2)))#changes scale on plot
-((0.7742488^2)-(0.6423764^2))/(0.6423764^2)  #45.2 % higher in N
+((0.7742488^2)-(0.6423764^2))/(0.6423764^2)  #45.3 % higher in N
 
 #mass at 15 days S increased more in biomass than N
 T15<-subset(gamfits2, Time==15)
@@ -259,6 +261,8 @@ plot(effect("Treatment:Location",fm.maxdydt2))        #0.0024 decreased more in 
 (exp(0.0927346)-exp(0.8952484))/(exp(0.8952484))  # -55 %  N
 (exp(0.3357711)-exp(0.4649718))/(exp(0.4649718))  # -12 %  S
 
+
+#Does RGR at a common mass differ?
 
 ###########################################################
 
@@ -362,7 +366,7 @@ anova(fm1LA)
 plot(effect("Totmass:Range",fm1LA), multiline=TRUE) #P=0.0657 wide had lower leaf area than narrow
 plot(effect("Totmass:Location ",fm1LA), multiline=TRUE) #P=0.0882 N had slightly lower leaf area than S
 #with log-log transformation
-plot(effect("log(Totmass):Location",fm1LA), multiline=TRUE)#P<.0001 N had lower allocation to LA than S
+plot(effect("log(Totmass):Treatment:Location",fm1LA), multiline=TRUE)#P<.0001 N had lower allocation to LA than S
 ef3<-effect("log(Totmass):Treatment:Location",fm1LA)#P<.0001 La decreased in S but increased in N
 x3<-as.data.frame(ef3)
       

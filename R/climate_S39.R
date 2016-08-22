@@ -48,8 +48,11 @@ slow.dat.raw$Room <- as.factor(substr(slow.dat.raw$Source,start=16,stop=16))
 slow.dat.raw$Tsoil_Avg.5. <- slow.dat.raw$Tsoil_Avg.6.<- slow.dat.raw$Tsoil_Avg.7. <- slow.dat.raw$Tsoil_Avg.8. <- NULL
 slow.dat.raw$Date <- as.Date(slow.dat.raw$DateTime)
 
-startdate <- as.Date("2014-11-5") # this is the date of planting
+startdate <- as.Date("2014-11-8") # this is the date of planting
 slowdat <- subset(slow.dat.raw,Date >=startdate)
+#- exclude room 1?
+slowdat.GLAHD <- subset(slowdat,Room!=1)
+slowdat.GLAHD$Room <- factor(slowdat.GLAHD$Room)
 #------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -77,15 +80,15 @@ fast.day <- dplyr::summarize(group_by(fast.min,Date,Room),
 means <- summaryBy(Tair+RH+PAR~Room,data=subset(as.data.frame(fast.day),Date>=as.Date("2014-11-12") & Date <=as.Date("2014-11-22")))
 
 #- get daily means for soil T
-slow.day <- dplyr::summarize(group_by(slowdat,Date,Room),
+slow.day <- dplyr::summarize(group_by(slowdat.GLAHD,Date,Room),
                              Tsoil = mean(c(Tsoil_Avg.1.,Tsoil_Avg.2.,Tsoil_Avg.3.,Tsoil_Avg.4.),na.rm=T))
 
-means <- summaryBy(Tair+RH+PAR~Room,data=subset(as.data.frame(fast.day),Date>=as.Date("2014-11-12") & Date <=as.Date("2014-11-22")))
+means <- summaryBy(Tsoil~Room,data=subset(as.data.frame(slow.day),Date>=as.Date("2014-11-12") & Date <=as.Date("2014-11-22")))
 #------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
+Tdata<- merge(fast.day,slow.day, by=c("Date", "Room"))
+enddate<- as.Date("2015-01-16")
+Tdata<-subset(Tdata, Date<enddate)
+summary(lm(Tdata$Tair~Tdata$Tsoil))
 
 #------------------------------------------------------------------------------------------------------------------------------
 #- plot daily data
@@ -230,4 +233,18 @@ fm<-lm((PAR)^3~Room*Time, data=fast.day1) #ANOVA: Did PAR differ among rooms on 
 plot(fm)
 anova(fm)
 
+#make dataset for upload to HIEv
+fastdat.GLAHD$Date <- as.Date(fastdat.GLAHD$DateTime)
+fastdat.GLAHD$VPD <- getVPD(Ta=fastdat.GLAHD$Tair,RH=fastdat.GLAHD$RH)
+fastGLAHD <- merge(fastdat.GLAHD,key,by=c("Date","Room"))
+write.csv(fastGLAHD,file="C:/Repos/GLAHD/Output/GHS39_GLAHD_MAIN_MET-AIR_20141108-20150118.csv",row.names=F)
+library(gtools)
+GLAHD<-smartbind(fastGLAHD,subset(fastdat.GLAHD, Date > as.Date("2015-01-18")))
+write.csv(GLAHD,file="C:/Repos/GLAHD/Output/GHS39_GLAHD_MAIN_MET-AIR_20141108-20150211.csv",row.names=F)
 
+slowdat$Date <- as.Date(slowdat$DateTime)
+slowGLAHD <- merge(slowdat,key,by=c("Date","Room"))
+write.csv(slowGLAHD,file="C:/Repos/GLAHD/Output/GHS39_GLAHD_MAIN_MET-TSOIL_20141108-20150118.csv",row.names=F)
+library(gtools)
+GLAHD2<-smartbind(slowGLAHD,subset(slowdat, Date > as.Date("2015-01-18")))
+write.csv(GLAHD,file="C:/Repos/GLAHD/Output/GHS39_GLAHD_MAIN_MET-TSOIL_20141108-20150211.csv",row.names=F)
