@@ -7,7 +7,7 @@ names(berw)<- c("Time","Range","Location","Treatment.w","predMassWarm","predMass
 bio <- merge(berh,berw, by=c("Time","Range","Location"))
 
 #Confidence intervals using Fieller's theorem (Intuitive Biostatistics H.J. Motulsky 2014 ISBN10: 0199946647)
-alph <- 0.95
+alph <- 0.9
 dfs<-bio$predMass.length-1
 bio$g<- (qt(alph,df=(dfs))*(bio$predMass.standard.error/bio$predMass.mean))^2
 A<-bio$predMassWarm

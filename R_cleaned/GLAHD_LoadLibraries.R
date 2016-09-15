@@ -55,13 +55,16 @@ Library(plotBy)
 Library(dismo)
 Library(rgdal)
 Library(stringr)
+Library(plantecophys)
+Library(dplyr)
+Library(car)
+Library(effects)
 #---------------------------------------------------------------------
 
 #---------------------------------------------------------------------
 #- load the custom functions that do most of the heavy lifting
 
-source("R/generic_functions.R")
-source("R/adderrorbars.R")
-source("R/GLAHD_analysis_functions.R")
-source("R/gamplotfunctions.R")
+source("R_cleaned/generic_functions.R")
+source("R_cleaned/GLAHDAnalysisFunctions.R")
+source("R_cleaned/gamplotfunctions.R")
 #---------------------------------------------------------------------
