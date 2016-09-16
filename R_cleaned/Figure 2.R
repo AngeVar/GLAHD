@@ -1,5 +1,5 @@
 #Figure 2
-source("R/create_datasets.R")
+source("R_cleaned/create_datasets.R")
 
 #Figure 2: Mass over time
 g.trt <- summaryBy(predMass~Time+Treatment+Location+Range,data=gamfits2,FUN=c(mean,standard.error))
@@ -131,16 +131,6 @@ text(70,y=117,labels="Tropical", xpd=NA, srt=-90, pos=2, cex=1.5)
 text(70,y=22,labels="Temperate", xpd=NA, srt=-90, pos=2, cex=1.5)
 ########################################################################
 
-plotBy(predMass.mean~Time, data=NwH,col="black",legend=F,#yaxs="i",xaxs="i",
-       xaxt='n', yaxt='n',ylab="", type="l",ylim=c(0,82),lty=1,lwd=2)
-polygon(x = c(NwH$Time, rev(NwH$Time)), y = c(NwH$high,rev(NwH$low)),col = alpha("black",0.4), border = NA)
-lines(predMass.mean~Time, data=NwW,col="red",
-      xaxt='n', ylab="", type="l",ylim=c(0,82),lty=1,lwd=2)
-polygon(x = c(NwW$Time, rev(NwW$Time)), y = c(NwW$high,rev(NwW$low)),col = alpha("red",0.4), border = NA)
-magaxis(side=c(1,2,4),labels=c(0,0,0),frame.plot=T,las=1,cex.axis=1.2)
-mtext(text="Wide", side=3, line=0.5, cex=1.2)
-legend("topright","b", bty="n", cex=1.2)
-
 
 #provenance specific version
 dat<- summaryBy(predMass+Range~Time+Treatment+Taxa,data=gamfits2,FUN=c(mean,standard.error))
@@ -148,14 +138,17 @@ dat$high<-with(dat,predMass.mean+predMass.standard.error*1.96)
 dat$low<-with(dat,predMass.mean-predMass.standard.error*1.96)
 combos <- levels(dat$Taxa)
 windows(20,20)
-par(mfrow=c(5,4),mar=c(0,0,0,0),oma=c(6,6,1,1))
+par(mfrow=c(5,4),mar=c(0,0,0,0),oma=c(6,6,1,6))
 
 for (i in 1:length(levels(dat$Taxa))){
   dat2 <- subset(dat,Taxa==as.character(combos[i]))
   
+  ifelse(dat2$Taxa == "PLAT",xlims<-c(0,60),xlims<-c(0.1,60))
+  ifelse(dat2$Taxa == "PLAT",ylims<-c(0,82),ylims<-c(0.1,82))
+  
   with(subset(dat2,Treatment=="Home"),
        plot(predMass.mean~Time,col="black",legend=F,type="l",lty=ifelse(Range.mean == 1,2,1),
-            xlim=c(0,60),ylim=c(0,82),axes=F,xlab="Time",ylab="Mass"))  
+            xlim=xlims,ylim=ylims,axes=F,xlab="Time",ylab="Mass",yaxs="i",axs="i"))  
   with(subset(dat2,Treatment=="Home"),
        polygon(x = c(subset(dat2,Treatment=="Home")$Time, 
                 rev(subset(dat2,Treatment=="Home")$Time)), 
@@ -165,28 +158,31 @@ for (i in 1:length(levels(dat$Taxa))){
   par(new=T)
   with(subset(dat2,Treatment=="Warmed"),
        plot(predMass.mean~Time,col="red",legend=F,type="l",lty=ifelse(Range.mean == 1,2,1),
-            xlim=c(0,60),ylim=c(0,82),axes=F,xlab="Time",ylab="Mass"))  
+            xlim=xlims,ylim=ylims,axes=F,xlab="Time",ylab="Mass",yaxs="i",xaxs="i"))  
   with(subset(dat2,Treatment=="Warmed"),
        polygon(x = c(subset(dat2,Treatment=="Warmed")$Time, 
                      rev(subset(dat2,Treatment=="Warmed")$Time)), 
                y = c(subset(dat2,Treatment=="Warmed")$high,
                      rev(subset(dat2,Treatment=="Warmed")$low)),
                col = alpha("red",0.4), border = NA))
-  #first plot
-  ifelse(dat2$Taxa=="ATER"|dat2$Taxa=="CCAM"|dat2$Taxa=="CTER"|dat2$Taxa=="ECAM",
+  
+  ifelse(dat2$Taxa %in% c("ATER","CCAM","CTER","ECAM"),
     magaxis(side=c(1,2,4),labels=c(0,1,0),frame.plot=T,las=1,cex.axis=1.2),
-    ifelse(dat2$Taxa=="BCAM"|dat2$Taxa=="SMIT"|dat2$Taxa=="DCAM", 
-    magaxis(side=c(1,2,4),labels=c(0,0,1),frame.plot=T,las=1,cex.axis=1.2),
-    ifelse(dat2$Taxa=="FCAM"|dat2$Taxa=="BRA",
+    ifelse(dat2$Taxa %in% c("FCAM","BRA","PEL"),
     magaxis(side=c(1,2,4),labels=c(1,0,0),frame.plot=T,las=1,cex.axis=1.2),
-    ifelse(dat2$Taxa=="PEL",
-    magaxis(side=c(1,2,4),labels=c(1,0,1),frame.plot=T,las=1,cex.axis=1.2),
     ifelse(dat2$Taxa=="PLAT",
     magaxis(side=c(1,2,4),labels=c(1,1,0),frame.plot=T,las=1,cex.axis=1.2),       
-    magaxis(side=c(1,2,4),labels=c(0,0,0),frame.plot=T,las=1,cex.axis=1.2))))))
+    magaxis(side=c(1,2,4),labels=c(0,0,0),frame.plot=T,las=1,cex.axis=1.2))))
+  ifelse(dat2$Taxa %in% c("CCAM", "BOT", "LONG", "SMIT"),
+         axis(1, at=c(0,246,246,246), col="black", line = 0.1, tick=T, labels=rep("",4), lwd=2.5, lwd.ticks=0)
+  ,"")
 
   legend("topleft",legend=dat2$Taxa[1],bty="n",cex=1.5)
   }
+
 mtext(expression(Total~mass~(g)),side=2,line=2,outer=T,cex=1.5)
 mtext(expression(Time~(days)),side=1,line=2,outer=T,cex=1.5)
+text(260,y=290,labels="Tropical", xpd=NA, srt=-90, pos=2, cex=2)
+text(260,y=130,labels="Temperate", xpd=NA, srt=-90, pos=2, cex=2)
+
 legend(x=200,y=50,legend=c("Warmed","Home"),pch=15,cex=1.5,xpd=NA,col=c(alpha("red",0.4),alpha("black",0.4)))
