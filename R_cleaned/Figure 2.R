@@ -1,5 +1,5 @@
 #Figure 2
-source("R/create_datasets.R")
+source("R_cleaned/create_datasets.R")
 
 #Figure 2: Mass over time
 g.trt <- summaryBy(predMass~Time+Treatment+Location+Range,data=gamfits2,FUN=c(mean,standard.error))
@@ -179,4 +179,5 @@ for (i in 1:length(combos)){
 }
 mtext(expression(Biomass~(g)),side=2,line=3,outer=T,cex=1.5)
 mtext(expression(Time~(days)),side=1,line=3,outer=T,cex=1.5)
+
 legend(x=200,y=50,legend=c("Warmed","Home"),pch=15,cex=1.5,xpd=NA,col=c(alpha("red",0.4),alpha("black",0.4)))
