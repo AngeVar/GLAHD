@@ -5,13 +5,13 @@
 
 
 #- load libraries from script
-source("R/loadLibraries.R")
-source("R/fitGAM/derivSimulCI.R")
-source("R/fitGAM/plotCIdate.R")
-source("R/fitGAM/smoothplot.R")
+source("R_cleaned/GLAHD_LoadLibraries.R")
+source("R_cleaned/fitGAM/derivSimulCI.R")
+source("R_cleaned/fitGAM/plotCIdate.R")
+source("R_cleaned/fitGAM/smoothplot.R")
 
 # for GAM
-library(mgcv)
+Library(mgcv)
 
 
 

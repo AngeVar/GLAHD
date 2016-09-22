@@ -137,19 +137,22 @@ text(70,y=22,labels="Temperate", xpd=NA, srt=-90, pos=2, cex=1.5)
 dat<- summaryBy(predMass+Range~Time+Treatment+Taxa,data=gamfits2,FUN=c(mean,standard.error))
 dat$high<-with(dat,predMass.mean+predMass.standard.error*CI)
 dat$low<-with(dat,predMass.mean-predMass.standard.error*CI)
-combostemp <- c("BOT","ATER","BTER","LONG","ACAM","BCAM","SMIT","CCAM")
-combostrop<- c("BRA","CTER","DTER","PEL","ETER","DCAM","PLAT",
+combostrop<- c("BRA",NA,"CTER","DTER","PEL",NA,"ETER","DCAM","PLAT",NA,
                "ECAM","FCAM")
-combos<-c(combostrop,combostemp)
+combostemp <- c("BOT",NA,"ATER","BTER","LONG",NA,"ACAM","BCAM","SMIT",NA,"CCAM")
+combos<-c(combostrop,rep(NA,4),combostemp)
 windows(8.27,11.69)
-par(mfrow=c(6,3),mar=c(0,0,0,0),oma=c(6,6,1,1))
+par(mfrow=c(8,8),mar=c(0,0,0,0),oma=c(6,6,3,3))
+layout(matrix(c(1:28), nrow=7, ncol=4,byrow=T),
+       heights=c(1,1,1,0.3,1,1,1),
+       widths=c(1,0.3,1,1,1))
+
 
 for (i in 1:length(combos)){
   dat2 <- subset(dat,Taxa==as.character(combos[i]))
-  
   with(subset(dat2,Treatment=="Home"),
        plot(predMass.mean~Time,col="black",legend=F,type="l",lty=ifelse(Range.mean == 1,2,1),
-            xlim=c(0,65),ylim=c(0, 82),axes=F,xlab="Time",ylab="Mass"))  
+            xlim=c(0,65),ylim=c(0, 88),axes=F,xlab="Time",ylab="Mass"))  
   with(subset(dat2,Treatment=="Home"),
        polygon(x = c(subset(dat2,Treatment=="Home")$Time, 
                      rev(subset(dat2,Treatment=="Home")$Time)), 
@@ -159,7 +162,7 @@ for (i in 1:length(combos)){
   par(new=T)
   with(subset(dat2,Treatment=="Warmed"),
        plot(predMass.mean~Time,col="red",legend=F,type="l",lty=ifelse(Range.mean == 1,2,1),
-            xlim=c(0,65),ylim=c(0,82),axes=F,xlab="Time",ylab="Mass"))  
+            xlim=c(0,65),ylim=c(0,88),axes=F,xlab="Time",ylab="Mass"))  
   with(subset(dat2,Treatment=="Warmed"),
        polygon(x = c(subset(dat2,Treatment=="Warmed")$Time, 
                      rev(subset(dat2,Treatment=="Warmed")$Time)), 
@@ -167,17 +170,26 @@ for (i in 1:length(combos)){
                      rev(subset(dat2,Treatment=="Warmed")$low)),
                col = alpha("red",0.4), border = NA))
   #first plot
-  ifelse(dat2$Taxa %in% c("BRA","PEL","PLAT","BOT","LONG"),
-         magaxis(side=c(1,2,4),labels=c(0,1,0),frame.plot=T,las=1,cex.axis=1.2),
-         ifelse(dat2$Taxa %in% c("CCAM","BCAM"),
-                magaxis(side=c(1,2,4),labels=c(1,0,0),frame.plot=T,las=1,cex.axis=1.2),
-                ifelse(dat2$Taxa=="SMIT",
-                       magaxis(side=c(1,2,4),labels=c(1,1,0),frame.plot=T,las=1,cex.axis=1.2),
-                       magaxis(side=c(1,2,4),labels=c(0,0,0),frame.plot=T,las=1,cex.axis=1.2))))
-  
-  legend("topleft",legend=dat2$Taxa[1],bty="n",cex=1.5)
+    ifelse(dat2$Taxa %in% c("BRA","PEL","BOT","LONG"),
+           magaxis(side=c(1,2),labels=c(0,1),frame.plot=T,las=1,cex.axis=1.2),
+           ifelse(dat2$Taxa %in% c("CCAM","BCAM","ECAM","FCAM"),
+                  magaxis(side=c(1,2),labels=c(1,0),frame.plot=T,las=1,cex.axis=1.2),
+                  ifelse(dat2$Taxa %in% c("SMIT","PLAT"),
+                         magaxis(side=c(1,2),labels=c(1,1),frame.plot=T,las=1,cex.axis=1.2),
+                         magaxis(side=c(1,2),labels=c(0,0),frame.plot=T,las=1,cex.axis=1.2))))
+    
+    legend("topleft",legend=dat2$Taxa[1],bty="n",cex=1.3)
 }
 mtext(expression(Biomass~(g)),side=2,line=3,outer=T,cex=1.5)
 mtext(expression(Time~(days)),side=1,line=3,outer=T,cex=1.5)
+mtext("Narrow",side=3,line=1,outer=T,cex=1, adj=0.08)
+mtext("Wide",side=3,line=1,outer=T,cex=1, adj=0.72)
+text(155,y=415,labels="Tropical", xpd=NA, srt=-90, pos=2, cex=1.7)
+text(155,y=135,labels="Temperate", xpd=NA, srt=-90, pos=2, cex=1.7)
 
-legend(x=200,y=50,legend=c("Warmed","Home"),pch=15,cex=1.5,xpd=NA,col=c(alpha("red",0.4),alpha("black",0.4)))
+legend(x=70,y=60,legend=c("Warmed","Home"),cex=1.4,
+       xpd=NA,fill=c(alpha("red",0.4),alpha("black",0.4)), border="black",
+      bty="n")
+
+
+
