@@ -33,8 +33,8 @@ SwH$low<- with(SwH,dydt.mean-dydt.standard.error*CI )
 SwW$high<- with(SwW,dydt.mean+dydt.standard.error*CI )
 SwW$low<- with(SwW,dydt.mean-dydt.standard.error*CI )
 
-plotBy(dydt.mean~Time,data=NnH,legend=F,type="l",las=1,yaxs="i",xaxs="i",
-       ylim=c(0.02,0.17),lty=2,lwd=2,cex.lab=2, xlim=c(1,60),axes=F,
+plotBy(dydt.mean~Time,data=NnH,legend=FALSE,type="l",las=1,yaxs="i",xaxs="i",
+       ylim=c(0.02,0.17),lty=2,lwd=2,cex.lab=2, xlim=c(1,60),axes=FALSE,
        ylab=expression(Total~mass~(g)),
        xlab="")
 lines(dydt.mean~Time, data=NnW,col="red",
@@ -49,7 +49,7 @@ legend("topright","a", bty="n", cex=1.2)
 legend("topleft", legend=c(expression(Warmed~(+3.5~degree~C)),"Home"),pch=22, pt.cex=2, pt.bg=c(alpha("red",1),alpha("black",0.6)),
        bty="n",cex=1.2)
 
-plotBy(dydt.mean~Time, data=NwH,col="black",legend=F,yaxs="i",xaxs="i",
+plotBy(dydt.mean~Time, data=NwH,col="black",legend=FALSE,yaxs="i",xaxs="i",
        xaxt='n', yaxt='n',ylab="", type="l",ylim=c(0.02,0.17),lty=1,lwd=2)
 lines(dydt.mean~Time, data=NwW,col="red",
       xaxt='n', ylab="", type="l",ylim=c(0.02,0.17),lty=1,lwd=2)
@@ -60,17 +60,17 @@ mtext(text="Wide", side=3, line=0.5, cex=1.2)
 legend("topright","b", bty="n", cex=1.2)
 
 
-plotBy(dydt.mean~Time,data=SnH,legend=F,type="l",las=1,yaxs="i",xaxs="i",
-       ylim=c(0.02,0.17),lty=2,lwd=2,cex.lab=2, xlim=c(1,60),axes=F,xlab="")
+plotBy(dydt.mean~Time,data=SnH,legend=FALSE,type="l",las=1,yaxs="i",xaxs="i",
+       ylim=c(0.02,0.17),lty=2,lwd=2,cex.lab=2, xlim=c(1,60),axes=FALSE,xlab="")
 lines(dydt.mean~Time, data=SnW,col="red",
       xaxt='n', ylab="", type="l",ylim=c(0.02,0.17),lty=2,lwd=2)
 polygon(x = c(SnH$Time, rev(SnH$Time)), y = c(SnH$high,rev(SnH$low)),col = alpha("black",0.4), border = NA)
 polygon(x = c(SnW$Time, rev(SnW$Time)), y = c(SnW$high,rev(SnW$low)),col = alpha("red",0.4), border = NA)
-#mtext(text="Temperate",side=3, line=-2,at=14,cex=1.5, outer=F)
+#mtext(text="Temperate",side=3, line=-2,at=14,cex=1.5, outer=FALSE)
 magaxis(side=c(1,2,4),labels=c(1,1,0),frame.plot=T,las=1,cex.axis=1.2)
 legend("topright","c", bty="n", cex=1.2)
 
-plotBy(dydt.mean~Time, data=SwH,col="black",legend=F, yaxt='n',yaxs="i",xaxs="i",
+plotBy(dydt.mean~Time, data=SwH,col="black",legend=FALSE, yaxt='n',yaxs="i",xaxs="i",
        xaxt='n', ylab="", type="l",ylim=c(0.02,0.17),lty=1,lwd=2)
 lines(dydt.mean~Time, data=SwW,col="red",
       xaxt='n', ylab="", type="l",ylim=c(0.02,0.17),lty=1,lwd=2)
@@ -105,8 +105,8 @@ layout(matrix(c(1:28), nrow=7, ncol=4,byrow=T),
 for (i in 1:length(combos)){
   dat2 <- subset(dat,Taxa==as.character(combos[i]))
   with(subset(dat2,Treatment=="Home"),
-       plot(dydt.mean~Time,col="black",legend=F,type="l",lty=ifelse(Range.mean == 1,2,1),
-            xlim=c(0,65),ylim=c(0, 0.19),axes=F,xlab="Time",ylab="Mass"))  
+       plot(dydt.mean~Time,col="black",legend=FALSE,type="l",lty=ifelse(Range.mean == 1,2,1),
+            xlim=c(0,65),ylim=c(0, 0.19),axes=FALSE,xlab="Time",ylab="Mass"))  
   with(subset(dat2,Treatment=="Home"),
        polygon(x = c(subset(dat2,Treatment=="Home")$Time, 
                      rev(subset(dat2,Treatment=="Home")$Time)), 
@@ -115,8 +115,8 @@ for (i in 1:length(combos)){
                col = alpha("black",0.4), border = NA))
   par(new=T)
   with(subset(dat2,Treatment=="Warmed"),
-       plot(dydt.mean~Time,col="red",legend=F,type="l",lty=ifelse(Range.mean == 1,2,1),
-            xlim=c(0,65),ylim=c(0,0.19),axes=F,xlab="Time",ylab="Mass"))  
+       plot(dydt.mean~Time,col="red",legend=FALSE,type="l",lty=ifelse(Range.mean == 1,2,1),
+            xlim=c(0,65),ylim=c(0,0.19),axes=FALSE,xlab="Time",ylab="Mass"))  
   with(subset(dat2,Treatment=="Warmed"),
        polygon(x = c(subset(dat2,Treatment=="Warmed")$Time, 
                      rev(subset(dat2,Treatment=="Warmed")$Time)), 

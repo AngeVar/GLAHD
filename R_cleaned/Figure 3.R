@@ -27,8 +27,8 @@ Sbion<- subset(bio, Location =="S"&Range=="narrow"); Sbion<-Sbion[order(Sbion$Ti
 Sbiow<- subset(bio, Location =="S"&Range=="wide"); Sbiow<-Sbiow[order(Sbiow$Time),]
 Nbion<- subset(bio,Location =="N"&Range=="narrow"); Nbion<-Nbion[order(Nbion$Time),]
 Nbiow<- subset(bio,Location =="N"&Range=="wide"); Nbiow<-Nbiow[order(Nbiow$Time),]
-plotBy(Q~Time,data=Sbion,col="black",lty = 2,lwd=2,axes=F,
-       legend=F,type="l", main="", ylim=c(0.75,2.2), xaxt='n',xlim=c(0,64),yaxp  = c(0.8, 2.2, 7))
+plotBy(Q~Time,data=Sbion,col="black",lty = 2,lwd=2,axes=FALSE,
+       legend=FALSE,type="l", main="", ylim=c(0.75,2.2), xaxt='n',xlim=c(0,64),yaxp  = c(0.8, 2.2, 7))
 lines(Q~Time,data=Sbiow,col="black",lty=1,lwd=2)
 mtext(text="Temperate", side=3, line=0.5, cex=1.2)
 abline(h=1)
@@ -38,8 +38,8 @@ polygon(x = c(Sbiow$Time, rev(Sbiow$Time)), y = c(Sbiow$CIQhigh,rev(Sbiow$CIQlow
 legend("topright","a", bty="n", cex=1.2)
 magaxis(side=c(1,2,4),labels=c(0,1,0),frame.plot=T,las=1,cex.axis=1.2)
 
-plotBy(Q~Time,data=Nbion,col="black",lty = 2,lwd=2,axes=F,
-       legend=F,type="l", main = "", ylim=c(0.75,2.2),yaxt='n',xaxt='n', xlim=c(0,64),yaxp  = c(0.8, 2.2, 7))
+plotBy(Q~Time,data=Nbion,col="black",lty = 2,lwd=2,axes=FALSE,
+       legend=FALSE,type="l", main = "", ylim=c(0.75,2.2),yaxt='n',xaxt='n', xlim=c(0,64),yaxp  = c(0.8, 2.2, 7))
 lines(Q~Time,data=Nbiow,col="black",lty=1,lwd=2)
 mtext(text="Tropical", side=3, line=0.5, cex=1.2)
 abline(h=1)
@@ -74,8 +74,8 @@ Sbiodn<- subset(biod, Location =="S"&Range=="narrow"); Sbiodn<-Sbiodn[order(Sbio
 Sbiodw<- subset(biod, Location =="S"&Range=="wide"); Sbiodw<-Sbiodw[order(Sbiodw$Time),]
 Nbiodn<- subset(biod,Location =="N"&Range=="narrow"); Nbiodn<-Nbiodn[order(Nbiodn$Time),]
 Nbiodw<- subset(biod,Location =="N"&Range=="wide"); Nbiodw<-Nbiodw[order(Nbiodw$Time),]
-plotBy(Q~Time,data=Sbiodn,col="black",lty = 2,lwd=2,axes=F,
-       legend=F,type="l", main="", ylim=c(0.75,2.18), xlim=c(0,64),yaxp  = c(0.8, 2, 6))
+plotBy(Q~Time,data=Sbiodn,col="black",lty = 2,lwd=2,axes=FALSE,
+       legend=FALSE,type="l", main="", ylim=c(0.75,2.18), xlim=c(0,64),yaxp  = c(0.8, 2, 6))
 lines(Q~Time,data=Sbiodw,col="black",lty=1,lwd=2)
 abline(h=1)
 mtext("RGR response ratio", side=2, line=3)
@@ -84,11 +84,11 @@ polygon(x = c(Sbiodw$Time, rev(Sbiodw$Time)), y = c(Sbiodw$CIQhigh,rev(Sbiodw$CI
 legend("topright","c", bty="n", cex=1.2)
 magaxis(side=c(1,2,4),labels=c(1,1,0),frame.plot=T,las=1,cex.axis=1.2)
 
-plotBy(Q~Time,data=Nbiodn,col="black",lty = 2,lwd=2, axes=F,
-       legend=F,type="l", main = "", ylim=c(0.75,2.18),yaxt='n', xlim=c(0,64),yaxp  = c(0.8, 2, 6))
+plotBy(Q~Time,data=Nbiodn,col="black",lty = 2,lwd=2, axes=FALSE,
+       legend=FALSE,type="l", main = "", ylim=c(0.75,2.18),yaxt='n', xlim=c(0,64),yaxp  = c(0.8, 2, 6))
 lines(Q~Time,data=Nbiodw,col="black",lty=1,lwd=2)
 abline(h=1)
-mtext(text="Time (Days)",side=1,outer=F,cex=1,line=2.5, at=0)
+mtext(text="Time (Days)",side=1,outer=FALSE,cex=1,line=2.5, at=0)
 polygon(x = c(Nbiodn$Time, rev(Nbiodn$Time)), y = c(Nbiodn$CIQhigh,rev(Nbiodn$CIQlow)),col = alpha("black",0.2), border = NA)
 polygon(x = c(Nbiodw$Time, rev(Nbiodw$Time)), y = c(Nbiodw$CIQhigh,rev(Nbiodw$CIQlow)),col = alpha("black",0.4), border = NA)
 legend("topright","d", bty="n", cex=1.2)
