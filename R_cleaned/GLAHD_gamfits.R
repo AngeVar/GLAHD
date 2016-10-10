@@ -77,3 +77,46 @@ gamfits2 <- merge(gamfits.df,key,by=c("Code"),all.x=T)
 gamfits2$AGR <- gamfits2$dydt*gamfits2$predMass
 #-------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------
+
+
+#-------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------
+#- fit gam model to each plant one at a time, predict the derivatives
+growth.l <- split(dat3,dat3$Code)
+log3fits <- output <- data.out <- list()
+kgam=5
+gamfitsmass <- list()
+for(i in 1:length(growth.l)){
+  tofit <- growth.l[[i]]
+  
+  #- fit the gam
+  g <- gam(lnTotMass ~ s(TotMass, k=kgam), data=tofit)
+  
+  #- plot fit
+    smoothplot(TotMass, lnTotMass, data=tofit, kgam=kgam)
+    title(main=tofit$Code[1])
+  
+  #- create a vector of "masses" on which to estimate the derivative 
+  masses <- seq(0, 100, by=1)
+  
+  #- extract the derivative 
+  fd <- derivSimulCI(g, samples = 10000, n=length(masses))
+  dydt <- fd[[1]]$deriv[,1]
+  
+  #- put derivatives into a list of dataframes
+  gamfitsmass[[i]] <- data.frame(Code=tofit$Code[1],Mass=masses,dydt=dydt)
+  
+  #- get the predicted mass
+  newDF <- data.frame(Mass=masses) ## needs to be a data frame for predict
+  
+}
+
+#- merge dataframes, combine with treatment key
+gamfitsmass.df <- do.call(rbind,gamfitsmass)
+key <- unique(subset(dat3,select=c("Code","Species","Treatment","Location","Taxa","Range")))
+gamfits2mass <- merge(gamfitsmass.df,key,by=c("Code"),all.x=T)
+
+#-------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------
+
+plotBy(dydt~Mass, data=subset(gamfits2mass, Taxa == "ACAM"))

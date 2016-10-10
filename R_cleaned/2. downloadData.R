@@ -5,6 +5,7 @@
 #-----------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------
 
+setToken(readLines("HIEv_token.txt"))
 
 #- download all files on HIEv for the main part of the "GREAT" experiment
 downloadHIEv(searchHIEv("GHS39_GLAHD_MAIN"),topath="data")
