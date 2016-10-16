@@ -70,6 +70,11 @@ gamfits2$Sp_RS_EN <- as.factor(with(gamfits2,paste(Species,Range)))   # use "exp
 gamfits2$Prov_Sp_EN <- as.factor(with(gamfits2,paste(Taxa,Species)))
 gamfits2$Sp_Loc_EN <- as.factor(with(gamfits2,paste(Species,Location)))
 
+gamfits2mass$Location <- factor(gamfits2mass$Location,levels=c("S","N")) # relevel Location so that "S" is the first level and "N" is the second
+gamfits2mass$Sp_RS_EN <- as.factor(with(gamfits2mass,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
+gamfits2mass$Prov_Sp_EN <- as.factor(with(gamfits2mass,paste(Taxa,Species)))
+gamfits2mass$Sp_Loc_EN <- as.factor(with(gamfits2mass,paste(Species,Location)))
+
 rate$Location <- factor(rate$Location,levels=c("S","N")) 
 rate$Sp_RS_EN <- as.factor(with(rate,paste(Species,Range)))   
 rate$Prov_Sp_EN <- as.factor(with(rate,paste(Taxa,Species)))
