@@ -151,8 +151,13 @@ layout(matrix(c(1:28), nrow=7, ncol=4,byrow=T),
 for (i in 1:length(combos)){
   dat2 <- subset(dat,Taxa==as.character(combos[i]))
   with(subset(dat2,Treatment=="Home"),
+<<<<<<< HEAD
+       plot(predMass.mean~Time,col="black",legend=F,type="l",lty=ifelse(Range.mean == 1,2,1),
+            xlim=c(0,65),ylim=c(0, 88),axes=F,xlab="Time",ylab="Mass"))  
+=======
        plot(predMass.mean~Time,col="black",legend=FALSE,type="l",lty=ifelse(Range.mean == 1,2,1),
             xlim=c(0,65),ylim=c(0, 88),axes=FALSE,xlab="Time",ylab="Mass"))  
+>>>>>>> ba63ea9b474a4e6678373ce21832e41940662a30
   with(subset(dat2,Treatment=="Home"),
        polygon(x = c(subset(dat2,Treatment=="Home")$Time, 
                      rev(subset(dat2,Treatment=="Home")$Time)), 
@@ -161,8 +166,13 @@ for (i in 1:length(combos)){
                col = alpha("black",0.4), border = NA))
   par(new=T)
   with(subset(dat2,Treatment=="Warmed"),
+<<<<<<< HEAD
+       plot(predMass.mean~Time,col="red",legend=F,type="l",lty=ifelse(Range.mean == 1,2,1),
+            xlim=c(0,65),ylim=c(0,88),axes=F,xlab="Time",ylab="Mass"))  
+=======
        plot(predMass.mean~Time,col="red",legend=FALSE,type="l",lty=ifelse(Range.mean == 1,2,1),
             xlim=c(0,65),ylim=c(0,88),axes=FALSE,xlab="Time",ylab="Mass"))  
+>>>>>>> ba63ea9b474a4e6678373ce21832e41940662a30
   with(subset(dat2,Treatment=="Warmed"),
        polygon(x = c(subset(dat2,Treatment=="Warmed")$Time, 
                      rev(subset(dat2,Treatment=="Warmed")$Time)), 

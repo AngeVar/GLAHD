@@ -105,8 +105,13 @@ layout(matrix(c(1:28), nrow=7, ncol=4,byrow=T),
 for (i in 1:length(combos)){
   dat2 <- subset(dat,Taxa==as.character(combos[i]))
   with(subset(dat2,Treatment=="Home"),
+<<<<<<< HEAD
+       plot(dydt.mean~Time,col="black",legend=F,type="l",lty=ifelse(Range.mean == 1,2,1),
+            xlim=c(0,65),ylim=c(0, 0.19),axes=F,xlab="Time",ylab="Mass"))  
+=======
        plot(dydt.mean~Time,col="black",legend=FALSE,type="l",lty=ifelse(Range.mean == 1,2,1),
             xlim=c(0,65),ylim=c(0, 0.19),axes=FALSE,xlab="Time",ylab="Mass"))  
+>>>>>>> ba63ea9b474a4e6678373ce21832e41940662a30
   with(subset(dat2,Treatment=="Home"),
        polygon(x = c(subset(dat2,Treatment=="Home")$Time, 
                      rev(subset(dat2,Treatment=="Home")$Time)), 
@@ -115,8 +120,13 @@ for (i in 1:length(combos)){
                col = alpha("black",0.4), border = NA))
   par(new=T)
   with(subset(dat2,Treatment=="Warmed"),
+<<<<<<< HEAD
+       plot(dydt.mean~Time,col="red",legend=F,type="l",lty=ifelse(Range.mean == 1,2,1),
+            xlim=c(0,65),ylim=c(0,0.19),axes=F,xlab="Time",ylab="Mass"))  
+=======
        plot(dydt.mean~Time,col="red",legend=FALSE,type="l",lty=ifelse(Range.mean == 1,2,1),
             xlim=c(0,65),ylim=c(0,0.19),axes=FALSE,xlab="Time",ylab="Mass"))  
+>>>>>>> ba63ea9b474a4e6678373ce21832e41940662a30
   with(subset(dat2,Treatment=="Warmed"),
        polygon(x = c(subset(dat2,Treatment=="Warmed")$Time, 
                      rev(subset(dat2,Treatment=="Warmed")$Time)), 
@@ -144,6 +154,8 @@ text(155,y=0.3,labels="Temperate", xpd=NA, srt=-90, pos=2, cex=1.7)
 legend(x=70,y=0.15,legend=c("Warmed","Home"),cex=1.4,
        xpd=NA,fill=c(alpha("red",0.4),alpha("black",0.4)), border="black",
        bty="n")
+<<<<<<< HEAD
+=======
 ###################################################################################
 ###    OVER MASS
 
@@ -306,4 +318,5 @@ legend(x=70,y=0.15,legend=c("Warmed","Home"),cex=1.4,
        xpd=NA,fill=c(alpha("red",0.4),alpha("black",0.4)), border="black",
        bty="n")
 
+>>>>>>> ba63ea9b474a4e6678373ce21832e41940662a30
 
