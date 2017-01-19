@@ -83,49 +83,58 @@ mtext(text="Time (Days)", side=1, line=3, cex=1.2)
 
 ###############################################
 #2by2 version
+#add predmass from "rate"
 windows(11.69,11.69);par(mfrow=c(2,2),mar=c(0,0,0,0),oma=c(6,6,6,6))
 
 plotBy(predMass.mean~Time,data=NnH,legend=FALSE,type="l",las=1,#yaxs="i",xaxs="i",
-       ylim=c(0,82),lty=2,lwd=2,cex.lab=2, xlim=c(1,60),axes=FALSE,
+       ylim=c(0,115),lty=2,lwd=2,cex.lab=2, xlim=c(1,60),axes=FALSE,
        ylab=expression(Total~mass~(g)),
        xlab="")
+points(predMass~jitter(Time,0,0.5), data=subset(rate, Location =="N" & Range=="narrow" & Treatment == "Home"), col=alpha("black",0.4), pch=19)
 lines(predMass.mean~Time, data=NnW,col="red",
-      xaxt='n', ylab="", type="l",ylim=c(0,82),lty=2,lwd=2)
+      xaxt='n', ylab="", type="l",ylim=c(0,115),lty=2,lwd=2)
+points(predMass~jitter(Time,0,0.5), data=subset(rate, Location =="N" & Range=="narrow" & Treatment == "Warmed"), col=alpha("red",0.4), pch=19)
 polygon(x = c(NnH$Time, rev(NnH$Time)), y = c(NnH$high,rev(NnH$low)),col = alpha("black",0.4), border = NA)
 polygon(x = c(NnW$Time, rev(NnW$Time)), y = c(NnW$high,rev(NnW$low)),col = alpha("red",0.4), border = NA)
 mtext(text="Narrow", side=3, line=0.5, cex=1.2)
-legend("topleft", legend=c(expression(Warmed~(+3.5~degree~C)),"Home"),col=c("red","black"),lty=c(1,1), lwd=2,bty="n")
+legend("topleft", legend=c(expression(Warmed~(+3.5~degree~C)),"Home"),col=c("red","black"),lty=c(1,1), lwd=2,bty="n", cex=1.2)
                       
 magaxis(side=c(1,2,4),labels=c(0,1,0),frame.plot=T,las=1,cex.axis=1.2)
-legend("topright","a", bty="n", cex=1.2)
+legend("topright","a", bty="n", cex=1.5)
 
 plotBy(predMass.mean~Time, data=NwH,col="black",legend=FALSE,#yaxs="i",xaxs="i",
-      xaxt='n', yaxt='n',ylab="", type="l",ylim=c(0,82),lty=1,lwd=2)
+      xaxt='n', yaxt='n',ylab="", type="l",ylim=c(0,115),lty=1,lwd=2)
+points(predMass~jitter(Time,0,0.5), data=subset(rate, Location =="N" & Range=="wide" & Treatment == "Home"), col=alpha("black",0.4), pch=19)
 lines(predMass.mean~Time, data=NwW,col="red",
-      xaxt='n', ylab="", type="l",ylim=c(0,82),lty=1,lwd=2)
+      xaxt='n', ylab="", type="l",ylim=c(0,115),lty=1,lwd=2)
+points(predMass~jitter(Time,0,0.5), data=subset(rate, Location =="N" & Range=="wide" & Treatment == "Warmed"), col=alpha("red",0.4), pch=19)
 polygon(x = c(NwH$Time, rev(NwH$Time)), y = c(NwH$high,rev(NwH$low)),col = alpha("black",0.4), border = NA)
 polygon(x = c(NwW$Time, rev(NwW$Time)), y = c(NwW$high,rev(NwW$low)),col = alpha("red",0.4), border = NA)
 magaxis(side=c(1,2,4),labels=c(0,0,0),frame.plot=T,las=1,cex.axis=1.2)
 mtext(text="Wide", side=3, line=0.5, cex=1.2)
-legend("topright","b", bty="n", cex=1.2)
+legend("topright","b", bty="n", cex=1.5)
 
 plotBy(predMass.mean~Time,data=SnH,legend=FALSE,type="l",las=1,#yaxs="i",xaxs="i",
-       ylim=c(0,82),lty=2,lwd=2,cex.lab=2, xlim=c(1,60),axes=FALSE,xlab="")
+       ylim=c(0,115),lty=2,lwd=2,cex.lab=2, xlim=c(1,60),axes=FALSE,xlab="")
+points(predMass~jitter(Time,0,0.5), data=subset(rate, Location =="S" & Range=="narrow" & Treatment == "Home"), col=alpha("black",0.4), pch=19)
 lines(predMass.mean~Time, data=SnW,col="red",
-      xaxt='n', ylab="", type="l",ylim=c(0,82),lty=2,lwd=2)
+      xaxt='n', ylab="", type="l",ylim=c(0,115),lty=2,lwd=2)
+points(predMass~jitter(Time,0,0.5), data=subset(rate, Location =="S" & Range=="narrow" & Treatment == "Warmed"), col=alpha("red",0.4), pch=19)
 polygon(x = c(SnH$Time, rev(SnH$Time)), y = c(SnH$high,rev(SnH$low)),col = alpha("black",0.4), border = NA)
 polygon(x = c(SnW$Time, rev(SnW$Time)), y = c(SnW$high,rev(SnW$low)),col = alpha("red",0.4), border = NA)
 magaxis(side=c(1,2,4),labels=c(1,1,0),frame.plot=T,las=1,cex.axis=1.2)
-legend("topright","c", bty="n", cex=1.2)
+legend("topright","c", bty="n", cex=1.5)
 
 plotBy(predMass.mean~Time, data=SwH,col="black",legend=FALSE, yaxt='n',#yaxs="i",xaxs="i",
-      xaxt='n', ylab="", type="l",ylim=c(0,82),lty=1,lwd=2)
+      xaxt='n', ylab="", type="l",ylim=c(0,115),lty=1,lwd=2)
+points(predMass~jitter(Time,0,0.5), data=subset(rate, Location =="S" & Range=="wide" & Treatment == "Home"), col=alpha("black",0.4), pch=19)
 lines(predMass.mean~Time, data=SwW,col="red",
-      xaxt='n', ylab="", type="l",ylim=c(0,82),lty=1,lwd=2)
+      xaxt='n', ylab="", type="l",ylim=c(0,115),lty=1,lwd=2)
+points(predMass~jitter(Time,0,0.5), data=subset(rate, Location =="S" & Range=="wide" & Treatment == "Warmed"), col=alpha("red",0.4), pch=19)
 polygon(x = c(SwH$Time, rev(SwH$Time)), y = c(SwH$high,rev(SwH$low)),col = alpha("black",0.4), border = NA)
 polygon(x = c(SwW$Time, rev(SwW$Time)), y = c(SwW$high,rev(SwW$low)),col = alpha("red",0.4), border = NA)
 magaxis(side=c(1,2,4),labels=c(1,0,0),frame.plot=T,las=1,cex.axis=1.2)
-legend("topright","d", bty="n", cex=1.2)
+legend("topright","d", bty="n", cex=1.5)
 mtext(text="Total biomass (g)", outer=T, side=2, line=2.5, cex=1.2)
 mtext(text="Time (Days)", side=1, line=3, cex=1.2, adj=-0.3)
 
