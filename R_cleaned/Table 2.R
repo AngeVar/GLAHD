@@ -1,5 +1,8 @@
 #Daily stats
 
+source("R_cleaned/1. GLAHD_LoadLibraries.R")
+source("R_cleaned/2. downloadData.R")
+source("R_cleaned/3. Create_datasets.R")
 
 # BIOMASS
 
@@ -127,7 +130,7 @@ plot(effect("Treatment:Location",fm1m60), multiline = T) #<.0001 warming increas
 
 
 ###-----------------------------
-#RGR
+#RGR over time
 
 T10<-subset(gamfits2, Time==10) 
 fm1r10 <- lme(sqrt(dydt)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=T10)#, method="ML")
@@ -259,7 +262,8 @@ plot(effect("Treatment:Location:Range",fm1r60), multiline = T) #0.0168 warming i
 
 
 ###-----------------------------
-#RGR at common mass - fit GAM lnTotMass ~ s(TotMass, k=kgam)
+#RGR at common mass - 
+# fit GAM lnTotMass ~ s(TotMass, k=kgam) # is this really the same RGR?
 
 T10<-subset(gamfits2mass, Mass==10) 
 fm1r10 <- lme(log(dydt)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=T10)#, method="ML")
@@ -383,3 +387,46 @@ plot(effect("Treatment:Location:Range",fm1r60), multiline = T) #0.0168 warming i
   effect("Treatment:Location:Range",fm1r60)[[5]][5,1])*100 #-22.5 % S wide
 ((effect("Treatment:Location:Range",fm1r60)[[5]][2,1]-effect("Treatment:Location:Range",fm1r60)[[5]][1,1])/
   effect("Treatment:Location:Range",fm1r60)[[5]][1,1])*100 #+0.51% S narrow
+
+
+####-----------------------------------------------------------------------------------
+## Average RGR at common mass
+
+#get the highest minimum mass of each treatment group
+max(summaryBy(predMass~Taxa+Treatment, data=gamfits2, FUN=c(min))$predMass.min) #DCAM HOME 0.6431564
+
+summaryBy(predMass~Taxa+Treatment, data=subset(gamfits2, predMass > 0.8 & predMass< 0.8+0.2), 
+          FUN=length) #find range that encompasses at least 10 reps of each Treatment combo
+
+RGRm<-droplevels(subset(gamfits2, predMass >0.8 & predMass<0.8+0.2))
+
+fmr <- lme((dydt)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=RGRm)#, method="ML")
+plot(fmr,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fmr,(dydt)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
+plot(fmr,(dydt)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
+qqnorm(fmr, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
+hist(fmr$residuals[,1])
+anova(fmr)    
+plot(effect("Treatment",fmr))                    #<.0001 RGR decreased with warming
+plot(effect("Location",fmr))                     #0.0044 RGR lower in N
+plot(effect("Treatment:Range",fmr), multiline = T) #0.093 warming decreased RGR more in wide than narrow
+
+
+#get the smallest maximum mass of each treatment group
+min(summaryBy(predMass~Taxa+Treatment, data=gamfits2, FUN=c(max))$predMass.max) #SMIT HOME 33.0923
+
+summaryBy(predMass~Taxa+Treatment, data=subset(gamfits2, predMass >19 & predMass<25), 
+          FUN=length) #find range that encompasses at least 10 reps of each Treatment combo
+
+RGRm<-droplevels(subset(gamfits2, predMass >19 & predMass<25))
+
+fmr <- lme((dydt)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=RGRm)#, method="ML")
+plot(fmr,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fmr,(dydt)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
+plot(fmr,(dydt)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
+qqnorm(fmr, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
+hist(fmr$residuals[,1])
+anova(fmr)    
+plot(effect("Treatment",fmr))                    #<.0001 RGR decreased with warming
+plot(effect("Treatment:Location",fmr))                     #0.0044 RGR lower in N
+plot(effect("Treatment:Location:Range",fmr), multiline = T) #0.093 warming decreased RGR more in wide than narrow

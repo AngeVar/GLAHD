@@ -5,7 +5,7 @@
 
 
 #- load libraries from script
-source("R_cleaned/GLAHD_LoadLibraries.R")
+source("R_cleaned/1. GLAHD_LoadLibraries.R")
 source("R_cleaned/fitGAM/derivSimulCI.R")
 source("R_cleaned/fitGAM/plotCIdate.R")
 source("R_cleaned/fitGAM/smoothplot.R")
@@ -118,5 +118,3 @@ gamfits2mass <- merge(gamfitsmass.df,key,by=c("Code"),all.x=T)
 
 #-------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------
-
-plotBy(dydt~Mass, data=subset(gamfits2mass, Taxa == "ACAM"))

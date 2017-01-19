@@ -185,7 +185,7 @@ SwW$low<- with(SwW,dydt.mean-dydt.standard.error*CI )
 xlims<-c(0.1,70)
 plotBy(dydt.mean~predMass.mean,data=NnH,legend=FALSE,type="p",las=1,yaxs="i",xaxs="i",log="x",
        ylim=c(0.02,0.17),lty=2,lwd=2,cex.lab=2, xlim=xlims,axes=FALSE,ylab=expression(Total~mass~(g)),xlab="")
-lines(dydt.mean~predMass.mean, data=NnW,col="red",xaxt='n', ylab="", type="p",ylim=c(0.02,0.17),lty=2,lwd=2, log="x")
+lines(dydt.mean~predMass.mean, data=NnW,col="red",xaxt='n', ylab="", type="p",ylim=c(0.02,0.17),lty=2,lwd=2)
 
 polygon(x = c(NnH$predMass.mean, rev(NnH$predMass.mean)), y = c(NnH$high,rev(NnH$low)),col = alpha("black",0.4), border = NA)
 polygon(x = c(NnW$predMass.mean, rev(NnW$predMass.mean)), y = c(NnW$high,rev(NnW$low)),col = alpha("red",0.4), border = NA)
@@ -196,6 +196,9 @@ magaxis(side=c(1,2,4),labels=c(0,1,0),frame.plot=T,las=1,cex.axis=1.2)
 legend("topright","a", bty="n", cex=1.2)
 legend("topleft", legend=c(expression(Warmed~(+3.5~degree~C)),"Home"),pch=22, pt.cex=2, pt.bg=c(alpha("red",1),alpha("black",0.6)),
        bty="n",cex=1.2)
+rect(0.8, 0.02, 1, 0.17 ,col = alpha("black",0.2), border = NA)
+#comparison at a very small mass
+rect(19, 0.02, 25, 0.17 ,col = alpha("black",0.2), border = NA)
 
 plotBy(dydt.mean~predMass.mean, data=NwH,col="black",legend=FALSE,yaxs="i",xaxs="i",log="x",
        xaxt='n', yaxt='n',ylab="", type="p",ylim=c(0.02,0.17),xlim=xlims,lty=1,lwd=2)
@@ -206,7 +209,8 @@ polygon(x = c(NwW$predMass.mean, rev(NwW$predMass.mean)), y = c(NwW$high,rev(NwW
 magaxis(side=c(1,2,4),labels=c(0,0,0),frame.plot=T,las=1,cex.axis=1.2)
 mtext(text="Wide", side=3, line=0.5, cex=1.2)
 legend("topright","b", bty="n", cex=1.2)
-
+rect(0.8, 0.02, 1, 0.17 ,col = alpha("black",0.2), border = NA)
+rect(19, 0.02, 25, 0.17 ,col = alpha("black",0.2), border = NA)
 
 plotBy(dydt.mean~predMass.mean,data=SnH,legend=FALSE,type="p",las=1,yaxs="i",xaxs="i",log="x",
        ylim=c(0.02,0.17),lty=2,lwd=2,cex.lab=2, xlim=xlims,axes=FALSE,xlab="")
@@ -217,6 +221,8 @@ polygon(x = c(SnW$predMass.mean, rev(SnW$predMass.mean)), y = c(SnW$high,rev(SnW
 #mtext(text="Temperate",side=3, line=-2,at=14,cex=1.5, outer=FALSE)
 magaxis(side=c(1,2,4),labels=c(1,1,0),frame.plot=T,las=1,cex.axis=1.2)
 legend("topright","c", bty="n", cex=1.2)
+rect(0.8, 0.02, 1, 0.17 ,col = alpha("black",0.2), border = NA)
+rect(19, 0.02, 25, 0.17 ,col = alpha("black",0.2), border = NA)
 
 plotBy(dydt.mean~predMass.mean, data=SwH,col="black",legend=FALSE, yaxt='n',yaxs="i",xaxs="i",log="x",
        xaxt='n', ylab="", type="p",ylim=c(0.02,0.17),xlim=xlims,lty=1,lwd=2)
@@ -228,12 +234,15 @@ polygon(x = c(SwW$predMass.mean, rev(SwW$predMass.mean)), y = c(SwW$high,rev(SwW
 magaxis(side=c(1,2,4),labels=c(1,0,0),frame.plot=T,las=1,cex.axis=1.2)
 legend("topright","d", bty="n", cex=1.2)
 mtext(text=expression(RGR~(g~g^-1~day^-1)), outer=T, side=2, line=3, cex=1.2)
-mtext(text="Total Mass (g)", side=1, line=3, cex=1.2, adj=-0.3)
+mtext(text="Log Total Mass (g)", side=1, line=3, cex=1.2, adj=-0.3)
 
-text(68,y=0.22,labels="Tropical", xpd=NA, srt=-90, pos=2, cex=1.5)
-text(68,y=0.07,labels="Temperate", xpd=NA, srt=-90, pos=2, cex=1.5)
+text(125,y=0.22,labels="Tropical", xpd=NA, srt=-90, pos=2, cex=1.5)
+text(130,y=0.07,labels="Temperate", xpd=NA, srt=-90, pos=2, cex=1.5)
 
-###############################################################################
+rect(0.8, 0.02, 1, 0.17 ,col = alpha("black",0.2), border = NA)
+rect(19, 0.02, 25, 0.17 ,col = alpha("black",0.2), border = NA)
+
+  ###############################################################################
 
 
 #provenance specific version
@@ -254,7 +263,7 @@ layout(matrix(c(1:28), nrow=7, ncol=4,byrow=T),
 for (i in 1:length(combos)){
   dat2 <- subset(dat,Taxa==as.character(combos[i]))
   with(subset(dat2,Treatment=="Home"),
-       plot(dydt.mean~predMass.mean,col="black",legend=FALSE,type="p",lty=ifelse(Range.mean == 1,2,1),
+       plot(dydt.mean~predMass.mean,col="black",legend=FALSE,type="p",lty=ifelse(Range.mean == 1,2,1),log="x",
             xlim=c(0,70),ylim=c(0, 0.19),axes=FALSE,xlab="predMass.mean",ylab="Mass"))  
   with(subset(dat2,Treatment=="Home"),
        polygon(x = c(subset(dat2,Treatment=="Home")$predMass.mean, 
@@ -264,7 +273,7 @@ for (i in 1:length(combos)){
                col = alpha("black",0.4), border = NA))
   par(new=T)
   with(subset(dat2,Treatment=="Warmed"),
-       plot(dydt.mean~predMass.mean,col="red",legend=FALSE,type="p",lty=ifelse(Range.mean == 1,2,1),
+       plot(dydt.mean~predMass.mean,col="red",legend=FALSE,type="p",lty=ifelse(Range.mean == 1,2,1),log="x",
             xlim=c(0,70),ylim=c(0,0.19),axes=FALSE,xlab="predMass.mean",ylab="Mass"))  
   with(subset(dat2,Treatment=="Warmed"),
        polygon(x = c(subset(dat2,Treatment=="Warmed")$predMass.mean, 
@@ -282,6 +291,9 @@ for (i in 1:length(combos)){
                        magaxis(side=c(1,2),labels=c(0,0),frame.plot=T,las=1,cex.axis=1.2))))
   
   legend("topleft",legend=dat2$Taxa[1],bty="n",cex=1.3)
+  rect(0.8, 0.02, 1, 0.17 ,col = alpha("black",0.4), border = NA)
+  rect(15, 0.02, 20, 0.17 ,col = alpha("black",0.4), border = NA)
+  
 }
 mtext(expression(RGR~(g~g^-1~day^-1)),side=2,line=3,outer=T,cex=1.5)
 mtext(expression(Total~mass~(g)),side=1,line=3,outer=T,cex=1.5)

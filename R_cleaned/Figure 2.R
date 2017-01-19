@@ -1,5 +1,5 @@
 #Figure 2
-#source("R_cleaned/create_datasets.R")
+#source("R_cleaned/3. Create_datasets.R")
 
 #Figure 2: Mass over time
 g.trt <- summaryBy(predMass~Time+Treatment+Location+Range,data=gamfits2,FUN=c(mean,standard.error))
