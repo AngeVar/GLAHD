@@ -1,5 +1,5 @@
 #Figure 5: Photosynthesis
-Asatm$Photom<-with(Asatm, Photo*SLA/10000)
+Asatm$Photom<-with(Asatm, (Photo*SLA/10000)*1000)#from micro to nano
 acifits$Jmaxm<-with(acifits, Jmax*SLA/10000)
 acifits$Vcmaxm<-with(acifits, Vcmax*SLA/10000)
 
@@ -64,4 +64,81 @@ magaxis(c(2,4),labels=c(0,0),frame.plot=T,las=1,cex.axis=1.2)
 axis(side=1,at=c(1.5,3.5),labels=c("Narrow","Wide"),las=1,cex.axis=1.5)
 legend("topright","f", bty="n", cex=1.5)
 
+
+##---------------------------------------------------------------------------------------------
+
+##---------------------------------------------------------------------------------------------
+
+## --- Mass based rates
+
+#Figure 5: Photosynthesis
+Asatm$Photom<-with(Asatm, (Photo*SLA/10000)*1000)#from micro to nano
+acifits$Jmaxm<-with(acifits, Jmax*SLA/10000)
+acifits$Vcmaxm<-with(acifits, Vcmax*SLA/10000)
+
+#SMIT may be a big influencer of results - remove SMIT
+Asatm<- subset(Asatm, Taxa != "SMIT")
+acifits<- subset(acifits, Taxa != "SMIT")
+
+asat.tm <- summaryBy(Photo~Taxa+Treatment+Location+Range,data=Asat,FUN=mean,keep.names=T)
+asatm.tm <- summaryBy(Photom~Taxa+Treatment+Location+Range,data=Asatm,FUN=mean,keep.names=T)
+Rmass.tm <- summaryBy(Rmass~Taxa+Treatment+Location+Range,data=Rdark,FUN=mean,keep.names=T)
+jmax.tm <- summaryBy(Jmax~Taxa+Treatment+Location+Range,data=acifit,FUN=mean,keep.names=T)
+vcmax.tm <- summaryBy(Vcmax~Taxa+Treatment+Location+Range,data=acifit,FUN=mean,keep.names=T)
+jmaxm.tm <- summaryBy(Jmaxm~Taxa+Treatment+Location+Range,data=acifits,FUN=mean,keep.names=T)
+vcmaxm.tm <- summaryBy(Vcmaxm~Taxa+Treatment+Location+Range,data=acifits,FUN=mean,keep.names=T)
+
+colors <- c(alpha("black",0.4),"red")
+
+windows(11.69,11.69)
+par(mfrow=c(3,2),mar=c(0,0,0,0),oma=c(6,9,6,9))
+#Jmaxm
+ylims=c(2,4)
+boxplot(Jmaxm~Treatment*Range,data=subset(jmaxm.tm,Location=="S"),ylim=ylims,
+        axes=F,las=2,col=colors)
+magaxis(c(2,4),labels=c(1,0),frame.plot=T,las=1,cex.axis=1.2)
+legend("topleft", legend=c(expression(Warmed~(+3.5~degree~C)),"Home"),pch=22, pt.cex=2, pt.bg=c(alpha("red",0.6),alpha("black",0.6)),
+       bty="n",cex=1.2)
+
+mtext(text=expression(J["max"]),side=2,outer=F,cex=1.2,adj=0.5,line=5)
+mtext(text=expression("("*mu*mol~g^-1~s^-1*")"),side=2,outer=F,cex=1,adj=0.5,line=3)
+mtext(text="Temperate", side=3, line=0.5, cex=1.2)
+legend("topright","a", bty="n", cex=1.5)
+
+boxplot(Jmaxm~Treatment*Range,data=subset(jmaxm.tm,Location=="N"),ylim=ylims,
+        axes=F,las=2,col=colors)
+magaxis(c(2,4),labels=c(0,0),frame.plot=T,las=1,cex.axis=1.2)
+mtext(text="Tropical", side=3, line=0.5, cex=1.2)
+legend("topright","b", bty="n", cex=1.5)
+
+
+#Vcmaxm
+ylims=c(1,4.5)
+boxplot(Vcmaxm~Treatment*Range,data=subset(vcmaxm.tm,Location=="S"),ylim=ylims,
+        axes=F,las=2,col=colors)
+magaxis(c(2,4),labels=c(1,0),frame.plot=T,las=1,cex.axis=1.2)
+mtext(text=expression(V["cmax"]),side=2,outer=F,cex=1.2,adj=0.5,line=5)
+mtext(text=expression("("*mu*mol~g^-1~s^-1*")"),side=2,outer=T,cex=1,adj=0.5,line=3)
+legend("topright","c", bty="n", cex=1.5)
+
+boxplot(Vcmaxm~Treatment*Range,data=subset(vcmaxm.tm,Location=="N"),ylim=ylims,
+        axes=F,las=2,col=colors)
+magaxis(c(2,4),labels=c(0,0),frame.plot=T,las=1,cex.axis=1.2)
+legend("topright","d", bty="n", cex=1.5)
+
+#Asat
+ylims=c(350,700)
+boxplot(Photom~Treatment*Range,data=subset(asatm.tm,Location=="S"),ylim=ylims,
+        axes=F,las=2,col=colors)
+magaxis(c(2,4),labels=c(1,0),frame.plot=T,las=1,cex.axis=1.2)
+mtext(text=expression(A["sat"]),side=2,outer=F,cex=1.2,adj=0.5,line=5)
+mtext(text=expression("("*n*mol~g^-1~s^-1*")"),side=2,outer=T,cex=1,adj=0.1,line=3)
+axis(side=1,at=c(1.5,3.5),labels=c("Narrow","Wide"),las=1,cex.axis=1.5)
+legend("topright","e", bty="n", cex=1.5)
+
+boxplot(Photom~Treatment*Range,data=subset(asatm.tm,Location=="N"),ylim=ylims,
+        axes=F,las=2,col=colors)
+magaxis(c(2,4),labels=c(0,0),frame.plot=T,las=1,cex.axis=1.2)
+axis(side=1,at=c(1.5,3.5),labels=c("Narrow","Wide"),las=1,cex.axis=1.5)
+legend("topright","f", bty="n", cex=1.5)
 
