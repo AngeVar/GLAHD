@@ -1,6 +1,6 @@
 ###------------------------------------------------------------------------------------------------------------------
 #output from GAM model:"Code" "Time" "dydt" "predMass" "Species" "Treatment" "Location" "Taxa" "Range" "AGR" 
-source("R/GLAHD_gamfits.R") 
+source("R_cleaned/GLAHD_gamfits.R") 
 library(effects)
 ###------------------------------------------------------------------------------------------------------------------
 
@@ -59,6 +59,99 @@ SLARd<- Rdark[,c("Code","SLA")]                    #extract the codes we have le
 acifits<-merge(acifit,SLARd, by="Code")            #give SLA to the codes that we have Jmax and Vcmax data for
 Asatm<-merge(Asat,SLARd, by="Code")                #give SLA to the codes that we have Asat data for
 ###------------------------------------------------------------------------------------------------------------------
+
+dat <- read.csv("Data/GHS39_GLAHD_MAIN_GX-RVT_20150114-20150120_L2.csv")
+dat$Date <- as.Date(dat$Date,format="%d/%m/%Y")
+dat$R_area <- dat$Photo*-1
+
+#- read in the leaf mass data, calculate R per unit leaf mass
+leafmass <- read.csv("Data/GHS39_GLAHD_MAIN_BIOMASS-RVTLEAVES_20150120_L2.csv")
+r <- merge(dat,leafmass,by="Code")
+r$Taxa <- as.factor(sapply(1:nrow(r),function(i)strsplit(as.character(r$Code[i]),split="-")[[1]][1])) # get the "Taxa" factor out of Code. Note this could have been a loop
+
+r$R_mass <- r$R_area/10000*r$Area/r$Leafmass*1000 #note mass was in g
+rt <- subset(r,Taxa!="SMIT" & Taxa !="ACAM")
+rt$Taxa <- factor(rt$Taxa,levels=c("BOT","BTER","BRA","CTER"))
+rt$lnRmass <- log(rt$R_mass)
+rt <- subset(rt,Code!="CTER-4" & Code!="CTER-22" & Code!="CTER-27") #CTER4 looks weird... peaks much much lower than others. CTER-22 also looks bad
+rt$Code <- factor(rt$Code)
+
+q10mods <- list() #simple q10
+arrmods <- list() #simple arrhenius equation
+mtmods <- list()  #modified Q10 to allow Q10 to decline with measurement temperature. Mark's preferred model?
+polymods <- list() #polynomial equation popularized by Owen Atkin. Basically an arrhenius where the activation energy can decline with temperature
+
+
+xvals <- seq(13,45,length=101)
+rt.l <- split(rt,rt$Code)
+for (i in 1:length(rt.l)){
+  
+  dat <- subset(rt.l[[i]],Tleaf<40)
+  print(i)
+  #fit the models
+  q10mods[[i]] <- nls(R_mass~ Rref*Q10^((Tleaf-15)/10),data=dat,start=list(Rref=10,Q10=2))
+  arrmods[[i]] <- nls(R_mass~Rref*exp((Ea/(0.008314*(273.15+15))*(1-((273.15+15))/(273.15+Tleaf)))),data=dat,start=list(Rref=10,Ea=45))
+  mtmods[[i]] <- nls(R_mass~Rref*((x-y*(Tleaf-15)/2))^((Tleaf-15)/10),data=dat,start=list(x=3,y=0.03,Rref=10))
+  polymods[[i]] <- lm(lnRmass~Tleaf+I(Tleaf^2),data=dat)
+}
+
+
+#get coefs
+q10.params <- as.data.frame(do.call(rbind,lapply(q10mods,coef)))
+arr.params <- as.data.frame(do.call(rbind,lapply(arrmods,coef)))
+mt.params <- as.data.frame(do.call(rbind,lapply(mtmods,coef)))
+poly.params <- as.data.frame(do.call(rbind,lapply(polymods,coef)))
+
+#rename parameter columns
+names(q10.params) <- paste("Q10.",names(q10.params),sep="")
+names(arr.params) <- paste("Arr.",names(arr.params),sep="")
+names(mt.params) <- paste("mt.",names(mt.params),sep="")
+names(poly.params) <- c("poly.a","poly.b","poly.c")
+
+#combine fitted parameters, add chambers and treatments
+params <- cbind(q10.params,arr.params,mt.params,poly.params)
+params$Code  <- as.factor(sapply(1:length(rt.l),function(i)as.character(rt.l[[i]]$Code[1]))) # get the Code. Note this could have been a loop
+params$Treatment  <- as.factor(sapply(1:length(rt.l),function(i)as.character(rt.l[[i]]$Treatment[1]))) # get the Code. Note this could have been a loop
+params$Taxa  <- factor(sapply(1:length(rt.l),function(i)as.character(rt.l[[i]]$Taxa[1])),levels=c("BTER","BOT","CTER","BRA")) # get the Code. Note this could have been a loop
+
+#get AIC values
+q10.AIC <- abs(as.data.frame(do.call(rbind,lapply(q10mods,AIC))))
+arr.AIC <- abs(as.data.frame(do.call(rbind,lapply(arrmods,AIC))))
+mt.AIC <- abs(as.data.frame(do.call(rbind,lapply(mtmods,AIC))))
+poly.AIC <- abs(as.data.frame(do.call(rbind,lapply(polymods,AIC))))
+
+#rename AIC columns
+names(q10.AIC) <- "Q10.AIC"
+names(arr.AIC) <- "arr.AIC"
+names(mt.AIC) <- "mt.AIC"
+names(poly.AIC) <- "poly.AIC"
+
+fitted <- cbind(params,q10.AIC,arr.AIC,mt.AIC,poly.AIC)
+fitted <- fitted[,11:17] # Note that Mark's modified Q10 tends to have the lowest AIC for each curve, but not always
+
+# mark's modified Q10 has the lowest overall AIC.
+# parameter estimates
+params.m <- summaryBy(mt.x + mt.y + mt.Rref~Taxa+Treatment,FUN=c(mean,standard.error),data=params)
+params$R25 <- with(params,exp(poly.a+poly.b*25+poly.c*25^2))
+params$R18.5 <- with(params,exp(poly.a+poly.b*18.5+poly.c*18.5^2))
+params$R28.5 <- with(params,exp(poly.a+poly.b*28.5+poly.c*28.5^2))
+params$Q10_25 <- with(params,exp(10*(poly.b+2*poly.c*25)))
+params$Q10_18.5 <- with(params,exp(10*(poly.b+2*poly.c*18.5)))
+params$Q10_28.5 <- with(params,exp(10*(poly.b+2*poly.c*28.55)))
+
+
+tvals <- seq(from=13,to=40,by=1)
+params.list <- split(params,params$Code)
+predR <- list()
+for(i in 1:length(params.list)){
+  predR[[i]] <- data.frame("Code"=params.list[[i]]$Code[1],"Treatment"=params.list[[i]]$Treatment[1],
+                           "Taxa"=params.list[[i]]$Taxa[1],"T"=tvals,
+                           "R"=with(params.list[[i]],exp(poly.a+poly.b*tvals+poly.c*tvals^2)),
+                           "Q10"=with(params.list[[i]],exp(10*(poly.b+2*poly.c*tvals))))
+}
+predR.df <- do.call(rbind,predR)
+predR.df$logR <- log(predR.df$R)
+
 
 
 ###------------------------------------------------------------------------------------------------------------------
