@@ -1,4 +1,6 @@
 #Figure 4: Relative growth rate
+#source("R_cleaned/3. Create_datasets.R")
+
 g.trt <- summaryBy(dydt~Time+Treatment+Location+Range,data=gamfits2,FUN=c(mean,standard.error))
 g.trt$combotrt <- as.factor(paste(g.trt$Location,g.trt$Range,g.trt$Treatment,sep="_"))
 g.trt.S<- subset(g.trt, Location == "S")
@@ -34,13 +36,13 @@ SwW$high<- with(SwW,dydt.mean+dydt.standard.error*CI )
 SwW$low<- with(SwW,dydt.mean-dydt.standard.error*CI )
 
 plotBy(dydt.mean~Time,data=NnH,legend=FALSE,type="l",las=1,yaxs="i",xaxs="i",
-       ylim=c(0.01,0.2),lty=2,lwd=2,cex.lab=2, xlim=c(0,61),axes=FALSE,
+       ylim=c(0.01,0.2),lty=2,lwd=2,cex.lab=2, xlim=c(0.01,60),axes=FALSE,
        ylab=expression(Total~mass~(g)),
        xlab="")
-points(dydt~jitter(Time,0,0.5), data=subset(rate, Location =="N" & Range=="narrow" & Treatment == "Home"), col=alpha("black",0.4), pch=19)
+lines(dydt~Time, data=subset(gamfits2, Location =="N" & Range=="narrow" & Treatment == "Home"), col=alpha("black",0.2), pch=19)
 lines(dydt.mean~Time, data=NnW,col="red",
       xaxt='n', ylab="", type="l",ylim=c(0.01,0.2),lty=2,lwd=2)
-points(dydt~jitter(Time,0,0.5), data=subset(rate, Location =="N" & Range=="narrow" & Treatment == "Warmed"), col=alpha("red",0.4), pch=19)
+lines(dydt~Time, data=subset(gamfits2, Location =="N" & Range=="narrow" & Treatment == "Warmed"), col=alpha("red",0.2), pch=19)
 polygon(x = c(NnH$Time, rev(NnH$Time)), y = c(NnH$high,rev(NnH$low)),col = alpha("black",0.4), border = NA)
 polygon(x = c(NnW$Time, rev(NnW$Time)), y = c(NnW$high,rev(NnW$low)),col = alpha("red",0.4), border = NA)
 mtext(text="Narrow", side=3, line=0.5, cex=1.2)
@@ -51,12 +53,12 @@ legend("topright","a", bty="n", cex=1.5)
 legend("topleft", legend=c(expression(Warmed~(+3.5~degree~C)),"Home"),pch=22, pt.cex=2, pt.bg=c(alpha("red",1),alpha("black",0.6)),
        bty="n",cex=1.2)
 
-plotBy(dydt.mean~Time, data=NwH,col="black",legend=FALSE,yaxs="i",xaxs="i", xlim=c(0,61),
+plotBy(dydt.mean~Time, data=NwH,col="black",legend=FALSE,yaxs="i",xaxs="i", xlim=c(0.01,60),
        xaxt='n', yaxt='n',ylab="", type="l",ylim=c(0.01,0.2),lty=1,lwd=2)
-points(dydt~jitter(Time,0,0.5), data=subset(rate, Location =="N" & Range=="wide" & Treatment == "Home"), col=alpha("black",0.4), pch=19)
+lines(dydt~Time, data=subset(rate, Location =="N" & Range=="wide" & Treatment == "Home"), col=alpha("black",0.2), pch=19)
 lines(dydt.mean~Time, data=NwW,col="red",
       xaxt='n', ylab="", type="l",ylim=c(0.01,0.2),lty=1,lwd=2)
-points(dydt~jitter(Time,0,0.5), data=subset(rate, Location =="N" & Range=="wide" & Treatment == "Warmed"), col=alpha("red",0.4), pch=19)
+lines(dydt~Time, data=subset(rate, Location =="N" & Range=="wide" & Treatment == "Warmed"), col=alpha("red",0.2), pch=19)
 polygon(x = c(NwH$Time, rev(NwH$Time)), y = c(NwH$high,rev(NwH$low)),col = alpha("black",0.4), border = NA)
 polygon(x = c(NwW$Time, rev(NwW$Time)), y = c(NwW$high,rev(NwW$low)),col = alpha("red",0.4), border = NA)
 magaxis(side=c(1,2,4),labels=c(0,0,0),frame.plot=T,las=1,cex.axis=1.2)
@@ -65,23 +67,23 @@ legend("topright","b", bty="n", cex=1.5)
 
 
 plotBy(dydt.mean~Time,data=SnH,legend=FALSE,type="l",las=1,yaxs="i",xaxs="i",
-       ylim=c(0.01,0.2),lty=2,lwd=2,cex.lab=2, xlim=c(0,61),axes=FALSE,xlab="")
-points(dydt~jitter(Time,0,0.5), data=subset(rate, Location =="S" & Range=="narrow" & Treatment == "Home"), col=alpha("black",0.4), pch=19)
+       ylim=c(0.01,0.2),lty=2,lwd=2,cex.lab=2, xlim=c(0.01,60),axes=FALSE,xlab="")
+lines(dydt~Time, data=subset(rate, Location =="S" & Range=="narrow" & Treatment == "Home"), col=alpha("black",0.2), pch=19)
 lines(dydt.mean~Time, data=SnW,col="red",
       xaxt='n', ylab="", type="l",ylim=c(0.01,0.2),lty=2,lwd=2)
-points(dydt~jitter(Time,0,0.5), data=subset(rate, Location =="S" & Range=="narrow" & Treatment == "Warmed"), col=alpha("red",0.4), pch=19)
+lines(dydt~Time, data=subset(rate, Location =="S" & Range=="narrow" & Treatment == "Warmed"), col=alpha("red",0.2), pch=19)
 polygon(x = c(SnH$Time, rev(SnH$Time)), y = c(SnH$high,rev(SnH$low)),col = alpha("black",0.4), border = NA)
 polygon(x = c(SnW$Time, rev(SnW$Time)), y = c(SnW$high,rev(SnW$low)),col = alpha("red",0.4), border = NA)
 #mtext(text="Temperate",side=3, line=-2,at=14,cex=1.5, outer=FALSE)
 magaxis(side=c(1,2,4),labels=c(1,1,0),frame.plot=T,las=1,cex.axis=1.2)
 legend("topright","c", bty="n", cex=1.5)
 
-plotBy(dydt.mean~Time, data=SwH,col="black",legend=FALSE, yaxt='n',yaxs="i",xaxs="i", xlim=c(0,61),
+plotBy(dydt.mean~Time, data=SwH,col="black",legend=FALSE, yaxt='n',yaxs="i",xaxs="i", xlim=c(0.01,60),
        xaxt='n', ylab="", type="l",ylim=c(0.01,0.2),lty=1,lwd=2)
-points(dydt~jitter(Time,0,0.5), data=subset(rate, Location =="S" & Range=="wide" & Treatment == "Home"), col=alpha("black",0.4), pch=19)
+lines(dydt~Time, data=subset(rate, Location =="S" & Range=="wide" & Treatment == "Home"), col=alpha("black",0.2), pch=19)
 lines(dydt.mean~Time, data=SwW,col="red",
       xaxt='n', ylab="", type="l",ylim=c(0.01,0.2),lty=1,lwd=2)
-points(dydt~jitter(Time,0,0.5), data=subset(rate, Location =="S" & Range=="wide" & Treatment == "Warmed"), col=alpha("red",0.4), pch=19)
+lines(dydt~Time, data=subset(rate, Location =="S" & Range=="wide" & Treatment == "Warmed"), col=alpha("red",0.2), pch=19)
 polygon(x = c(SwH$Time, rev(SwH$Time)), y = c(SwH$high,rev(SwH$low)),col = alpha("black",0.4), border = NA)
 polygon(x = c(SwW$Time, rev(SwW$Time)), y = c(SwW$high,rev(SwW$low)),col = alpha("red",0.4), border = NA)
 magaxis(side=c(1,2,4),labels=c(1,0,0),frame.plot=T,las=1,cex.axis=1.2)
@@ -113,13 +115,9 @@ layout(matrix(c(1:28), nrow=7, ncol=4,byrow=T),
 for (i in 1:length(combos)){
   dat2 <- subset(dat,Taxa==as.character(combos[i]))
   with(subset(dat2,Treatment=="Home"),
-<<<<<<< HEAD
-       plot(dydt.mean~Time,col="black",legend=F,type="l",lty=ifelse(Range.mean == 1,2,1),
-            xlim=c(0,65),ylim=c(0, 0.19),axes=F,xlab="Time",ylab="Mass"))  
-=======
+  
        plot(dydt.mean~Time,col="black",legend=FALSE,type="l",lty=ifelse(Range.mean == 1,2,1),
             xlim=c(0,65),ylim=c(0, 0.19),axes=FALSE,xlab="Time",ylab="Mass"))  
->>>>>>> ba63ea9b474a4e6678373ce21832e41940662a30
   with(subset(dat2,Treatment=="Home"),
        polygon(x = c(subset(dat2,Treatment=="Home")$Time, 
                      rev(subset(dat2,Treatment=="Home")$Time)), 
@@ -128,13 +126,8 @@ for (i in 1:length(combos)){
                col = alpha("black",0.4), border = NA))
   par(new=T)
   with(subset(dat2,Treatment=="Warmed"),
-<<<<<<< HEAD
-       plot(dydt.mean~Time,col="red",legend=F,type="l",lty=ifelse(Range.mean == 1,2,1),
-            xlim=c(0,65),ylim=c(0,0.19),axes=F,xlab="Time",ylab="Mass"))  
-=======
        plot(dydt.mean~Time,col="red",legend=FALSE,type="l",lty=ifelse(Range.mean == 1,2,1),
             xlim=c(0,65),ylim=c(0,0.19),axes=FALSE,xlab="Time",ylab="Mass"))  
->>>>>>> ba63ea9b474a4e6678373ce21832e41940662a30
   with(subset(dat2,Treatment=="Warmed"),
        polygon(x = c(subset(dat2,Treatment=="Warmed")$Time, 
                      rev(subset(dat2,Treatment=="Warmed")$Time)), 
@@ -162,8 +155,7 @@ text(155,y=0.3,labels="Temperate", xpd=NA, srt=-90, pos=2, cex=1.7)
 legend(x=70,y=0.15,legend=c("Warmed","Home"),cex=1.4,
        xpd=NA,fill=c(alpha("red",0.4),alpha("black",0.4)), border="black",
        bty="n")
-<<<<<<< HEAD
-=======
+
 ###################################################################################
 ###    OVER MASS
 
@@ -326,5 +318,5 @@ legend(x=70,y=0.15,legend=c("Warmed","Home"),cex=1.4,
        xpd=NA,fill=c(alpha("red",0.4),alpha("black",0.4)), border="black",
        bty="n")
 
->>>>>>> ba63ea9b474a4e6678373ce21832e41940662a30
+
 

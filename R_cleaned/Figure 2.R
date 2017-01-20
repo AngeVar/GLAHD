@@ -1,5 +1,5 @@
 #Figure 2
-#source("R_cleaned/3. Create_datasets.R")
+source("R_cleaned/3. Create_datasets.R")
 
 #Figure 2: Mass over time
 g.trt <- summaryBy(predMass~Time+Treatment+Location+Range,data=gamfits2,FUN=c(mean,standard.error))
@@ -80,34 +80,60 @@ mtext(text="Total biomass (g)", outer=T, side=2, line=1, cex=1.2)
 mtext(text="Time (Days)", side=1, line=3, cex=1.2)
 
 
+plotBy(R_mass.mean~Tleaf_bin_mid|Treatment,data=subset(toplot.n,Taxa=="CTER"),ylim=ylims,pch=16,cex=cexpoints,col=colors,legend=F,
+       panel.first=adderrorbars(x=subset(toplot.n,Taxa=="CTER")$Tleaf_bin_mid,
+                                y=subset(toplot.n,Taxa=="CTER")$R_mass.mean,
+                                SE=subset(toplot.n,Taxa=="CTER")$R_mass.standard.error,direction="updown",col="black"),
+       add=T,las=1)
 
 ###############################################
 #2by2 version
-#add predmass from "rate"
+#add predmass from "rate" as means and SEs
+rate.m<-summaryBy(predMass~Location+Treatment+Range+Time,data=rate, FUN=c(mean, standard.error))
+
 windows(11.69,11.69);par(mfrow=c(2,2),mar=c(0,0,0,0),oma=c(6,6,6,6))
 
 plotBy(predMass.mean~Time,data=NnH,legend=FALSE,type="l",las=1,#yaxs="i",xaxs="i",
-       ylim=c(0,115),lty=2,lwd=2,cex.lab=2, xlim=c(1,60),axes=FALSE,
+       ylim=c(0,82),lty=2,lwd=2,cex.lab=2, xlim=c(1,60),axes=FALSE,
        ylab=expression(Total~mass~(g)),
        xlab="")
-points(predMass~jitter(Time,0,0.5), data=subset(rate, Location =="N" & Range=="narrow" & Treatment == "Home"), col=alpha("black",0.4), pch=19)
+points(predMass.mean~Time, data=subset(rate.m, Location =="N" & Range=="narrow" & Treatment == "Home"), 
+       col="black", pch=19,cex=2,
+       panel.first=adderrorbars(x=subset(rate.m, Location =="N" & Range=="narrow" & Treatment == "Home")$Time,
+                                y=subset(rate.m, Location =="N" & Range=="narrow" & Treatment == "Home")$predMass.mean,
+                                SE=subset(rate.m, Location =="N" & Range=="narrow" & Treatment == "Home")$predMass.standard.error,
+                                direction="updown",col="black",add=T,las=1))
 lines(predMass.mean~Time, data=NnW,col="red",
-      xaxt='n', ylab="", type="l",ylim=c(0,115),lty=2,lwd=2)
-points(predMass~jitter(Time,0,0.5), data=subset(rate, Location =="N" & Range=="narrow" & Treatment == "Warmed"), col=alpha("red",0.4), pch=19)
+      xaxt='n', ylab="", type="l",ylim=c(0,82),lty=2,lwd=2)
+points(predMass.mean~Time, data=subset(rate.m, Location =="N" & Range=="narrow" & Treatment == "Warmed"), 
+       col="red", pch=19,cex=2,
+       panel.first=adderrorbars(x=subset(rate.m, Location =="N" & Range=="narrow" & Treatment == "Warmed")$Time,
+                                y=subset(rate.m, Location =="N" & Range=="narrow" & Treatment == "Warmed")$predMass.mean,
+                                SE=subset(rate.m, Location =="N" & Range=="narrow" & Treatment == "Warmed")$predMass.standard.error,
+                                direction="updown",col="black",add=T,las=1))
 polygon(x = c(NnH$Time, rev(NnH$Time)), y = c(NnH$high,rev(NnH$low)),col = alpha("black",0.4), border = NA)
 polygon(x = c(NnW$Time, rev(NnW$Time)), y = c(NnW$high,rev(NnW$low)),col = alpha("red",0.4), border = NA)
 mtext(text="Narrow", side=3, line=0.5, cex=1.2)
 legend("topleft", legend=c(expression(Warmed~(+3.5~degree~C)),"Home"),col=c("red","black"),lty=c(1,1), lwd=2,bty="n", cex=1.2)
-                      
 magaxis(side=c(1,2,4),labels=c(0,1,0),frame.plot=T,las=1,cex.axis=1.2)
 legend("topright","a", bty="n", cex=1.5)
 
 plotBy(predMass.mean~Time, data=NwH,col="black",legend=FALSE,#yaxs="i",xaxs="i",
-      xaxt='n', yaxt='n',ylab="", type="l",ylim=c(0,115),lty=1,lwd=2)
-points(predMass~jitter(Time,0,0.5), data=subset(rate, Location =="N" & Range=="wide" & Treatment == "Home"), col=alpha("black",0.4), pch=19)
+      xaxt='n', yaxt='n',ylab="", type="l",ylim=c(0,82),lty=1,lwd=2)
+points(predMass.mean~Time, data=subset(rate.m, Location =="N" & Range=="wide" & Treatment == "Home"), 
+       col="black", pch=19,cex=2,
+       panel.first=adderrorbars(x=subset(rate.m, Location =="N" & Range=="wide" & Treatment == "Home")$Time,
+                                y=subset(rate.m, Location =="N" & Range=="wide" & Treatment == "Home")$predMass.mean,
+                                SE=subset(rate.m, Location =="N" & Range=="wide" & Treatment == "Home")$predMass.standard.error,
+                                direction="updown",col="black",add=T,las=1))
 lines(predMass.mean~Time, data=NwW,col="red",
-      xaxt='n', ylab="", type="l",ylim=c(0,115),lty=1,lwd=2)
-points(predMass~jitter(Time,0,0.5), data=subset(rate, Location =="N" & Range=="wide" & Treatment == "Warmed"), col=alpha("red",0.4), pch=19)
+      xaxt='n', ylab="", type="l",ylim=c(0,82),lty=1,lwd=2)
+points(predMass.mean~Time, data=subset(rate.m, Location =="N" & Range=="wide" & Treatment == "Warmed"), 
+       col="red", pch=19,cex=2,
+       panel.first=adderrorbars(x=subset(rate.m, Location =="N" & Range=="wide" & Treatment == "Warmed")$Time,
+                                y=subset(rate.m, Location =="N" & Range=="wide" & Treatment == "Warmed")$predMass.mean,
+                                SE=subset(rate.m, Location =="N" & Range=="wide" & Treatment == "Warmed")$predMass.standard.error,
+                                direction="updown",col="black",add=T,las=1))
 polygon(x = c(NwH$Time, rev(NwH$Time)), y = c(NwH$high,rev(NwH$low)),col = alpha("black",0.4), border = NA)
 polygon(x = c(NwW$Time, rev(NwW$Time)), y = c(NwW$high,rev(NwW$low)),col = alpha("red",0.4), border = NA)
 magaxis(side=c(1,2,4),labels=c(0,0,0),frame.plot=T,las=1,cex.axis=1.2)
@@ -115,22 +141,42 @@ mtext(text="Wide", side=3, line=0.5, cex=1.2)
 legend("topright","b", bty="n", cex=1.5)
 
 plotBy(predMass.mean~Time,data=SnH,legend=FALSE,type="l",las=1,#yaxs="i",xaxs="i",
-       ylim=c(0,115),lty=2,lwd=2,cex.lab=2, xlim=c(1,60),axes=FALSE,xlab="")
-points(predMass~jitter(Time,0,0.5), data=subset(rate, Location =="S" & Range=="narrow" & Treatment == "Home"), col=alpha("black",0.4), pch=19)
+       ylim=c(0,82),lty=2,lwd=2,cex.lab=2, xlim=c(1,60),axes=FALSE,xlab="")
+points(predMass.mean~Time, data=subset(rate.m, Location =="S" & Range=="narrow" & Treatment == "Home"), 
+       col="black", pch=19,cex=2,
+       panel.first=adderrorbars(x=subset(rate.m, Location =="S" & Range=="narrow" & Treatment == "Home")$Time,
+                                y=subset(rate.m, Location =="S" & Range=="narrow" & Treatment == "Home")$predMass.mean,
+                                SE=subset(rate.m, Location =="S" & Range=="narrow" & Treatment == "Home")$predMass.standard.error,
+                                direction="updown",col="black",add=T,las=1))
 lines(predMass.mean~Time, data=SnW,col="red",
-      xaxt='n', ylab="", type="l",ylim=c(0,115),lty=2,lwd=2)
-points(predMass~jitter(Time,0,0.5), data=subset(rate, Location =="S" & Range=="narrow" & Treatment == "Warmed"), col=alpha("red",0.4), pch=19)
+      xaxt='n', ylab="", type="l",ylim=c(0,82),lty=2,lwd=2)
+points(predMass.mean~Time, data=subset(rate.m, Location =="S" & Range=="narrow" & Treatment == "Warmed"), 
+       col="red", pch=19,cex=2,
+       panel.first=adderrorbars(x=subset(rate.m, Location =="S" & Range=="narrow" & Treatment == "Warmed")$Time,
+                                y=subset(rate.m, Location =="S" & Range=="narrow" & Treatment == "Warmed")$predMass.mean,
+                                SE=subset(rate.m, Location =="S" & Range=="narrow" & Treatment == "Warmed")$predMass.standard.error,
+                                direction="updown",col="black",add=T,las=1))
 polygon(x = c(SnH$Time, rev(SnH$Time)), y = c(SnH$high,rev(SnH$low)),col = alpha("black",0.4), border = NA)
 polygon(x = c(SnW$Time, rev(SnW$Time)), y = c(SnW$high,rev(SnW$low)),col = alpha("red",0.4), border = NA)
 magaxis(side=c(1,2,4),labels=c(1,1,0),frame.plot=T,las=1,cex.axis=1.2)
 legend("topright","c", bty="n", cex=1.5)
 
 plotBy(predMass.mean~Time, data=SwH,col="black",legend=FALSE, yaxt='n',#yaxs="i",xaxs="i",
-      xaxt='n', ylab="", type="l",ylim=c(0,115),lty=1,lwd=2)
-points(predMass~jitter(Time,0,0.5), data=subset(rate, Location =="S" & Range=="wide" & Treatment == "Home"), col=alpha("black",0.4), pch=19)
+      xaxt='n', ylab="", type="l",ylim=c(0,82),lty=1,lwd=2)
+points(predMass.mean~Time, data=subset(rate.m, Location =="S" & Range=="wide" & Treatment == "Home"), 
+       col="black", pch=19,cex=2,
+       panel.first=adderrorbars(x=subset(rate.m, Location =="S" & Range=="wide" & Treatment == "Home")$Time,
+                                y=subset(rate.m, Location =="S" & Range=="wide" & Treatment == "Home")$predMass.mean,
+                                SE=subset(rate.m, Location =="S" & Range=="wide" & Treatment == "Home")$predMass.standard.error,
+                                direction="updown",col="black",add=T,las=1))
 lines(predMass.mean~Time, data=SwW,col="red",
-      xaxt='n', ylab="", type="l",ylim=c(0,115),lty=1,lwd=2)
-points(predMass~jitter(Time,0,0.5), data=subset(rate, Location =="S" & Range=="wide" & Treatment == "Warmed"), col=alpha("red",0.4), pch=19)
+      xaxt='n', ylab="", type="l",ylim=c(0,82),lty=1,lwd=2)
+points(predMass.mean~Time, data=subset(rate.m, Location =="S" & Range=="wide" & Treatment == "Warmed"), 
+       col="red", pch=19,cex=2,
+       panel.first=adderrorbars(x=subset(rate.m, Location =="S" & Range=="wide" & Treatment == "Warmed")$Time,
+                                y=subset(rate.m, Location =="S" & Range=="wide" & Treatment == "Warmed")$predMass.mean,
+                                SE=subset(rate.m, Location =="S" & Range=="wide" & Treatment == "Warmed")$predMass.standard.error,
+                                direction="updown",col="black",add=T,las=1))
 polygon(x = c(SwH$Time, rev(SwH$Time)), y = c(SwH$high,rev(SwH$low)),col = alpha("black",0.4), border = NA)
 polygon(x = c(SwW$Time, rev(SwW$Time)), y = c(SwW$high,rev(SwW$low)),col = alpha("red",0.4), border = NA)
 magaxis(side=c(1,2,4),labels=c(1,0,0),frame.plot=T,las=1,cex.axis=1.2)
@@ -138,8 +184,8 @@ legend("topright","d", bty="n", cex=1.5)
 mtext(text="Total biomass (g)", outer=T, side=2, line=2.5, cex=1.2)
 mtext(text="Time (Days)", side=1, line=3, cex=1.2, adj=-0.3)
 
-text(70,y=117,labels="Tropical", xpd=NA, srt=-90, pos=2, cex=1.5)
-text(70,y=22,labels="Temperate", xpd=NA, srt=-90, pos=2, cex=1.5)
+text(70,y=123,labels="Tropical", xpd=NA, srt=-90, pos=2, cex=1.5)
+text(70,y=33,labels="Temperate", xpd=NA, srt=-90, pos=2, cex=1.5)
 ########################################################################
 
 #provenance specific version
@@ -160,13 +206,8 @@ layout(matrix(c(1:28), nrow=7, ncol=4,byrow=T),
 for (i in 1:length(combos)){
   dat2 <- subset(dat,Taxa==as.character(combos[i]))
   with(subset(dat2,Treatment=="Home"),
-<<<<<<< HEAD
-       plot(predMass.mean~Time,col="black",legend=F,type="l",lty=ifelse(Range.mean == 1,2,1),
-            xlim=c(0,65),ylim=c(0, 88),axes=F,xlab="Time",ylab="Mass"))  
-=======
        plot(predMass.mean~Time,col="black",legend=FALSE,type="l",lty=ifelse(Range.mean == 1,2,1),
             xlim=c(0,65),ylim=c(0, 88),axes=FALSE,xlab="Time",ylab="Mass"))  
->>>>>>> ba63ea9b474a4e6678373ce21832e41940662a30
   with(subset(dat2,Treatment=="Home"),
        polygon(x = c(subset(dat2,Treatment=="Home")$Time, 
                      rev(subset(dat2,Treatment=="Home")$Time)), 
@@ -175,13 +216,8 @@ for (i in 1:length(combos)){
                col = alpha("black",0.4), border = NA))
   par(new=T)
   with(subset(dat2,Treatment=="Warmed"),
-<<<<<<< HEAD
-       plot(predMass.mean~Time,col="red",legend=F,type="l",lty=ifelse(Range.mean == 1,2,1),
-            xlim=c(0,65),ylim=c(0,88),axes=F,xlab="Time",ylab="Mass"))  
-=======
        plot(predMass.mean~Time,col="red",legend=FALSE,type="l",lty=ifelse(Range.mean == 1,2,1),
             xlim=c(0,65),ylim=c(0,88),axes=FALSE,xlab="Time",ylab="Mass"))  
->>>>>>> ba63ea9b474a4e6678373ce21832e41940662a30
   with(subset(dat2,Treatment=="Warmed"),
        polygon(x = c(subset(dat2,Treatment=="Warmed")$Time, 
                      rev(subset(dat2,Treatment=="Warmed")$Time)), 
