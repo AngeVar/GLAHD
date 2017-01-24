@@ -195,9 +195,9 @@ SwW$high<- with(SwW,dydt.mean+dydt.standard.error*CI )
 SwW$low<- with(SwW,dydt.mean-dydt.standard.error*CI )
 
 xlims<-c(0.1,70)
-plotBy(dydt.mean~predMass.mean,data=NnH,legend=FALSE,type="p",las=1,yaxs="i",xaxs="i",log="x",
+plotBy(dydt.mean~predMass.mean,data=NnH,legend=FALSE,type="l",las=1,yaxs="i",xaxs="i",log="x",
        ylim=c(0.02,0.17),lty=2,lwd=2,cex.lab=2, xlim=xlims,axes=FALSE,ylab=expression(Total~mass~(g)),xlab="")
-lines(dydt.mean~predMass.mean, data=NnW,col="red",xaxt='n', ylab="", type="p",ylim=c(0.02,0.17),lty=2,lwd=2)
+lines(dydt.mean~predMass.mean, data=NnW,col="red",xaxt='n', ylab="", type="l",ylim=c(0.02,0.17),lty=2,lwd=2)
 
 polygon(x = c(NnH$predMass.mean, rev(NnH$predMass.mean)), y = c(NnH$high,rev(NnH$low)),col = alpha("black",0.4), border = NA)
 polygon(x = c(NnW$predMass.mean, rev(NnW$predMass.mean)), y = c(NnW$high,rev(NnW$low)),col = alpha("red",0.4), border = NA)
@@ -213,9 +213,9 @@ rect(0.8, 0.02, 1, 0.17 ,col = alpha("black",0.2), border = NA)
 rect(19, 0.02, 25, 0.17 ,col = alpha("black",0.2), border = NA)
 
 plotBy(dydt.mean~predMass.mean, data=NwH,col="black",legend=FALSE,yaxs="i",xaxs="i",log="x",
-       xaxt='n', yaxt='n',ylab="", type="p",ylim=c(0.02,0.17),xlim=xlims,lty=1,lwd=2)
+       xaxt='n', yaxt='n',ylab="", type="l",ylim=c(0.02,0.17),xlim=xlims,lty=1,lwd=2)
 lines(dydt.mean~predMass.mean, data=NwW,col="red",
-      xaxt='n', ylab="", type="p",ylim=c(0.02,0.17),lty=1,lwd=2)
+      xaxt='n', ylab="", type="l",ylim=c(0.02,0.17),lty=1,lwd=2)
 polygon(x = c(NwH$predMass.mean, rev(NwH$predMass.mean)), y = c(NwH$high,rev(NwH$low)),col = alpha("black",0.4), border = NA)
 polygon(x = c(NwW$predMass.mean, rev(NwW$predMass.mean)), y = c(NwW$high,rev(NwW$low)),col = alpha("red",0.4), border = NA)
 magaxis(side=c(1,2,4),labels=c(0,0,0),frame.plot=T,las=1,cex.axis=1.2)
@@ -224,10 +224,10 @@ legend("topright","b", bty="n", cex=1.2)
 rect(0.8, 0.02, 1, 0.17 ,col = alpha("black",0.2), border = NA)
 rect(19, 0.02, 25, 0.17 ,col = alpha("black",0.2), border = NA)
 
-plotBy(dydt.mean~predMass.mean,data=SnH,legend=FALSE,type="p",las=1,yaxs="i",xaxs="i",log="x",
+plotBy(dydt.mean~predMass.mean,data=SnH,legend=FALSE,type="l",las=1,yaxs="i",xaxs="i",log="x",
        ylim=c(0.02,0.17),lty=2,lwd=2,cex.lab=2, xlim=xlims,axes=FALSE,xlab="")
 lines(dydt.mean~predMass.mean, data=SnW,col="red",
-      xaxt='n', ylab="", type="p",ylim=c(0.02,0.17),lty=2,lwd=2)
+      xaxt='n', ylab="", type="l",ylim=c(0.02,0.17),lty=2,lwd=2)
 polygon(x = c(SnH$predMass.mean, rev(SnH$predMass.mean)), y = c(SnH$high,rev(SnH$low)),col = alpha("black",0.4), border = NA)
 polygon(x = c(SnW$predMass.mean, rev(SnW$predMass.mean)), y = c(SnW$high,rev(SnW$low)),col = alpha("red",0.4), border = NA)
 #mtext(text="Temperate",side=3, line=-2,at=14,cex=1.5, outer=FALSE)
@@ -237,9 +237,9 @@ rect(0.8, 0.02, 1, 0.17 ,col = alpha("black",0.2), border = NA)
 rect(19, 0.02, 25, 0.17 ,col = alpha("black",0.2), border = NA)
 
 plotBy(dydt.mean~predMass.mean, data=SwH,col="black",legend=FALSE, yaxt='n',yaxs="i",xaxs="i",log="x",
-       xaxt='n', ylab="", type="p",ylim=c(0.02,0.17),xlim=xlims,lty=1,lwd=2)
+       xaxt='n', ylab="", type="l",ylim=c(0.02,0.17),xlim=xlims,lty=1,lwd=2)
 lines(dydt.mean~predMass.mean, data=SwW,col="red",
-      xaxt='n', ylab="", type="p",ylim=c(0.02,0.17),lty=1,lwd=2)
+      xaxt='n', ylab="", type="l",ylim=c(0.02,0.17),lty=1,lwd=2)
 polygon(x = c(SwH$predMass.mean, rev(SwH$predMass.mean)), y = c(SwH$high,rev(SwH$low)),col = alpha("black",0.4), border = NA)
 polygon(x = c(SwW$predMass.mean, rev(SwW$predMass.mean)), y = c(SwW$high,rev(SwW$low)),col = alpha("red",0.4), border = NA)
 
