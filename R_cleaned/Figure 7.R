@@ -1,4 +1,4 @@
-#Figure 6: respiration
+#Figure 7: respiration
 #- Respiration
 source("R_cleaned/3. Create_datasets.R") #get "Rdark" - spot measures of R and "rt" - RvT data and "predR" - modelled values of R
 
