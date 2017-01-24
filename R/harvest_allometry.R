@@ -401,7 +401,7 @@ dat2$combotrt <- as.factor(paste(dat2$Location,dat2$Range,dat2$Treatment,sep="_"
 
 windows(20,15);par(mfrow=c(1,2),mar=c(2,0,1,0),oma=c(5,9,3,5),cex.axis=1.2)
 
-ylims=c(0.01,0.04)
+ylims=c(90,400)
 boxplot(SLA~Treatment*Range,data=subset(dat2,Location=="N"),ylim=ylims,
         axes=F,las=2,col=c("blue","red"))
 legend("topleft","Tropical",bty="n",cex=1.5,inset=-0.05)

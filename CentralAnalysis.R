@@ -8,15 +8,20 @@
 
 #-------------------------------------------------------------------------------------
 #- load the packages and custom functions that do all the work
-source("R/GLAHD_LoadLibraries.R")
+source("R_cleaned/1. GLAHD_LoadLibraries.R")
 #-------------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------------
 #- download all of the required data from HIEv.
 setToken(tokenfile="HIEv_token.txt") #- set HIEv token. See ?setToken
-source("R/downloadData.R")
+source("R_cleaned/2. downloadData.R")
 #-------------------------------------------------------------------------------------
 
+#-------------------------------------------------------------------------------------
+#- Make datasets.
+source("R_cleaned/3. Create_datasets.R")
+#-------------------------------------------------------------------------------------
+       
 #-------------------------------------------------------------------------------------
 #- Make figure 1.Figure of experimental design.
 source("R/"

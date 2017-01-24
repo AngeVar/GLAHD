@@ -159,7 +159,7 @@ legend(x=70,y=0.15,legend=c("Warmed","Home"),cex=1.4,
 ###################################################################################
 ###    OVER MASS
 
-#Figure 4: Relative growth rate
+#Figure 5: Relative growth rate
 g.trt <- summaryBy(dydt+predMass~Time+Treatment+Location+Range,data=gamfits2,FUN=c(mean,standard.error))
 g.trt$combotrt <- as.factor(paste(g.trt$Location,g.trt$Range,g.trt$Treatment,sep="_"))
 g.trt.S<- subset(g.trt, Location == "S")
