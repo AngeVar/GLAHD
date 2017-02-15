@@ -23,6 +23,7 @@ acifits$JtoVm<-with(acifits,Jmaxm/Vcmaxm)
 # as it still makes a big difference whether or not including SMIT in mass based rates.
 ###
 
+
 ## area based results with SMIT
 fm.Asat <- lme(Photo~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=Asat)
 plot(fm.Asat,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
@@ -74,12 +75,23 @@ effect("Location",fm.jtov)
 (exp(-0.1228216)-exp(0.5110372))/(exp(0.5110372))      # 46.9% lower Jmax/Vcmax in N compared to S
 
 
+fm.Rdark <- lme(log(R)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=Rdark)
+plot(fm.Rdark,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm.Rdark,R~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
+plot(fm.Rdark,R~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
+qqnorm(fm.Rdark, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
+hist(fm.Rdark$residuals[,1])
+anova(fm.Rdark)    
+effect("Treatment:Location",fm.Rdark)
+(exp(-0.8860410)-exp(-0.4899468))/(exp(-0.4899468)) # -32.7% in S
+(exp(-0.7644012)-exp(-0.5523989))/(exp(-0.5523989)) # -19.1% in N
+
 # --- Area based results w/o SMIT  ------------------------------------------------------------
 
 #SMIT may be a big influencer of results - remove SMIT
 Asats<- subset(Asat, Taxa != "SMIT")
 acifitss<- subset(acifits, Taxa != "SMIT")
-
+Rdarks<- subset(Rdark, Taxa != "SMIT")
 
 fm.Asat <- lme(Photo~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=Asats)
 plot(fm.Asat,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
@@ -129,6 +141,17 @@ effect("Treatment",fm.jtov)
 (exp(0.1235163)-exp(0.1869347))/(exp(0.1869347))      # -6.1%  in Jmax/Vcmax with warming
 effect("Location",fm.jtov)
 (exp(-0.1216975)-exp(0.4997415))/(exp(0.4997415))      # -46.3% in N
+
+fm.Rdark <- lme(log(R)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=Rdarks)
+plot(fm.Rdark,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm.Rdark,R~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
+plot(fm.Rdark,R~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
+qqnorm(fm.Rdark, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
+hist(fm.Rdark$residuals[,1])
+anova(fm.Rdark)    
+effect("Treatment:Location",fm.Rdark)
+(exp(-0.9234425)-exp(-0.5232258))/(exp(-0.5232258)) # -33.0% in S
+(exp(-0.7610750)-exp(-0.5512533))/(exp(-0.5512533)) # -18.9% in N
 
 ##----------------------------------
 ##----------------------------------
@@ -183,7 +206,19 @@ effect("Treatment",fm.jtovm)
 effect("Location",fm.jtovm)
 (exp(-0.1228216)-exp(0.5110372))/(exp(0.5110372))      # -46.9% in N
 
+fm.Rdark <- lme(log(Rmass)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=Rdark)
+plot(fm.Rdark,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm.Rdark,log(Rmass)~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
+plot(fm.Rdark,log(Rmass)~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
+qqnorm(fm.Rdark, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
+hist(fm.Rdark$residuals[,1])
+anova(fm.Rdark)    
+plot(effect("Treatment:Location:Range",fm.Rdark), multiline=T)
+(exp(2.253351)-exp(2.315649))/(exp(2.315649)) # -6% in S narrow
+(exp(2.144013)-exp(2.361253))/(exp(2.361253)) # -19.5% N narrow
 
+(exp(1.974925)-exp(2.318532))/(exp(2.318532)) # -29.1% in S wide
+(exp(2.174630)-exp(2.426073))/(exp(2.426073)) # -22.2% in N wide
 #-------------------------------
 #   mass based rates w/o SMIT
 
@@ -238,3 +273,104 @@ effect("Treatment",fm.jtovm)
 (exp(0.1235163)-exp(0.1869347))/(exp(0.1869347))      # -6.1%  in Jmax/Vcmax with warming
 effect("Location",fm.jtovm)
 (exp(-0.1216975)-exp(0.4997415))/(exp(0.4997415))      # -46.2% in N
+
+fm.Rdark <- lme((Rmass)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=Rdarks)
+plot(fm.Rdark,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm.Rdark,(Rmass)~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
+plot(fm.Rdark,(Rmass)~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
+qqnorm(fm.Rdark, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
+hist(fm.Rdark$residuals[,1])
+anova(fm.Rdark)    
+plot(effect("Treatment:Range",fm.Rdark), multiline=T)
+((8.305792)-(10.098900))/((10.098900)) # -17.8% in narrow
+((8.199173)-(11.074920))/((11.074920)) # -26.0% in wide
+
+plot(effect("Treatment:Location:Range",fm.Rdark), multiline=T)
+((7.965108)-(9.286351))/((9.286351)) # -14.2% in S narrow
+((8.58541)-(10.76580))/((10.76580)) # -20.3% N narrow
+
+((7.344985)-(10.445108))/((10.445108)) # -29.7% in S wide
+((8.900251)-(11.591842))/((11.591842)) # -23.2% in N wide
+
+###########################################################################################################
+
+###########################################################################################################
+
+#calculate response ratios
+asat.tm <- summaryBy(Photo~Taxa+Treatment+Location+Range,data=Asat,FUN=mean,keep.names=T)
+Rmass.tm <- summaryBy(Rmass~Taxa+Treatment+Location+Range,data=Rdark,FUN=mean,keep.names=T)
+jmax.tm <- summaryBy(Jmax~Taxa+Treatment+Location+Range,data=acifits,FUN=mean,keep.names=T)
+vcmax.tm <- summaryBy(Vcmax~Taxa+Treatment+Location+Range,data=acifits,FUN=mean,keep.names=T)
+
+j.taxa.l<- split(jmax.tm,as.factor(jmax.tm$Taxa))
+v.taxa.l<- split(vcmax.tm,as.factor(vcmax.tm$Taxa))
+a.taxa.l<- split(asat.tm,as.factor(asat.tm$Taxa))
+r.taxa.l<- split(Rmass.tm,as.factor(Rmass.tm$Taxa))
+
+output<- list()
+for(i in 1:length(j.taxa.l)){
+  rat<-(j.taxa.l[[i]]$Jmax[2]-j.taxa.l[[i]]$Jmax[1])/j.taxa.l[[i]]$Jmax[1]
+  
+  output[[i]] <- data.frame(Taxa=j.taxa.l[[i]]$Taxa[1],Location=j.taxa.l[[i]]$Location[1],Range=j.taxa.l[[i]]$Range[1],JRatio=rat)
+}
+j.df <- do.call(rbind,output)
+
+output<- list()
+for(i in 1:length(v.taxa.l)){
+  rat<-(v.taxa.l[[i]]$Vcmax[2]-v.taxa.l[[i]]$Vcmax[1])/v.taxa.l[[i]]$Vcmax[1]
+  
+  output[[i]] <- data.frame(Taxa=v.taxa.l[[i]]$Taxa[1],Location=v.taxa.l[[i]]$Location[1],Range=v.taxa.l[[i]]$Range[1],vRatio=rat)
+}
+v.df <- do.call(rbind,output)
+
+output<- list()
+for(i in 1:length(a.taxa.l)){
+  rat<-(a.taxa.l[[i]]$Photo[2]-a.taxa.l[[i]]$Photo[1])/a.taxa.l[[i]]$Photo[1]
+  
+  output[[i]] <- data.frame(Taxa=a.taxa.l[[i]]$Taxa[1],Location=a.taxa.l[[i]]$Location[1],Range=a.taxa.l[[i]]$Range[1],aRatio=rat)
+}
+a.df <- do.call(rbind,output)
+
+output<- list()
+for(i in 1:length(r.taxa.l)){
+  rat<-(r.taxa.l[[i]]$Rmass[2]-r.taxa.l[[i]]$Rmass[1])/r.taxa.l[[i]]$Rmass[1]
+  
+  output[[i]] <- data.frame(Taxa=r.taxa.l[[i]]$Taxa[1],Location=r.taxa.l[[i]]$Location[1],Range=r.taxa.l[[i]]$Range[1],rRatio=rat)
+}
+r.df <- do.call(rbind,output)
+
+
+asatm.tm <- summaryBy(Photom~Taxa+Treatment+Location+Range,data=Asatm,FUN=mean,keep.names=T)
+Rmass.tm <- summaryBy(Rmass~Taxa+Treatment+Location+Range,data=Rdark,FUN=mean,keep.names=T)
+jmaxm.tm <- summaryBy(Jmaxm~Taxa+Treatment+Location+Range,data=acifits,FUN=mean,keep.names=T)
+vcmaxm.tm <- summaryBy(Vcmaxm~Taxa+Treatment+Location+Range,data=acifits,FUN=mean,keep.names=T)
+
+jm.taxa.l<- split(jmaxm.tm,as.factor(jmaxm.tm$Taxa))
+vm.taxa.l<- split(vcmaxm.tm,as.factor(vcmaxm.tm$Taxa))
+am.taxa.l<- split(asatm.tm,as.factor(asatm.tm$Taxa))
+
+output<- list()
+for(i in 1:length(j.taxa.l)){
+  rat<-(jm.taxa.l[[i]]$Jmaxm[2]-jm.taxa.l[[i]]$Jmaxm[1])/jm.taxa.l[[i]]$Jmaxm[1]
+  
+  output[[i]] <- data.frame(Taxa=jm.taxa.l[[i]]$Taxa[1],Location=jm.taxa.l[[i]]$Location[1],Range=jm.taxa.l[[i]]$Range[1],JmRatio=rat)
+}
+jm.df <- do.call(rbind,output)
+
+output<- list()
+for(i in 1:length(v.taxa.l)){
+  rat<-(vm.taxa.l[[i]]$Vcmaxm[2]-vm.taxa.l[[i]]$Vcmaxm[1])/vm.taxa.l[[i]]$Vcmaxm[1]
+  
+  output[[i]] <- data.frame(Taxa=v.taxa.l[[i]]$Taxa[1],Location=v.taxa.l[[i]]$Location[1],Range=v.taxa.l[[i]]$Range[1],vmRatio=rat)
+}
+vm.df <- do.call(rbind,output)
+
+output<- list()
+for(i in 1:length(am.taxa.l)){
+  rat<-(am.taxa.l[[i]]$Photom[2]-am.taxa.l[[i]]$Photom[1])/am.taxa.l[[i]]$Photom[1]
+  
+  output[[i]] <- data.frame(Taxa=am.taxa.l[[i]]$Taxa[1],Location=am.taxa.l[[i]]$Location[1],Range=am.taxa.l[[i]]$Range[1],amRatio=rat)
+}
+am.df <- do.call(rbind,output)
+
+RR<-Reduce(function(x, y) merge(x, y, all=TRUE), list(j.df,v.df,a.df,r.df,jm.df,vm.df,am.df))

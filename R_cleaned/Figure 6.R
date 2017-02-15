@@ -206,12 +206,13 @@ mtext(text=expression("From"~A["sat"]),side=2,outer=F,cex=1.2,adj=0.5,line=5)
 mtext(text=expression("SLA ("*cm^2~g^-1*")"),side=2,outer=F,cex=1,line=3)
 axis(side=1,at=c(1:34),labels=rep(levels(asatm$Taxa),2),las=1,cex.axis=1)
 
-#taxa specific responses -- Problem: the boxplot is plotting boxes in alphabetical order
+#taxa specific responses
 #area based
 
 colors <- c(alpha("black",0.4),"red")
 acifits$TaxTreat<- as.factor(paste(acifits$Taxa,acifits$Treatment, sep="."))
 Asat$TaxTreat<- as.factor(paste(Asat$Taxa,Asat$Treatment, sep="."))
+Rdark$TaxTreat<- as.factor(paste(Rdark$Taxa,Rdark$Treatment, sep="."))
 
 acifits$TaxTreat<- factor(acifits$TaxTreat, levels=c(
   "ATER.Home","ATER.Warmed","BTER.Home","BTER.Warmed","ACAM.Home","ACAM.Warmed","BCAM.Home","BCAM.Warmed",
@@ -225,8 +226,14 @@ Asat$TaxTreat<- factor(Asat$TaxTreat, levels=c(
   "CTER.Home","CTER.Warmed","DTER.Home","DTER.Warmed", "ETER.Home", "ETER.Warmed","DCAM.Home","DCAM.Warmed", 
   "ECAM.Home","ECAM.Warmed","FCAM.Home","FCAM.Warmed","BRA.Home","BRA.Warmed","PEL.Home","PEL.Warmed",
   "PLAT.Home","PLAT.Warmed"))
+Rdark$TaxTreat<- factor(Rdark$TaxTreat, levels=c(
+  "ATER.Home","ATER.Warmed","BTER.Home","BTER.Warmed","ACAM.Home","ACAM.Warmed","BCAM.Home","BCAM.Warmed",
+  "CCAM.Home","CCAM.Warmed","BOT.Home","BOT.Warmed","LONG.Home","LONG.Warmed","SMIT.Home","SMIT.Warmed",
+  "CTER.Home","CTER.Warmed","DTER.Home","DTER.Warmed", "ETER.Home", "ETER.Warmed","DCAM.Home","DCAM.Warmed", 
+  "ECAM.Home","ECAM.Warmed","FCAM.Home","FCAM.Warmed","BRA.Home","BRA.Warmed","PEL.Home","PEL.Warmed",
+  "PLAT.Home","PLAT.Warmed"))
 
-windows(16.53,11.69);par(mfrow=c(3,1),mar=c(0,0,0,0),oma=c(6,9,6,5))
+windows(16.53,11.69);par(mfrow=c(4,1),mar=c(0,0,0,0),oma=c(6,9,6,5))
 #Jmax
 ylims=c(90,280)
 boxplot(Jmax~TaxTreat,data=acifits,ylim=ylims,axes=F,las=2,col=colors)
@@ -244,7 +251,7 @@ ylims=c(60,260)
 boxplot(Vcmax~TaxTreat,data=acifits,ylim=ylims,axes=F,las=2,col=colors)
 magaxis(c(2,4),labels=c(1,0),frame.plot=T,las=1,cex.axis=1.2)
 mtext(text=expression(V["cmax"]),side=2,outer=F,cex=1.2,adj=0.5,line=5)
-mtext(text=expression("("*mu*mol~g^-1~s^-1*")"),side=2,outer=T,cex=1,adj=0.5,line=3)
+mtext(text=expression("("*mu*mol~g^-1~s^-1*")"),side=2,outer=T,cex=1,adj=0.64,line=3)
 legend("topright","b", bty="n", cex=1.5)
 
 #Asat
@@ -253,9 +260,18 @@ boxplot(Photo~TaxTreat,data=Asat,ylim=ylims,
         axes=F,las=2,col=colors)
 magaxis(c(2,4),labels=c(1,0),frame.plot=T,las=1,cex.axis=1.2)
 mtext(text=expression(A["sat"]),side=2,outer=F,cex=1.2,adj=0.5,line=5)
-mtext(text=expression("("*mu*mol~m^-2~s^-1*")"),side=2,outer=T,cex=1,adj=0.12,line=3)
-axis(side=1,at=c(seq(1.5,34, by=2)),labels=c(levels(Asat$Taxa)),las=1,cex.axis=1.5)
+mtext(text=expression("("*mu*mol~m^-2~s^-1*")"),side=2,outer=T,cex=1,adj=0.34,line=3)
 legend("topright","c", bty="n", cex=1.5)
+
+#Rdark
+ylims=c(0,1)
+boxplot(R~TaxTreat,data=Rdark,ylim=ylims,
+        axes=F,las=2,col=colors)
+magaxis(c(2,4),labels=c(1,0),frame.plot=T,las=1,cex.axis=1.2)
+mtext(text=expression(R["dark"]),side=2,outer=F,cex=1.2,adj=0.5,line=5)
+mtext(text=expression("("*mu*mol~m^-2~s^-1*")"),side=2,outer=T,cex=1,adj=0.1,line=3)
+axis(side=1,at=c(seq(1.5,34, by=2)),labels=c(levels(Asat$Taxa)),las=1,cex.axis=1.5)
+legend("topright","d", bty="n", cex=1.5)
 
 #mass based
 Asatm$Photom<-with(Asatm, Photo*SLA/10000)
@@ -277,7 +293,7 @@ Asatm$TaxTreat<- factor(Asatm$TaxTreat, levels=c(
   "ECAM.Home","ECAM.Warmed","FCAM.Home","FCAM.Warmed","BRA.Home","BRA.Warmed","PEL.Home","PEL.Warmed",
   "PLAT.Home","PLAT.Warmed"))
 
-windows(16.53,11.69);par(mfrow=c(3,1),mar=c(0,0,0,0),oma=c(6,9,6,5))
+windows(16.53,11.69);par(mfrow=c(4,1),mar=c(0,0,0,0),oma=c(6,9,6,5))
 #Jmax
 ylims=c(1.5,6)
 boxplot(Jmaxm~TaxTreat,data=acifits,ylim=ylims,axes=F,las=2,col=colors)
@@ -295,7 +311,7 @@ ylims=c(1,5.5)
 boxplot(Vcmaxm~TaxTreat,data=acifits,ylim=ylims,axes=F,las=2,col=colors)
 magaxis(c(2,4),labels=c(1,0),frame.plot=T,las=1,cex.axis=1.2)
 mtext(text=expression(V["cmax"]),side=2,outer=F,cex=1.2,adj=0.5,line=5)
-mtext(text=expression("("*mu*mol~g^-1~s^-1*")"),side=2,outer=T,cex=1,adj=0.5,line=3)
+mtext(text=expression("("*mu*mol~g^-1~s^-1*")"),side=2,outer=T,cex=1,adj=0.65,line=3)
 legend("topright","b", bty="n", cex=1.5)
 
 #Asat
@@ -304,6 +320,15 @@ boxplot(Photom~TaxTreat,data=Asatm,ylim=ylims,
         axes=F,las=2,col=colors)
 magaxis(c(2,4),labels=c(1,0),frame.plot=T,las=1,cex.axis=1.2)
 mtext(text=expression(A["sat"]),side=2,outer=F,cex=1.2,adj=0.5,line=5)
-mtext(text=expression("("*mu*mol~g^-1~s^-1*")"),side=2,outer=T,cex=1,adj=0.12,line=3)
-axis(side=1,at=c(seq(1.5,34, by=2)),labels=c(levels(Asatm$Taxa)),las=1,cex.axis=1.5)
+mtext(text=expression("("*mu*mol~g^-1~s^-1*")"),side=2,outer=T,cex=1,adj=0.35,line=3)
 legend("topright","c", bty="n", cex=1.5)
+
+#rdark
+ylims=c(5,20)
+boxplot(Rmass~TaxTreat,data=Rdark,ylim=ylims,
+        axes=F,las=2,col=colors)
+magaxis(c(2,4),labels=c(1,0),frame.plot=T,las=1,cex.axis=1.2)
+mtext(text=expression(R["mass"]),side=2,outer=F,cex=1.2,adj=0.5,line=5)
+mtext(text=expression("("*mu*mol~g^-1~s^-1*")"),side=2,outer=T,cex=1,adj=0.1,line=3)
+axis(side=1,at=c(seq(1.5,34, by=2)),labels=c(levels(Asatm$Taxa)),las=1,cex.axis=1.5)
+legend("topright","d", bty="n", cex=1.5)
