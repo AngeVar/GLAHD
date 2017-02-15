@@ -298,14 +298,14 @@ plot(effect("Treatment:Location:Range",fm.Rdark), multiline=T)
 
 #calculate response ratios
 asat.tm <- summaryBy(Photo~Taxa+Treatment+Location+Range,data=Asat,FUN=mean,keep.names=T)
-Rmass.tm <- summaryBy(Rmass~Taxa+Treatment+Location+Range,data=Rdark,FUN=mean,keep.names=T)
+R.tm <- summaryBy(R~Taxa+Treatment+Location+Range,data=Rdark,FUN=mean,keep.names=T)
 jmax.tm <- summaryBy(Jmax~Taxa+Treatment+Location+Range,data=acifits,FUN=mean,keep.names=T)
 vcmax.tm <- summaryBy(Vcmax~Taxa+Treatment+Location+Range,data=acifits,FUN=mean,keep.names=T)
 
 j.taxa.l<- split(jmax.tm,as.factor(jmax.tm$Taxa))
 v.taxa.l<- split(vcmax.tm,as.factor(vcmax.tm$Taxa))
 a.taxa.l<- split(asat.tm,as.factor(asat.tm$Taxa))
-r.taxa.l<- split(Rmass.tm,as.factor(Rmass.tm$Taxa))
+r.taxa.l<- split(Rmass.tm,as.factor(R.tm$Taxa))
 
 output<- list()
 for(i in 1:length(j.taxa.l)){
@@ -348,6 +348,7 @@ vcmaxm.tm <- summaryBy(Vcmaxm~Taxa+Treatment+Location+Range,data=acifits,FUN=mea
 jm.taxa.l<- split(jmaxm.tm,as.factor(jmaxm.tm$Taxa))
 vm.taxa.l<- split(vcmaxm.tm,as.factor(vcmaxm.tm$Taxa))
 am.taxa.l<- split(asatm.tm,as.factor(asatm.tm$Taxa))
+rm.taxa.l<- split(Rmass.tm,as.factor(Rmass.tm$Taxa))
 
 output<- list()
 for(i in 1:length(j.taxa.l)){
@@ -373,4 +374,12 @@ for(i in 1:length(am.taxa.l)){
 }
 am.df <- do.call(rbind,output)
 
-RR<-Reduce(function(x, y) merge(x, y, all=TRUE), list(j.df,v.df,a.df,r.df,jm.df,vm.df,am.df))
+output<- list()
+for(i in 1:length(rm.taxa.l)){
+  rat<-(rm.taxa.l[[i]]$Rmass[2]-rm.taxa.l[[i]]$Rmass[1])/rm.taxa.l[[i]]$Rmass[1]
+  
+  output[[i]] <- data.frame(Taxa=rm.taxa.l[[i]]$Taxa[1],Location=rm.taxa.l[[i]]$Location[1],Range=rm.taxa.l[[i]]$Range[1],rmRatio=rat)
+}
+rm.df <- do.call(rbind,output)
+
+RR<-Reduce(function(x, y) merge(x, y, all=TRUE), list(j.df,v.df,a.df,r.df,jm.df,vm.df,am.df,rm.df))

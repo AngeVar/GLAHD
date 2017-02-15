@@ -130,14 +130,19 @@ fitted <- cbind(params,q10.AIC,arr.AIC,mt.AIC,poly.AIC)
 fitted <- fitted[,11:17] # Note that Mark's modified Q10 tends to have the lowest AIC for each curve, but not always
 
 # mark's modified Q10 has the lowest overall AIC.
+#summaryBy(Q10.AIC+arr.AIC+mt.AIC+poly.AIC~1,FUN=sum,data=fitted)
+
 # parameter estimates
 params.m <- summaryBy(mt.x + mt.y + mt.Rref~Taxa+Treatment,FUN=c(mean,standard.error),data=params)
-params$R25 <- with(params,exp(poly.a+poly.b*25+poly.c*25^2))
-params$R18.5 <- with(params,exp(poly.a+poly.b*18.5+poly.c*18.5^2))
-params$R28.5 <- with(params,exp(poly.a+poly.b*28.5+poly.c*28.5^2))
-params$Q10_25 <- with(params,exp(10*(poly.b+2*poly.c*25)))
-params$Q10_18.5 <- with(params,exp(10*(poly.b+2*poly.c*18.5)))
-params$Q10_28.5 <- with(params,exp(10*(poly.b+2*poly.c*28.55)))
+params$R25 <- with(params,mt.Rref*((mt.x-mt.y*(25-15)/2))^((25-15)/10))
+params$Q10_25 <- with(params,(mt.x-mt.y*(25-15)/2))
+
+# params$R25 <- with(params,exp(poly.a+poly.b*25+poly.c*25^2))
+# params$R18.5 <- with(params,exp(poly.a+poly.b*18.5+poly.c*18.5^2))
+# params$R28.5 <- with(params,exp(poly.a+poly.b*28.5+poly.c*28.5^2))
+# params$Q10_25 <- with(params,exp(10*(poly.b+2*poly.c*25)))
+# params$Q10_18.5 <- with(params,exp(10*(poly.b+2*poly.c*18.5)))
+# params$Q10_28.5 <- with(params,exp(10*(poly.b+2*poly.c*28.55)))
 
 
 tvals <- seq(from=13,to=40,by=1)

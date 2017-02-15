@@ -8,8 +8,7 @@ par(mfrow=c(3,2),mar=c(3,0,1.5,0),oma=c(6,7,6,7),cex.axis=1.2)
 
 #Rmass
 #- average across species
-Rdark$Species <- factor(gx2$Species)
-Rdark.m <- summaryBy(Rmass~Taxa+Treatment+Location+Range,data=gx2,FUN=mean,keep.names=T)
+Rdark.m <- summaryBy(Rmass~Taxa+Treatment+Location+Range,data=Rdark,FUN=mean,keep.names=T)
 
 ylims=c(5,19)
 boxplot(Rmass~Treatment*Range,data=subset(Rdark.m,Location=="S"),ylim=ylims,
