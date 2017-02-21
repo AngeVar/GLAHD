@@ -294,6 +294,58 @@ plot(effect("Treatment:Location:Range",fm.Rdark), multiline=T)
 
 ###########################################################################################################
 
+#Test R at 25 from temperature sensitivity curves
+
+fm1<- aov((R25)~Treatment*Taxa, data=params)
+hist(fm1$residuals)
+anova(fm1)#0.06,0.024
+TukeyHSD(fm1)
+plot(allEffects(fm1), multiline=T) 
+
+fm2<- aov((R18.5)~Treatment*Taxa, data=params)
+hist(fm2$residuals)
+anova(fm2)#0.24,0.001,
+TukeyHSD(fm2)
+plot(allEffects(fm2), multiline=T) 
+
+fm3<- aov((R28.5)~Treatment*Taxa, data=params)
+hist(fm3$residuals)
+anova(fm3)#0.032,0.11
+TukeyHSD(fm3)
+plot(allEffects(fm3), multiline=T) 
+effect("Treatment",fm3)
+(13.41084-15.10342)/15.10342 #-11.2%
+
+fm1<- aov(log(Q10_25)~Treatment*Taxa, data=params)
+hist(fm1$residuals)
+anova(fm1)#0.1,0.013
+TukeyHSD(fm1) #CTER and BOT
+plot(allEffects(fm1), multiline=T) 
+
+fm2<- aov((Q10_18.5)~Treatment*Taxa, data=params)
+hist(fm2$residuals)
+anova(fm2)#0.076,0.029,
+TukeyHSD(fm2)#CTER and BOT
+plot(allEffects(fm2), multiline=T) 
+
+fm3<- aov(log(Q10_28.5)~Treatment*Taxa, data=params)
+hist(fm3$residuals)
+anova(fm3)#0.097,0.008
+TukeyHSD(fm3)#CTER and BOT
+plot(allEffects(fm3), multiline=T) 
+
+#I have cleaned up this analysis from the old script so that it now uses the data that is on HIEv and uses
+#the modified Q10 model (the model with the lowest overall AIC) to predict rates at other temperatures 
+#instead of the polynomial model as in the old script.
+#I cannot reproduce the results John got way back whan he did it the first time.
+#But I find that:
+#The taxa differ in their Rmass at 25 (P=0.024), 18.5 (P=0.001) and 28.5 (0.032)
+#Tukeys HSD suggests that it is due to BRA differing from BOT (narrow Tropical vs. Temperate)
+#There is little effect of warming at 25 (0.064), 18.5 (0.24), 28.5 (0.11)
+#For Q10, Taxa differed in their Q10 at 25 (0.013), 18.5 (0.03) and 28.5 (0.008)
+#Tukeys HSD suggests it is due to BOT and BTER differing (Temperate narrow vs. Wide)
+#There was little effect of temperature at 25 (0.1), 18.5 (0.08) and 28.5 (0.1)
+
 ###########################################################################################################
 
 #calculate response ratios
