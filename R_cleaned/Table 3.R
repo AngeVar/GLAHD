@@ -77,8 +77,8 @@ effect("Location",fm.jtov)
 
 fm.Rdark <- lme(log(R)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=Rdark)
 plot(fm.Rdark,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
-plot(fm.Rdark,R~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
-plot(fm.Rdark,R~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
+plot(fm.Rdark,log(R)~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
+plot(fm.Rdark,log(R)~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
 qqnorm(fm.Rdark, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
 hist(fm.Rdark$residuals[,1])
 anova(fm.Rdark)    
@@ -179,6 +179,12 @@ anova(fm.vcmaxm)
 plot(effect("Treatment:Range",fm.vcmaxm))      #- warming reduced Vcmax in the wide but not in the narrow. No location interactions
 ((1.554706^2)-(1.536480^2))/((1.536480^2))    # +2.4%  in Vcmax in narrow # 
 ((1.560650^2)-(1.639508^2))/((1.639508^2)) #  -9.4%  in Vcmax in wide
+plot(effect("Location",fm.vcmaxm)) 
+((1.287201)^2-(1.848172)^2)/((1.848172)^2) #51.5 % lower in S than N
+plot(effect("Treatment:Location",fm.vcmaxm)) 
+((1.281249)^2-(1.293215)^2)/((1.293215)^2) #-1.8% in S
+((1.811152)^2-(1.885578)^2)/((1.885578)^2) #-7.7% in N
+((1.558556)^2-(1.603208)^2)/((1.603208)^2) #-5.5% in warmed than Home
 
 #- fit and interpret Jmax
 fm.jmaxm <- lme(sqrt(Jmaxm)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=acifits)
@@ -292,56 +298,62 @@ plot(effect("Treatment:Location:Range",fm.Rdark), multiline=T)
 ((7.344985)-(10.445108))/((10.445108)) # -29.7% in S wide
 ((8.900251)-(11.591842))/((11.591842)) # -23.2% in N wide
 
+plot(effect("Treatment",fm.Rdark), multiline=T)
+((8.232871)-(10.766437))/((10.766437)) # -23.5% in warmed
+
+plot(effect("Location",fm.Rdark), multiline=T)
+((10.032980)-(8.777051))/((8.777051)) # -14.3 % higher in N
+
 ###########################################################################################################
 
 #Test R at 25 from temperature sensitivity curves
 
-fm1<- aov((R25)~Treatment*Taxa, data=params)
-hist(fm1$residuals)
-anova(fm1)#0.06,0.024
-TukeyHSD(fm1)
-plot(allEffects(fm1), multiline=T) 
-
 fm2<- aov((R18.5)~Treatment*Taxa, data=params)
 hist(fm2$residuals)
-anova(fm2)#0.24,0.001,
+anova(fm2)#0.2,0.001,
 TukeyHSD(fm2)
-plot(allEffects(fm2), multiline=T) 
+plot(allEffects(fm2), multiline=T) #Bot had higher rates than all others 
+
+fm1<- aov((R25)~Treatment*Taxa, data=params)
+hist(fm1$residuals)
+anova(fm1)#0.06,0.02 #T effect is marginal, Taxa differs at 25 C
+TukeyHSD(fm1) #BOT had higher rates than BRA
+plot(allEffects(fm1), multiline=T) 
 
 fm3<- aov((R28.5)~Treatment*Taxa, data=params)
 hist(fm3$residuals)
-anova(fm3)#0.032,0.11
+anova(fm3)#0.03,0.11 #Warming reduced Rates, taxa did not differ.
 TukeyHSD(fm3)
 plot(allEffects(fm3), multiline=T) 
 effect("Treatment",fm3)
 (13.41084-15.10342)/15.10342 #-11.2%
 
-fm1<- aov(log(Q10_25)~Treatment*Taxa, data=params)
-hist(fm1$residuals)
-anova(fm1)#0.1,0.013
-TukeyHSD(fm1) #CTER and BOT
-plot(allEffects(fm1), multiline=T) 
-
 fm2<- aov((Q10_18.5)~Treatment*Taxa, data=params)
 hist(fm2$residuals)
-anova(fm2)#0.076,0.029,
+anova(fm2)#0.08,0.03, #taxa differed in Q10
 TukeyHSD(fm2)#CTER and BOT
-plot(allEffects(fm2), multiline=T) 
+plot(allEffects(fm2), multiline=T)  #Bot had lower Q10 than CTER
+
+fm1<- aov(log(Q10_25)~Treatment*Taxa, data=params)
+hist(fm1$residuals)
+anova(fm1)#0.1,0.01 #taxa differed in Q10
+TukeyHSD(fm1) #CTER and BOT
+plot(allEffects(fm1), multiline=T) #Bot had lower Q10 than CTER
 
 fm3<- aov(log(Q10_28.5)~Treatment*Taxa, data=params)
 hist(fm3$residuals)
-anova(fm3)#0.097,0.008
+anova(fm3)#0.1,0.008
 TukeyHSD(fm3)#CTER and BOT
-plot(allEffects(fm3), multiline=T) 
+plot(allEffects(fm3), multiline=T) #Bot had lower Q10 than CTER
 
 #I have cleaned up this analysis from the old script so that it now uses the data that is on HIEv and uses
 #the modified Q10 model (the model with the lowest overall AIC) to predict rates at other temperatures 
 #instead of the polynomial model as in the old script.
 #I cannot reproduce the results John got way back whan he did it the first time.
 #But I find that:
-#The taxa differ in their Rmass at 25 (P=0.024), 18.5 (P=0.001) and 28.5 (0.032)
+#The taxa differ in their Rmass at 25 (P=0.024), 18.5 (P=0.001) but not 28.5 (P=0.11)
 #Tukeys HSD suggests that it is due to BRA differing from BOT (narrow Tropical vs. Temperate)
-#There is little effect of warming at 25 (0.064), 18.5 (0.24), 28.5 (0.11)
+#There is little effect of warming at 25 (0.064), 18.5 (0.24) but at 28.5 (0.032) rates were significantly reduced -11.2%
 #For Q10, Taxa differed in their Q10 at 25 (0.013), 18.5 (0.03) and 28.5 (0.008)
 #Tukeys HSD suggests it is due to BOT and BTER differing (Temperate narrow vs. Wide)
 #There was little effect of temperature at 25 (0.1), 18.5 (0.08) and 28.5 (0.1)
@@ -435,3 +447,21 @@ for(i in 1:length(rm.taxa.l)){
 rm.df <- do.call(rbind,output)
 
 RR<-Reduce(function(x, y) merge(x, y, all=TRUE), list(j.df,v.df,a.df,r.df,jm.df,vm.df,am.df,rm.df))
+
+
+
+#--- compare SLA
+
+f.AsatSLA <- lme((SLA)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=Asatm)
+plot(f.AsatSLA,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(f.AsatSLA,(SLA)~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
+plot(f.AsatSLA,(SLA)~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
+qqnorm(f.AsatSLA, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
+hist(f.AsatSLA$residuals[,1])
+anova(f.AsatSLA)    #no effects, still no effects if SMIT is removed
+plot(effect("Treatment:Location",f.AsatSLA))
+((194.474)-(167.919))/((167.919))    # +15.8% increase in SLA in S # 
+((189.5643)-(193.3252))/((193.3252)) #  -1.9% decrease in SLA in N
+plot(effect("Treatment:Range",f.AsatSLA))
+((206.2998)-(182.5428))/((182.5428))    # +13.0% increase in SLA in Narrow # 
+((184.1988)-(180.4939))/((180.4939)) #  +2.1% increase in SLA in Wide
