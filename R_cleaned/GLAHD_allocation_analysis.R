@@ -13,6 +13,24 @@ anova(fm1LM)
 #The slope of log(LM)~log(TM) was lower in N and decreased more with warming in the S, -3.4% vs. +0.99% in N
 plot(effect("log(Totmass):Treatment:Location",fm1LM), multiline=T)       # 0.0412
 
+windows(10,7)
+par(mfrow=c(1,2),mar=c(3,0,1.5,0),oma=c(6,7,6,7),cex.axis=1.2)
+plotBy(log(Leafarea)~log(Totmass)|Treatment, data=subset(data2,Location == "S"), xlim=c(-2,6),axes=F)
+abline(lm(log(Leafarea)~log(Totmass), data=subset(data2,Location == "S"& Treatment == "Warmed")), col="red")
+abline(lm(log(Leafarea)~log(Totmass), data=subset(data2,Location == "S"& Treatment == "Home")), col="black")
+
+magaxis(c(1,2),labels=c(1,1),frame.plot=T,las=1,cex.axis=1.2)
+mtext(text="Temperate", side=3, line=0.5, cex=1.2)
+
+plotBy(log(Leafarea)~log(Totmass)|Treatment, data=subset(data2,Location == "N"), xlim=c(-2,6), legend =F,axes=F)
+magaxis(c(1,4),labels=c(1,1),frame.plot=T,las=1,cex.axis=1.2)
+abline(lm(log(Leafarea)~log(Totmass), data=subset(data2,Location == "N"& Treatment == "Warmed")), col="red")
+abline(lm(log(Leafarea)~log(Totmass), data=subset(data2,Location == "N"& Treatment == "Home")), col="black")
+mtext(text="Tropical", side=3, line=0.5, cex=1.2)
+mtext(text="ln(Leaf area)",side=2,outer=T,cex=1.2,adj=0.5,line=3)
+mtext(text="ln(Total biomass)",side=1,outer=T,cex=1.2,adj=0.5,line=1)
+
+
 #Leaf area - over Leaf mass = SLA
 #            
 fm2LM <- lme(log(Leafarea)~log(Leafmass)*Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=data2)#, method="ML")
