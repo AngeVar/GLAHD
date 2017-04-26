@@ -187,24 +187,30 @@ legend("topright","f", bty="n", cex=1.5)
 ##---------------------------------------------
 
 
-##--- SLA test : SLA increased by warming in S but not N (treat x Loc)
+##--- SLA test : SLA increased by warming in S but not N (treat x Loc) and in narrow not wide (treat x Range)
 
 asatmt<- Asatm[,c("Location","Range","Taxa","Treatment","SLA")]
 
 #from Asat
-windows(11.69,5.845)
+windows(18,5.845)
 par(mfrow=c(1,1),mar=c(0,0,0,0),oma=c(4,6,2,2))
 
-
-asatm_sort <- with(asatmt,asatmt[order(Location, Range),])
+asatmt$TaxTreat<- as.factor(paste(asatmt$Taxa,asatmt$Treatment, sep="."))
+asatmt$TaxTreat<- factor(asatmt$TaxTreat, levels=c(
+  "ATER.Home","ATER.Warmed","BTER.Home","BTER.Warmed","ACAM.Home","ACAM.Warmed","BCAM.Home","BCAM.Warmed",
+  "CCAM.Home","CCAM.Warmed","BOT.Home","BOT.Warmed","LONG.Home","LONG.Warmed","SMIT.Home","SMIT.Warmed",
+  "CTER.Home","CTER.Warmed","DTER.Home","DTER.Warmed", "ETER.Home", "ETER.Warmed","DCAM.Home","DCAM.Warmed", 
+  "ECAM.Home","ECAM.Warmed","FCAM.Home","FCAM.Warmed","BRA.Home","BRA.Warmed","PEL.Home","PEL.Warmed",
+  "PLAT.Home","PLAT.Warmed"))
 
 ylims=c(120,320)
-boxplot(SLA~Taxa*Treatment,data=asatm_sort,ylim=ylims,
+boxplot(SLA~TaxTreat,data=asatmt,ylim=ylims,
         axes=F,las=2,col=colors)
 magaxis(c(2,4),labels=c(1,0),frame.plot=T,las=1,cex.axis=1.2)
 mtext(text=expression("From"~A["sat"]),side=2,outer=F,cex=1.2,adj=0.5,line=5)
 mtext(text=expression("SLA ("*cm^2~g^-1*")"),side=2,outer=F,cex=1,line=3)
-axis(side=1,at=c(1:34),labels=rep(levels(asatm$Taxa),2),las=1,cex.axis=1)
+#axis(side=1,at=c(1:34),labels=rep(levels(asatm_sort$Taxa),2),las=1,cex.axis=1)
+axis(side=1,at=c(seq(1.5,34, by=2)),labels=c(levels(asatmt$Taxa)),las=1,cex.axis=1.5)
 
 #taxa specific responses
 #area based
