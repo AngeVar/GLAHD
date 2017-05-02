@@ -11,7 +11,8 @@ par(mfrow=c(3,2),mar=c(3,0,1.5,0),oma=c(6,7,6,7),cex.axis=1.2)
 Rdark.m <- summaryBy(Rmass~Taxa+Treatment+Location+Range,data=Rdark,FUN=mean,keep.names=T)
 
 ylims=c(5,19)
-boxplot(Rmass~Treatment*Range,data=subset(Rdark.m,Location=="S"),ylim=ylims,
+boxplot(Rmass~Treatment*Range,data=subset(Rdark.m,Location=="S"#&Taxa !="SMIT")
+        ,ylim=ylims,
         axes=F,las=2,col=colors)
 mtext(text="Temperate", side=3, line=0.5, cex=1.2)
 magaxis(c(2,4),minorn=5, majorn=3,labels=c(1,0),frame.plot=T,las=1)
@@ -92,12 +93,12 @@ points(R_mass.mean~Tleaf_bin_mid,data=subset(toplot,Taxa=="BOT"&Treatment=="Warm
                                 SE=subset(toplot,Taxa=="BOT"&Treatment=="Warmed")$R_mass.standard.error,direction="updown",col="red"),
        axes=F,las=1,xlab="")
 
-polygon(x = c(SnH$T,rev(SnH$T)),
-        y = c(SnH$high,rev(SnH$low)),
-        col = alpha("black",0.2), border = NA)
-polygon(x = c(SnW$T,rev(SnW$T)),
-        y = c(SnW$high,rev(SnW$low)),
-        col = alpha("red",0.2), border = NA)
+# polygon(x = c(SnH$T,rev(SnH$T)),
+#         y = c(SnH$high,rev(SnH$low)),
+#         col = alpha("black",0.2), border = NA)
+# polygon(x = c(SnW$T,rev(SnW$T)),
+#         y = c(SnW$high,rev(SnW$low)),
+#         col = alpha("red",0.2), border = NA)
 
 magaxis(c(1,2,4),labels=c(0,1,0),frame.plot=T,las=1)
 legend("topright","c", bty="n", cex=1.5)
@@ -124,12 +125,12 @@ points(R_mass.mean~Tleaf_bin_mid,data=subset(toplot,Taxa=="BRA"&Treatment=="Warm
                                 SE=subset(toplot,Taxa=="BRA"&Treatment=="Warmed")$R_mass.standard.error,direction="updown",col="red"),
        axes=F,las=1,xlab="")
 
-polygon(x = c(NnH$T,rev(NnH$T)),
-        y = c(NnH$high,rev(NnH$low)),
-        col = alpha("black",0.2), border = NA)
-polygon(x = c(NnW$T,rev(NnW$T)), 
-        y = c(NnW$high,rev(NnW$low)),
-        col = alpha("red",0.2), border = NA)
+# polygon(x = c(NnH$T,rev(NnH$T)),
+#         y = c(NnH$high,rev(NnH$low)),
+#         col = alpha("black",0.2), border = NA)
+# polygon(x = c(NnW$T,rev(NnW$T)), 
+#         y = c(NnW$high,rev(NnW$low)),
+#         col = alpha("red",0.2), border = NA)
 
 magaxis(c(1,2,4),labels=c(0,0,0),frame.plot=T,las=1)
 legend("topright","d", bty="n", cex=1.5)
@@ -152,12 +153,12 @@ points(R_mass.mean~Tleaf_bin_mid,data=subset(toplot,Taxa=="BTER"&Treatment=="War
                                 y=subset(toplot,Taxa=="BTER"&Treatment=="Warmed")$R_mass.mean,
                                 SE=subset(toplot,Taxa=="BTER"&Treatment=="Warmed")$R_mass.standard.error,direction="updown",col="red"),
        axes=F,las=1,xlab="")
-polygon(x = c(SwH$T,rev(SwH$T)),
-        y = c(SwH$high,rev(SwH$low)),
-        col = alpha("black",0.2), border = NA)
-polygon(x = c(SwW$T,rev(SwW$T)), 
-        y = c(SwW$high,rev(SwW$low)),
-        col = alpha("red",0.2), border = NA)
+# polygon(x = c(SwH$T,rev(SwH$T)),
+#         y = c(SwH$high,rev(SwH$low)),
+#         col = alpha("black",0.2), border = NA)
+# polygon(x = c(SwW$T,rev(SwW$T)), 
+#         y = c(SwW$high,rev(SwW$low)),
+#         col = alpha("red",0.2), border = NA)
 magaxis(c(1,2,4),labels=c(1,1,0),frame.plot=T,las=1)
 legend("topright","e", bty="n", cex=1.5)
 
@@ -179,12 +180,12 @@ points(R_mass.mean~Tleaf_bin_mid,data=subset(toplot,Taxa=="CTER"&Treatment=="War
                                 y=subset(toplot,Taxa=="CTER"&Treatment=="Warmed")$R_mass.mean,
                                 SE=subset(toplot,Taxa=="CTER"&Treatment=="Warmed")$R_mass.standard.error,direction="updown",col="red"),
        axes=F,las=1,xlab="")
-polygon(x = c(NwH$T,rev(NwH$T)),
-        y = c(NwH$high,rev(NwH$low)),
-        col = alpha("black",0.2), border = NA)
-polygon(x = c(NwW$T,rev(NwW$T)), 
-        y = c(NwW$high,rev(NwW$low)),
-        col = alpha("red",0.2), border = NA)
+# polygon(x = c(NwH$T,rev(NwH$T)),
+#         y = c(NwH$high,rev(NwH$low)),
+#         col = alpha("black",0.2), border = NA)
+# polygon(x = c(NwW$T,rev(NwW$T)), 
+#         y = c(NwW$high,rev(NwW$low)),
+#         col = alpha("red",0.2), border = NA)
 magaxis(c(1,2,4),labels=c(1,0,0),frame.plot=T,las=1)
 legend("topright","f", bty="n", cex=1.5)
 
