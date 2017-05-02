@@ -1,39 +1,30 @@
 # allometry analysis and plots
-#use data2: harvest dataset
 
-#Leaf mass - over Total mass = LMF
-#            
-fm1LM <- lme(log(Leafmass)~log(Totmass)*Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=data2)#, method="ML")
+#use data2: harvest dataset
+#as.Date("2014-11-07") + 40 - use only data from the first 40 days before plants got pot bound
+
+
+#Leaf mass over Total mass = LMF
+
+fm1LM <- lme(log(Leafmass)~log(Totmass)*Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),
+             data=subset(data2,Date < as.Date("2014-12-17")))#, method="ML")
 plot(fm1LM,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
 plot(fm1LM,log(Leafmass)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
 plot(fm1LM,log(Leafmass)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
 qqnorm(fm1LM, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
 hist(fm1LM$residuals[,1])
 anova(fm1LM)    
+
 #The slope of log(LM)~log(TM) was lower in N and decreased more with warming in the S, -3.4% vs. +0.99% in N
 plot(effect("log(Totmass):Treatment:Location",fm1LM), multiline=T)       # 0.0412
 
-windows(10,7)
-par(mfrow=c(1,2),mar=c(3,0,1.5,0),oma=c(6,7,6,7),cex.axis=1.2)
-plotBy(log(Leafarea)~log(Totmass)|Treatment, data=subset(data2,Location == "S"), xlim=c(-2,6),axes=F)
-abline(lm(log(Leafarea)~log(Totmass), data=subset(data2,Location == "S"& Treatment == "Warmed")), col="red")
-abline(lm(log(Leafarea)~log(Totmass), data=subset(data2,Location == "S"& Treatment == "Home")), col="black")
+#When only looking at 40 day data, there are no significant effects on the slope.
 
-magaxis(c(1,2),labels=c(1,1),frame.plot=T,las=1,cex.axis=1.2)
-mtext(text="Temperate", side=3, line=0.5, cex=1.2)
-
-plotBy(log(Leafarea)~log(Totmass)|Treatment, data=subset(data2,Location == "N"), xlim=c(-2,6), legend =F,axes=F)
-magaxis(c(1,4),labels=c(1,1),frame.plot=T,las=1,cex.axis=1.2)
-abline(lm(log(Leafarea)~log(Totmass), data=subset(data2,Location == "N"& Treatment == "Warmed")), col="red")
-abline(lm(log(Leafarea)~log(Totmass), data=subset(data2,Location == "N"& Treatment == "Home")), col="black")
-mtext(text="Tropical", side=3, line=0.5, cex=1.2)
-mtext(text="ln(Leaf area)",side=2,outer=T,cex=1.2,adj=0.5,line=3)
-mtext(text="ln(Total biomass)",side=1,outer=T,cex=1.2,adj=0.5,line=1)
-
-
+#######################################
 #Leaf area - over Leaf mass = SLA
 #            
-fm2LM <- lme(log(Leafarea)~log(Leafmass)*Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=data2)#, method="ML")
+fm2LM <- lme(log(Leafarea)~log(Leafmass)*Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),
+             data=subset(data2,Date < as.Date("2014-12-17")))#, method="ML")
 plot(fm2LM,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
 plot(fm2LM,log(Leafarea)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
 plot(fm2LM,log(Leafarea)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
@@ -44,9 +35,13 @@ anova(fm2LM)
 
 plot(effect("log(Leafmass):Treatment:Location",fm2LM), multiline=T)       # 0.0024 no difference in S, up in N
 
+#When only looking at 40 day data, there are no significant effects on the slope.
+
+#######################################
 #Leaf area - over Total mass = LAR
 #            
-fm3LM <- lme(log(Leafarea)~log(Totmass)*Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=data2)#, method="ML")
+fm3LM <- lme(log(Leafarea)~log(Totmass)*Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),
+             data=subset(data2,Date < as.Date("2014-12-17")))#, method="ML")
 plot(fm3LM,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
 plot(fm3LM,log(Leafarea)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
 plot(fm3LM,log(Leafarea)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
@@ -55,6 +50,30 @@ hist(fm3LM$residuals[,1])
 anova(fm3LM)    
 #+10 in N -6.6% in S
 plot(effect("log(Totmass):Treatment:Location",fm3LM), multiline=T)       # 0.0001 up in N down in S
+
+#When only looking at 40 day data, there are no significant effects on the slope.
+
+windows(10,7)
+par(mfrow=c(1,2),mar=c(3,0,1.5,0),oma=c(6,7,6,7),cex.axis=1.2)
+plotBy(log(Leafarea)~log(Totmass)|Treatment, data=subset(data2,Location == "S"&Date < as.Date("2014-12-17")), 
+       axes=F, ylim= c(3,8.5), xlim=c(-1,4))
+lm1<- lm(log(Leafarea)~log(Totmass), data=subset(data2,Location == "S"& Treatment == "Warmed"&Date < as.Date("2014-12-17")))
+abline(lm1, col="red")
+abline(lm(log(Leafarea)~log(Totmass), data=subset(data2,Location == "S"& Treatment == "Home"&Date < as.Date("2014-12-17"))), col="black",
+       xlim=c(-1,3))
+
+magaxis(c(1,2),labels=c(1,1),frame.plot=T,las=1,cex.axis=1.2)
+mtext(text="Temperate", side=3, line=0.5, cex=1.2)
+
+plotBy(log(Leafarea)~log(Totmass)|Treatment, data=subset(data2,Location == "N"&Date < as.Date("2014-12-17")), 
+       ylim= c(3,8.5), xlim=c(-1,4), legend =F,axes=F)
+magaxis(c(1,4),labels=c(1,1),frame.plot=T,las=1,cex.axis=1.2)
+abline(lm(log(Leafarea)~log(Totmass), data=subset(data2,Location == "N"& Treatment == "Warmed"&Date < as.Date("2014-12-17"))), col="red")
+abline(lm(log(Leafarea)~log(Totmass), data=subset(data2,Location == "N"& Treatment == "Home"&Date < as.Date("2014-12-17"))), col="black")
+mtext(text="Tropical", side=3, line=0.5, cex=1.2)
+mtext(text="ln(Leaf area)",side=2,outer=T,cex=1.2,adj=0.5,line=3)
+mtext(text="ln(Total biomass)",side=1,outer=T,cex=1.2,adj=0.5,line=1)
+
 
 
 # #RGR in the same way does not show any significant effects with time and treatment.
