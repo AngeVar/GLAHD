@@ -6,7 +6,7 @@ g.trt$combotrt <- as.factor(paste(g.trt$Location,g.trt$Range,g.trt$Treatment,sep
 g.trt.S<- subset(g.trt, Location == "S")
 g.trt.N<- subset(g.trt, Location == "N")
 
-CI<-1.645 #90% CI #1.96 95% CI
+CI<-1.96 #90% CI #1.96 95% CI
 
 windows(11.69,11.69);par(mfrow=c(2,2),mar=c(0,0,0,0),oma=c(6,8,6,6))
 NnH<-subset(g.trt, combotrt=="N_narrow_Home")
@@ -91,8 +91,8 @@ legend("topright","d", bty="n", cex=1.5)
 mtext(text=expression(RGR~(g~g^-1~day^-1)), outer=T, side=2, line=3.5, cex=1.2)
 mtext(text="Time (Days)", side=1, line=3, cex=1.2, adj=-0.3)
 
-text(68,y=0.28,labels="Tropical", xpd=NA, srt=-90, pos=2, cex=1.5)
-text(68,y=0.08,labels="Temperate", xpd=NA, srt=-90, pos=2, cex=1.5)
+text(45,y=0.23,labels="Tropical", xpd=NA, srt=-90, pos=2, cex=1.5)
+text(45,y=0.075,labels="Temperate", xpd=NA, srt=-90, pos=2, cex=1.5)
 
 ###############################################################################
 
@@ -318,5 +318,76 @@ legend(x=70,y=0.15,legend=c("Warmed","Home"),cex=1.4,
        xpd=NA,fill=c(alpha("red",0.4),alpha("black",0.4)), border="black",
        bty="n")
 
+###############################################################################
 
+###################################################################################
+###  RGR points at measurements points OVER MASS, 40 days
+
+#Figure 5: Relative growth rate
+g.trt <- summaryBy(dydt+predMass~Time+Treatment+Location+Range,data=subset(rate,Time<40),FUN=c(mean,standard.error))
+g.trt$combotrt <- as.factor(paste(g.trt$Location,g.trt$Range,g.trt$Treatment,sep="_"))
+g.trt.S<- subset(g.trt, Location == "S")
+g.trt.N<- subset(g.trt, Location == "N")
+
+CI<-1.645 #90% CI #1.96 95% CI
+
+
+NnH<-subset(g.trt, combotrt=="N_narrow_Home")
+NnW<-subset(g.trt, combotrt=="N_narrow_Warmed")
+NwH<-subset(g.trt, combotrt=="N_wide_Home")
+NwW<- subset(g.trt, combotrt=="N_wide_Warmed")
+SnH<-subset(g.trt, combotrt=="S_narrow_Home")
+SnW<-subset(g.trt, combotrt=="S_narrow_Warmed")
+SwH<-subset(g.trt, combotrt=="S_wide_Home")
+SwW<- subset(g.trt, combotrt=="S_wide_Warmed")
+
+NnH$high<- with(NnH,dydt.mean+dydt.standard.error*CI )
+NnH$low<- with(NnH,dydt.mean-dydt.standard.error*CI )
+NnW$high<- with(NnW,dydt.mean+dydt.standard.error*CI )
+NnW$low<- with(NnW,dydt.mean-dydt.standard.error*CI )
+NwH$high<- with(NwH,dydt.mean+dydt.standard.error*CI )
+NwH$low<- with(NwH,dydt.mean-dydt.standard.error*CI )
+NwW$high<- with(NwW,dydt.mean+dydt.standard.error*CI )
+NwW$low<- with(NwW,dydt.mean-dydt.standard.error*CI )
+SnH$high<- with(SnH,dydt.mean+dydt.standard.error*CI )
+SnH$low<- with(SnH,dydt.mean-dydt.standard.error*CI )
+SnW$high<- with(SnW,dydt.mean+dydt.standard.error*CI )
+SnW$low<- with(SnW,dydt.mean-dydt.standard.error*CI )
+SwH$high<- with(SwH,dydt.mean+dydt.standard.error*CI )
+SwH$low<- with(SwH,dydt.mean-dydt.standard.error*CI )
+SwW$high<- with(SwW,dydt.mean+dydt.standard.error*CI )
+SwW$low<- with(SwW,dydt.mean-dydt.standard.error*CI )
+
+windows(11.69,11.69);par(mfrow=c(1,1),mar=c(0,0,0,0),oma=c(6,8,6,6))
+
+plotBy(dydt.mean~predMass.mean,data=NnH,legend=FALSE,
+       yaxs="i",xaxs="i", ylim=c(0.05,0.15),
+       cex.lab=2, axes=FALSE,xlim=c(0.1,40),
+       col="black", pch=19, log="x")
+points(dydt.mean~predMass.mean, data=NnW,col="red", pch=19)
+
+points(dydt.mean~predMass.mean, data=NwH,col="black", pch=15)
+points(dydt.mean~predMass.mean, data=NwW,col="red", pch=15)
+
+points(dydt.mean~predMass.mean,data=SnH, col="black", pch=1)
+points(dydt.mean~predMass.mean, data=SnW,col="red", pch=1)
+
+points(dydt.mean~predMass.mean, data=SwH,col="black", pch=0)
+points(dydt.mean~predMass.mean, data=SwW,col="red", pch=0)
+
+magaxis(side=c(1,2,4),labels=c(1,1,0),frame.plot=T,las=1,cex.axis=1.2)
+mtext(text=expression(RGR~(g~g^-1~day^-1)), outer=T, side=2, line=3.5, cex=1.2)
+mtext(text="Total Mass (g)", side=1, line=3, cex=1.2)
+
+legend("topright", pch=c(19,19,15,15,1,1,0,0), col=c("black","red"), 
+       legend=c("Tropical-Narrow-Home","Tropical-Narrow-Warmed",
+                "Tropical-Wide-Home","Tropical-Wide-Warmed",
+                "Temperate-Narrow-Home","Temperate-Narrow-Warmed",
+                "Temperate-Wide-Home","Temperate-Wide-Warmed"))
+
+
+
+
+
+###############################################################################
 
