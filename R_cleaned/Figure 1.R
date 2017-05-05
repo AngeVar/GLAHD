@@ -19,19 +19,19 @@ library(rgeos)
 
 biodat <- getData("worldclim", var="bio", res=2.5, path="C:/Repos/GLAHD/Data/Climate/T data")
 biodat1<-subset(biodat,1) #mean annual T
-biodat5 <- subset(biodat,5)#mean max T of warmest month
-biodat6<-subset(biodat,6) #mean min T of coldest month
+#biodat5 <- subset(biodat,5)#mean max T of warmest month
+#biodat6<-subset(biodat,6) #mean min T of coldest month
 biodat10 <- subset(biodat,10) #mean T warmest quarter
-biodat11 <- subset(biodat,11) #mean T coldest quarter
+#biodat11 <- subset(biodat,11) #mean T coldest quarter
 
 YbrevRange <- extent(100.00, 154.00, -40, -11.0)
 biodat.oz1 <- crop(biodat1,YbrevRange)
-biodat.oz5 <- crop(biodat5,YbrevRange)
-biodat.oz6 <- crop(biodat6,YbrevRange)
+# biodat.oz5 <- crop(biodat5,YbrevRange)
+# biodat.oz6 <- crop(biodat6,YbrevRange)
 biodat.oz10 <- crop(biodat10,YbrevRange)
-biodat.oz11 <- crop(biodat11,YbrevRange)
+# biodat.oz11 <- crop(biodat11,YbrevRange)
 
-seed_atsc<-read.csv("R:/WORKING_DATA/GHS39/GLAHD/Varhammar_A/newbrascoords.csv")
+seed_atsc<-read.csv("W:/WORKING_DATA/GHS39/GLAHD/Varhammar_A/newbrascoords.csv")
 dist <- read.csv("C:/Repos/GLAHD/Data/ALAdata20151022Clean.csv")
 #dist<- subset(dist, Country...parsed == "Australia" )#only Australian records
 cam<- subset(seed_atsc, Taxa == "camaldulensis");ter<- subset(seed_atsc, Taxa == "tereticornis")
@@ -182,36 +182,73 @@ mtext("Longitude", side=1, outer=T, line=2, at=0.45)
 
 
 #########################################################################################################################
-library(raster)
-library(rgdal)
-library(stringr)
-library(scales)
 
 #extract climate for coordinates
 xy <- SpatialPoints(cbind(dist$Longitude...processed,dist$Latitude...processed))
 dist$bio10 <- extract(biodat.oz10/10,xy,method="bilinear",fun=mean, buffer=15000)
-dist$bio11 <- extract(biodat.oz11/10,xy,method="bilinear",fun=mean, buffer=15000)
+#dist$bio11 <- extract(biodat.oz11/10,xy,method="bilinear",fun=mean, buffer=15000)
 dist$bio1 <- extract(biodat.oz1,xy,method="bilinear",fun=mean, buffer=15000) 
-dist$bio5 <- extract(biodat.oz5/10,xy,method="bilinear",fun=mean, buffer=15000)
-dist$bio6 <- extract(biodat.oz6/10,xy,method="bilinear",fun=mean, buffer=15000)
-# write out a csv
-write.csv(dist,file="dist_bioclim.csv")
-dist<-read.csv("dist_bioclim.csv")
+# dist$bio5 <- extract(biodat.oz5/10,xy,method="bilinear",fun=mean, buffer=15000)
+# dist$bio6 <- extract(biodat.oz6/10,xy,method="bilinear",fun=mean, buffer=15000)
+# # write out a csv
+# write.csv(dist,file="dist_bioclim.csv")
+# dist<-read.csv("dist_bioclim.csv")
 #extracting climate for selected provenances
 y <- SpatialPoints(cbind(seed_atsc$lon,seed_atsc$lat))
 seed_atsc$bio10 <- extract(biodat.oz10/10,y,method="bilinear", fun=mean,buffer=15000)
-seed_atsc$bio11 <- extract(biodat.oz11/10,y,method="bilinear", fun=mean,buffer=15000)
+# seed_atsc$bio11 <- extract(biodat.oz11/10,y,method="bilinear", fun=mean,buffer=15000)
 seed_atsc$bio1 <- extract(biodat.oz1/10,y,method="bilinear", fun=mean,buffer=15000)
-seed_atsc$bio5 <- extract(biodat.oz5/10,y,method="bilinear",fun=mean, buffer=15000)
-seed_atsc$bio6 <- extract(biodat.oz6/10,y,method="bilinear",fun=mean, buffer=15000)
+# seed_atsc$bio5 <- extract(biodat.oz5/10,y,method="bilinear",fun=mean, buffer=15000)
+# seed_atsc$bio6 <- extract(biodat.oz6/10,y,method="bilinear",fun=mean, buffer=15000)
 
+seed_atsc$Species...matched<- as.factor(paste(seed_atsc$Genus,seed_atsc$Taxa, sep=" "))
 #removing distribution data where location uncertainty is more than 5 km
 dis <- as.data.frame(subset(dist,dist$Coordinate.Uncertainty.in.Metres...parsed<5000))
 
 #summarise climatic conditions of distributions per species
-summaryBy(Latitude...processed+bio1+bio10~Species...matched,data=as.data.frame(dis), FUN=c(min,max),na.rm=T)
-summaryBy(Latitude...processed+bio1+bio10~Species...matched,data=as.data.frame(dis), FUN=c(mean,standard.error),na.rm=T)
 
+dat<-summaryBy(bio10~Species...matched,data=as.data.frame(dis), FUN=c(mean,min,max),na.rm=T)
+dat$Sp<- factor(dat$Species...matched, levels = 
+                  c("Eucalyptus brassiana","Eucalyptus pellita",
+                    "Eucalyptus platyphylla","Eucalyptus longifolia",
+                    "Eucalyptus smithii","Eucalyptus botryoides",
+                    "Eucalyptus tereticornis","Eucalyptus camaldulensis"
+))
+
+seed_atsc$Sp<- factor(seed_atsc$Species...matched, levels = 
+                        c("Eucalyptus brassiana","Eucalyptus pellita",
+                          "Eucalyptus platyphylla","Eucalyptus longifolia",
+                          "Eucalyptus smithii","Eucalyptus botryoides",
+                          "Eucalyptus tereticornis","Eucalyptus camaldulensis"
+                        ))
+seed_atsc$bio10.mean<- seed_atsc$bio10
+####################################################
+#new plot:
+windows(7.79,11.69)
+plot1<-ggplot(data=dat,
+              aes(x=Sp,y=bio10.mean,ymax=bio10.max,
+                  ymin=bio10.min))+ ylim(15,33)+geom_pointrange(shape="l", col='red')
+  
+plot1.1<- plot1+geom_point(data = seed_atsc,
+             aes(x=Sp, y=bio10.mean,ymax=bio10.mean,
+                 ymin=bio10.mean),
+             color = 'black', size=3)
+
+plot2<-plot1.1+coord_flip()+geom_hline(aes(yintercept=30.7), lty=3,size=1)+
+  geom_hline(aes(yintercept=27.4), lty=2,size=1)+
+  geom_hline(aes(yintercept=22.4), lty=3,size=1)+
+  geom_hline(aes(yintercept=18.9), lty=2,size=1)
+plot3<-plot2+xlab("")+ylab("")+scale_colour_manual(values=c("grey","black"))
+plot3+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+             panel.background = element_blank(), axis.line = element_line(colour = "black"), 
+             axis.text=element_text(size=12))+
+  ylab("Temperature of Warmest Quarter")+xlab("")+
+  theme(axis.title.x=element_text(margin=margin(20,0,0,0)))+
+  theme(plot.margin=unit(c(1,1,1,0),"cm"))
+
+
+
+####################################################
 #subset data per species
 cam<- subset(seed_atsc, Taxa == "camaldulensis")
 camdist <- subset(dis, Species...matched == "Eucalyptus camaldulensis")
