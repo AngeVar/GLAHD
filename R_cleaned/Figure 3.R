@@ -69,6 +69,13 @@ biod$SEQ<-(biod$Q/(1-biod$g))*sqrt((1-biod$g)*((SEMAd^2)/(Ad^2))+((SEMBd^2)/(Bd^
 biod$CIQhigh<-(biod$Q/(1-biod$g))+qt(alph,df=biod$dydt.length.w+biod$dydt.length-2)*biod$SEQ
 biod$CIQlow<-(biod$Q/(1-biod$g))-qt(alph,df=biod$dydt.length+biod$dydt.length-2)*biod$SEQ
 
+# #-----------------
+# #mAX ENHANCEMENT OF rgr 
+# S<-subset(biod, Location== "S")
+# N<-subset(biod, Location== "N")
+# S[ S$Q %in% tapply(S$Q, S$Range, max), ] 
+# N[ N$Q %in% tapply(N$Q, N$Range, max), ] 
+# #----------------
 
 Sbiodn<- subset(biod, Location =="S"&Range=="narrow"); Sbiodn<-Sbiodn[order(Sbiodn$Time),]
 Sbiodw<- subset(biod, Location =="S"&Range=="wide"); Sbiodw<-Sbiodw[order(Sbiodw$Time),]
