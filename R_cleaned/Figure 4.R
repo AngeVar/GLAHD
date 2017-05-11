@@ -35,359 +35,349 @@ SwH$low<- with(SwH,dydt.mean-dydt.standard.error*CI )
 SwW$high<- with(SwW,dydt.mean+dydt.standard.error*CI )
 SwW$low<- with(SwW,dydt.mean-dydt.standard.error*CI )
 
-plotBy(dydt.mean~Time,data=subset(NnH,Time <40),legend=FALSE,type="l",las=1,yaxs="i",xaxs="i",
-       ylim=c(0.01,0.17),lty=2,lwd=2,cex.lab=2, xlim=c(0.01,40),axes=FALSE,
+plotBy(dydt.mean~Time,data=subset(NnH,Time <32),legend=FALSE,type="l",las=1,yaxs="i",xaxs="i",
+       ylim=c(0.01,0.17),lty=2,lwd=2,cex.lab=2, xlim=c(0.01,50),axes=FALSE,
        ylab=expression(Total~mass~(g)),
        xlab="")
-#lines(dydt~Time, data=subset(gamfits2, Location =="N" & Range=="narrow" & Treatment == "Home"), col=alpha("black",0.2), pch=19)
-lines(dydt.mean~Time, data=subset(NnW,Time <40),col="red",
+lines(dydt.mean~Time, data=subset(NnW,Time <32),col="red",
       xaxt='n', ylab="", type="l",ylim=c(0.01,0.2),lty=2,lwd=2)
-#lines(dydt~Time, data=subset(gamfits2, Location =="N" & Range=="narrow" & Treatment == "Warmed"), col=alpha("red",0.2), pch=19)
-polygon(x = c(subset(NnH,Time <40)$Time, rev(subset(NnH,Time <40)$Time)), y = c(subset(NnH,Time <40)$high,rev(subset(NnH,Time <40)$low)),col = alpha("black",0.4), border = NA)
-polygon(x = c(subset(NnW,Time <40)$Time, rev(subset(NnW,Time <40)$Time)), y = c(subset(NnW,Time <40)$high,rev(subset(NnW,Time <40)$low)),col = alpha("red",0.4), border = NA)
+polygon(x = c(subset(NnH,Time <32)$Time, rev(subset(NnH,Time <32)$Time)), y = c(subset(NnH,Time <32)$high,rev(subset(NnH,Time <32)$low)),col = alpha("black",0.4), border = NA)
+polygon(x = c(subset(NnW,Time <32)$Time, rev(subset(NnW,Time <32)$Time)), y = c(subset(NnW,Time <32)$high,rev(subset(NnW,Time <32)$low)),col = alpha("red",0.4), border = NA)
 mtext(text="Narrow", side=3, line=0.5, cex=1.2)
 legend(4,70, legend=c(expression(Warmed~(+3.5~degree~C)),"Home"),col=c("red","black"),lty=c(1,1), lwd=2,bty="n")
 magaxis(side=c(1,2,4),labels=c(0,1,0),frame.plot=T,las=1,cex.axis=1.2)
 legend("topright","a", bty="n", cex=1.5)
-#legend(12,0.17, legend=c(expression(Warmed~(+3.5~degree~C)),"Home"),col=c("red","black"),lty=c(1,1), lwd=2,bty="n")
 legend("topleft", legend=c(expression(Warmed~(+3.5~degree~C)),"Home"),pch=22, pt.cex=2, pt.bg=c(alpha("red",1),alpha("black",0.6)),
        bty="n",cex=1.2)
 
-plotBy(dydt.mean~Time, data=subset(NwH,Time <40),col="black",legend=FALSE,yaxs="i",xaxs="i", xlim=c(0.01,40),
+plotBy(dydt.mean~Time, data=subset(NwH,Time <32),col="black",legend=FALSE,yaxs="i",xaxs="i", xlim=c(0.01,50),
        xaxt='n', yaxt='n',ylab="", type="l",ylim=c(0.01,0.17),lty=1,lwd=2)
-#lines(dydt~Time, data=subset(rate, Location =="N" & Range=="wide" & Treatment == "Home"), col=alpha("black",0.2), pch=19)
-lines(dydt.mean~Time, data=subset(NwW,Time <40),col="red",
+lines(dydt.mean~Time, data=subset(NwW,Time <32),col="red",
       xaxt='n', ylab="", type="l",ylim=c(0.01,0.2),lty=1,lwd=2)
-#lines(dydt~Time, data=subset(rate, Location =="N" & Range=="wide" & Treatment == "Warmed"), col=alpha("red",0.2), pch=19)
-polygon(x = c(subset(NwH,Time <40)$Time, rev(subset(NwH,Time <40)$Time)), y = c(subset(NwH,Time <40)$high,rev(subset(NwH,Time <40)$low)),col = alpha("black",0.4), border = NA)
-polygon(x = c(subset(NwW,Time <40)$Time, rev(subset(NwW,Time <40)$Time)), y = c(subset(NwW,Time <40)$high,rev(subset(NwW,Time <40)$low)),col = alpha("red",0.4), border = NA)
+polygon(x = c(subset(NwH,Time <32)$Time, rev(subset(NwH,Time <32)$Time)), y = c(subset(NwH,Time <32)$high,rev(subset(NwH,Time <32)$low)),col = alpha("black",0.4), border = NA)
+polygon(x = c(subset(NwW,Time <32)$Time, rev(subset(NwW,Time <32)$Time)), y = c(subset(NwW,Time <32)$high,rev(subset(NwW,Time <32)$low)),col = alpha("red",0.4), border = NA)
 magaxis(side=c(1,2,4),labels=c(0,0,0),frame.plot=T,las=1,cex.axis=1.2)
 mtext(text="Wide", side=3, line=0.5, cex=1.2)
 legend("topright","b", bty="n", cex=1.5)
 
 
-plotBy(dydt.mean~Time,data=subset(SnH,Time <40),legend=FALSE,type="l",las=1,yaxs="i",xaxs="i",
-       ylim=c(0.01,0.17),lty=2,lwd=2,cex.lab=2, xlim=c(0.01,40),axes=FALSE,xlab="")
-#lines(dydt~Time, data=subset(rate, Location =="S" & Range=="narrow" & Treatment == "Home"), col=alpha("black",0.2), pch=19)
-lines(dydt.mean~Time, data=subset(SnW,Time <40),col="red",
+plotBy(dydt.mean~Time,data=subset(SnH,Time <46),legend=FALSE,type="l",las=1,yaxs="i",xaxs="i",
+       ylim=c(0.01,0.17),lty=2,lwd=2,cex.lab=2, xlim=c(0.01,50),axes=FALSE,xlab="")
+lines(dydt.mean~Time, data=subset(SnW,Time <39),col="red",
       xaxt='n', ylab="", type="l",ylim=c(0.01,0.2),lty=2,lwd=2)
-#lines(dydt~Time, data=subset(rate, Location =="S" & Range=="narrow" & Treatment == "Warmed"), col=alpha("red",0.2), pch=19)
-polygon(x = c(subset(SnH,Time <40)$Time, rev(subset(SnH,Time <40)$Time)), y = c(subset(SnH,Time <40)$high,rev(subset(SnH,Time <40)$low)),col = alpha("black",0.4), border = NA)
-polygon(x = c(subset(SnW,Time <40)$Time, rev(subset(SnW,Time <40)$Time)), y = c(subset(SnW,Time <40)$high,rev(subset(SnW,Time <40)$low)),col = alpha("red",0.4), border = NA)
-#mtext(text="Temperate",side=3, line=-2,at=14,cex=1.5, outer=FALSE)
+polygon(x = c(subset(SnH,Time <46)$Time, rev(subset(SnH,Time <46)$Time)), y = c(subset(SnH,Time <46)$high,rev(subset(SnH,Time <46)$low)),col = alpha("black",0.4), border = NA)
+polygon(x = c(subset(SnW,Time <39)$Time, rev(subset(SnW,Time <39)$Time)), y = c(subset(SnW,Time <39)$high,rev(subset(SnW,Time <39)$low)),col = alpha("red",0.4), border = NA)
 magaxis(side=c(1,2,4),labels=c(1,1,0),frame.plot=T,las=1,cex.axis=1.2)
 legend("topright","c", bty="n", cex=1.5)
 
-plotBy(dydt.mean~Time, data=subset(SwH,Time <40),col="black",legend=FALSE, yaxt='n',yaxs="i",xaxs="i", xlim=c(0.01,40),
+plotBy(dydt.mean~Time, data=subset(SwH,Time <46),col="black",legend=FALSE, yaxt='n',yaxs="i",xaxs="i", xlim=c(0.01,50),
        xaxt='n', ylab="", type="l",ylim=c(0.01,0.17),lty=1,lwd=2)
-#lines(dydt~Time, data=subset(rate, Location =="S" & Range=="wide" & Treatment == "Home"), col=alpha("black",0.2), pch=19)
-lines(dydt.mean~Time, data=subset(SwW,Time <40),col="red",
+lines(dydt.mean~Time, data=subset(SwW,Time <39),col="red",
       xaxt='n', ylab="", type="l",ylim=c(0.01,0.2),lty=1,lwd=2)
-#lines(dydt~Time, data=subset(rate, Location =="S" & Range=="wide" & Treatment == "Warmed"), col=alpha("red",0.2), pch=19)
-polygon(x = c(subset(SwH,Time <40)$Time, rev(subset(SwH,Time <40)$Time)), y = c(subset(SwH,Time <40)$high,rev(subset(SwH,Time <40)$low)),col = alpha("black",0.4), border = NA)
-polygon(x = c(subset(SwW,Time <40)$Time, rev(subset(SwW,Time <40)$Time)), y = c(subset(SwW,Time <40)$high,rev(subset(SwW,Time <40)$low)),col = alpha("red",0.4), border = NA)
+polygon(x = c(subset(SwH,Time <46)$Time, rev(subset(SwH,Time <46)$Time)), y = c(subset(SwH,Time <46)$high,rev(subset(SwH,Time <46)$low)),col = alpha("black",0.4), border = NA)
+polygon(x = c(subset(SwW,Time <39)$Time, rev(subset(SwW,Time <39)$Time)), y = c(subset(SwW,Time <39)$high,rev(subset(SwW,Time <39)$low)),col = alpha("red",0.4), border = NA)
 magaxis(side=c(1,2,4),labels=c(1,0,0),frame.plot=T,las=1,cex.axis=1.2)
 legend("topright","d", bty="n", cex=1.5)
 mtext(text=expression(RGR~(g~g^-1~day^-1)), outer=T, side=2, line=3.5, cex=1.2)
 mtext(text="Time (Days)", side=1, line=3, cex=1.2, adj=-0.3)
 
-text(45,y=0.23,labels="Tropical", xpd=NA, srt=-90, pos=2, cex=1.5)
-text(45,y=0.075,labels="Temperate", xpd=NA, srt=-90, pos=2, cex=1.5)
+text(60,y=0.23,labels="Tropical", xpd=NA, srt=-90, pos=2, cex=1.5)
+text(60,y=0.075,labels="Temperate", xpd=NA, srt=-90, pos=2, cex=1.5)
 
 ###############################################################################
-
-
-#provenance specific version
-dat<- summaryBy(dydt+Range~Time+Treatment+Taxa,data=gamfits2,FUN=c(mean,standard.error))
-dat$high<-with(dat,dydt.mean+dydt.standard.error*CI)
-dat$low<-with(dat,dydt.mean-dydt.standard.error*CI)
-combostrop<- c("BRA",NA,"CTER","DTER","PEL",NA,"ETER","DCAM","PLAT",NA,
-               "ECAM","FCAM")
-combostemp <- c("BOT",NA,"ATER","BTER","LONG",NA,"ACAM","BCAM","SMIT",NA,"CCAM")
-combos<-c(combostrop,rep(NA,4),combostemp)
-windows(8.27,11.69)
-par(mfrow=c(8,8),mar=c(0,0,0,0),oma=c(6,6,3,3))
-layout(matrix(c(1:28), nrow=7, ncol=4,byrow=T),
-       heights=c(1,1,1,0.3,1,1,1),
-       widths=c(1,0.3,1,1,1))
-
-
-for (i in 1:length(combos)){
-  dat2 <- subset(dat,Taxa==as.character(combos[i]))
-  with(subset(dat2,Treatment=="Home"),
-  
-       plot(dydt.mean~Time,col="black",legend=FALSE,type="l",lty=ifelse(Range.mean == 1,2,1),
-            xlim=c(0,65),ylim=c(0, 0.19),axes=FALSE,xlab="Time",ylab="Mass"))  
-  with(subset(dat2,Treatment=="Home"),
-       polygon(x = c(subset(dat2,Treatment=="Home")$Time, 
-                     rev(subset(dat2,Treatment=="Home")$Time)), 
-               y = c(subset(dat2,Treatment=="Home")$high,
-                     rev(subset(dat2,Treatment=="Home")$low)),
-               col = alpha("black",0.4), border = NA))
-  par(new=T)
-  with(subset(dat2,Treatment=="Warmed"),
-       plot(dydt.mean~Time,col="red",legend=FALSE,type="l",lty=ifelse(Range.mean == 1,2,1),
-            xlim=c(0,65),ylim=c(0,0.19),axes=FALSE,xlab="Time",ylab="Mass"))  
-  with(subset(dat2,Treatment=="Warmed"),
-       polygon(x = c(subset(dat2,Treatment=="Warmed")$Time, 
-                     rev(subset(dat2,Treatment=="Warmed")$Time)), 
-               y = c(subset(dat2,Treatment=="Warmed")$high,
-                     rev(subset(dat2,Treatment=="Warmed")$low)),
-               col = alpha("red",0.4), border = NA))
-  #first plot
-  ifelse(dat2$Taxa %in% c("BRA","PEL","BOT","LONG"),
-         magaxis(side=c(1,2),labels=c(0,1),frame.plot=T,las=1,cex.axis=1.2),
-         ifelse(dat2$Taxa %in% c("CCAM","BCAM","ECAM","FCAM"),
-                magaxis(side=c(1,2),labels=c(1,0),frame.plot=T,las=1,cex.axis=1.2),
-                ifelse(dat2$Taxa %in% c("SMIT","PLAT"),
-                       magaxis(side=c(1,2),labels=c(1,1),frame.plot=T,las=1,cex.axis=1.2),
-                       magaxis(side=c(1,2),labels=c(0,0),frame.plot=T,las=1,cex.axis=1.2))))
-  
-  legend("topleft",legend=dat2$Taxa[1],bty="n",cex=1.3)
-}
-mtext(expression(RGR~(g~g^-1~day^-1)),side=2,line=3,outer=T,cex=1.5)
-mtext(expression(Time~(days)),side=1,line=3,outer=T,cex=1.5)
-mtext("Narrow",side=3,line=1,outer=T,cex=1, adj=0.08)
-mtext("Wide",side=3,line=1,outer=T,cex=1, adj=0.72)
-text(155,y=0.9,labels="Tropical", xpd=NA, srt=-90, pos=2, cex=1.7)
-text(155,y=0.3,labels="Temperate", xpd=NA, srt=-90, pos=2, cex=1.7)
-
-legend(x=70,y=0.15,legend=c("Warmed","Home"),cex=1.4,
-       xpd=NA,fill=c(alpha("red",0.4),alpha("black",0.4)), border="black",
-       bty="n")
-
-###################################################################################
-###    OVER MASS
-
-#Figure 5: Relative growth rate
-g.trt <- summaryBy(dydt+predMass~Time+Treatment+Location+Range,data=gamfits2,FUN=c(mean,standard.error))
-g.trt$combotrt <- as.factor(paste(g.trt$Location,g.trt$Range,g.trt$Treatment,sep="_"))
-g.trt.S<- subset(g.trt, Location == "S")
-g.trt.N<- subset(g.trt, Location == "N")
-
-CI<-1.645 #90% CI #1.96 95% CI
-
-windows(11.69,11.69);par(mfrow=c(2,2),mar=c(0,0,0,0),oma=c(6,6,6,6))
-NnH<-subset(g.trt, combotrt=="N_narrow_Home")
-NnW<-subset(g.trt, combotrt=="N_narrow_Warmed")
-NwH<-subset(g.trt, combotrt=="N_wide_Home")
-NwW<- subset(g.trt, combotrt=="N_wide_Warmed")
-SnH<-subset(g.trt, combotrt=="S_narrow_Home")
-SnW<-subset(g.trt, combotrt=="S_narrow_Warmed")
-SwH<-subset(g.trt, combotrt=="S_wide_Home")
-SwW<- subset(g.trt, combotrt=="S_wide_Warmed")
-
-NnH$high<- with(NnH,dydt.mean+dydt.standard.error*CI )
-NnH$low<- with(NnH,dydt.mean-dydt.standard.error*CI )
-NnW$high<- with(NnW,dydt.mean+dydt.standard.error*CI )
-NnW$low<- with(NnW,dydt.mean-dydt.standard.error*CI )
-NwH$high<- with(NwH,dydt.mean+dydt.standard.error*CI )
-NwH$low<- with(NwH,dydt.mean-dydt.standard.error*CI )
-NwW$high<- with(NwW,dydt.mean+dydt.standard.error*CI )
-NwW$low<- with(NwW,dydt.mean-dydt.standard.error*CI )
-SnH$high<- with(SnH,dydt.mean+dydt.standard.error*CI )
-SnH$low<- with(SnH,dydt.mean-dydt.standard.error*CI )
-SnW$high<- with(SnW,dydt.mean+dydt.standard.error*CI )
-SnW$low<- with(SnW,dydt.mean-dydt.standard.error*CI )
-SwH$high<- with(SwH,dydt.mean+dydt.standard.error*CI )
-SwH$low<- with(SwH,dydt.mean-dydt.standard.error*CI )
-SwW$high<- with(SwW,dydt.mean+dydt.standard.error*CI )
-SwW$low<- with(SwW,dydt.mean-dydt.standard.error*CI )
-
-xlims<-c(0.1,70)
-plotBy(dydt.mean~predMass.mean,data=NnH,legend=FALSE,type="l",las=1,yaxs="i",xaxs="i",log="x",
-       ylim=c(0.02,0.17),lty=2,lwd=2,cex.lab=2, xlim=xlims,axes=FALSE,ylab=expression(Total~mass~(g)),xlab="")
-lines(dydt.mean~predMass.mean, data=NnW,col="red",xaxt='n', ylab="", type="l",ylim=c(0.02,0.17),lty=2,lwd=2)
-
-polygon(x = c(NnH$predMass.mean, rev(NnH$predMass.mean)), y = c(NnH$high,rev(NnH$low)),col = alpha("black",0.4), border = NA)
-polygon(x = c(NnW$predMass.mean, rev(NnW$predMass.mean)), y = c(NnW$high,rev(NnW$low)),col = alpha("red",0.4), border = NA)
-
-mtext(text="Narrow", side=3, line=0.5, cex=1.2)
-legend(4,70, legend=c(expression(Warmed~(+3.5~degree~C)),"Home"),col=c("red","black"),lty=c(1,1), lwd=2,bty="n")
-magaxis(side=c(1,2,4),labels=c(0,1,0),frame.plot=T,las=1,cex.axis=1.2)
-legend("topright","a", bty="n", cex=1.2)
-legend("topleft", legend=c(expression(Warmed~(+3.5~degree~C)),"Home"),pch=22, pt.cex=2, pt.bg=c(alpha("red",1),alpha("black",0.6)),
-       bty="n",cex=1.2)
-rect(0.8, 0.02, 1, 0.17 ,col = alpha("black",0.2), border = NA)
-#comparison at a very small mass
-rect(19, 0.02, 25, 0.17 ,col = alpha("black",0.2), border = NA)
-
-plotBy(dydt.mean~predMass.mean, data=NwH,col="black",legend=FALSE,yaxs="i",xaxs="i",log="x",
-       xaxt='n', yaxt='n',ylab="", type="l",ylim=c(0.02,0.17),xlim=xlims,lty=1,lwd=2)
-lines(dydt.mean~predMass.mean, data=NwW,col="red",
-      xaxt='n', ylab="", type="l",ylim=c(0.02,0.17),lty=1,lwd=2)
-polygon(x = c(NwH$predMass.mean, rev(NwH$predMass.mean)), y = c(NwH$high,rev(NwH$low)),col = alpha("black",0.4), border = NA)
-polygon(x = c(NwW$predMass.mean, rev(NwW$predMass.mean)), y = c(NwW$high,rev(NwW$low)),col = alpha("red",0.4), border = NA)
-magaxis(side=c(1,2,4),labels=c(0,0,0),frame.plot=T,las=1,cex.axis=1.2)
-mtext(text="Wide", side=3, line=0.5, cex=1.2)
-legend("topright","b", bty="n", cex=1.2)
-rect(0.8, 0.02, 1, 0.17 ,col = alpha("black",0.2), border = NA)
-rect(19, 0.02, 25, 0.17 ,col = alpha("black",0.2), border = NA)
-
-plotBy(dydt.mean~predMass.mean,data=SnH,legend=FALSE,type="l",las=1,yaxs="i",xaxs="i",log="x",
-       ylim=c(0.02,0.17),lty=2,lwd=2,cex.lab=2, xlim=xlims,axes=FALSE,xlab="")
-lines(dydt.mean~predMass.mean, data=SnW,col="red",
-      xaxt='n', ylab="", type="l",ylim=c(0.02,0.17),lty=2,lwd=2)
-polygon(x = c(SnH$predMass.mean, rev(SnH$predMass.mean)), y = c(SnH$high,rev(SnH$low)),col = alpha("black",0.4), border = NA)
-polygon(x = c(SnW$predMass.mean, rev(SnW$predMass.mean)), y = c(SnW$high,rev(SnW$low)),col = alpha("red",0.4), border = NA)
-#mtext(text="Temperate",side=3, line=-2,at=14,cex=1.5, outer=FALSE)
-magaxis(side=c(1,2,4),labels=c(1,1,0),frame.plot=T,las=1,cex.axis=1.2)
-legend("topright","c", bty="n", cex=1.2)
-rect(0.8, 0.02, 1, 0.17 ,col = alpha("black",0.2), border = NA)
-rect(19, 0.02, 25, 0.17 ,col = alpha("black",0.2), border = NA)
-
-plotBy(dydt.mean~predMass.mean, data=SwH,col="black",legend=FALSE, yaxt='n',yaxs="i",xaxs="i",log="x",
-       xaxt='n', ylab="", type="l",ylim=c(0.02,0.17),xlim=xlims,lty=1,lwd=2)
-lines(dydt.mean~predMass.mean, data=SwW,col="red",
-      xaxt='n', ylab="", type="l",ylim=c(0.02,0.17),lty=1,lwd=2)
-polygon(x = c(SwH$predMass.mean, rev(SwH$predMass.mean)), y = c(SwH$high,rev(SwH$low)),col = alpha("black",0.4), border = NA)
-polygon(x = c(SwW$predMass.mean, rev(SwW$predMass.mean)), y = c(SwW$high,rev(SwW$low)),col = alpha("red",0.4), border = NA)
-
-magaxis(side=c(1,2,4),labels=c(1,0,0),frame.plot=T,las=1,cex.axis=1.2)
-legend("topright","d", bty="n", cex=1.2)
-mtext(text=expression(RGR~(g~g^-1~day^-1)), outer=T, side=2, line=3, cex=1.2)
-mtext(text="Log Total Mass (g)", side=1, line=3, cex=1.2, adj=-0.3)
-
-text(125,y=0.22,labels="Tropical", xpd=NA, srt=-90, pos=2, cex=1.5)
-text(130,y=0.07,labels="Temperate", xpd=NA, srt=-90, pos=2, cex=1.5)
-
-rect(0.8, 0.02, 1, 0.17 ,col = alpha("black",0.2), border = NA)
-rect(19, 0.02, 25, 0.17 ,col = alpha("black",0.2), border = NA)
-
-  ###############################################################################
-
-
-#provenance specific version
-dat<- summaryBy(dydt+Range+predMass~Time+Treatment+Taxa,data=gamfits2,FUN=c(mean,standard.error))
-dat$high<-with(dat,dydt.mean+dydt.standard.error*CI)
-dat$low<-with(dat,dydt.mean-dydt.standard.error*CI)
-combostrop<- c("BRA",NA,"CTER","DTER","PEL",NA,"ETER","DCAM","PLAT",NA,
-               "ECAM","FCAM")
-combostemp <- c("BOT",NA,"ATER","BTER","LONG",NA,"ACAM","BCAM","SMIT",NA,"CCAM")
-combos<-c(combostrop,rep(NA,4),combostemp)
-windows(8.27,11.69)
-par(mfrow=c(8,8),mar=c(0,0,0,0),oma=c(6,6,3,3))
-layout(matrix(c(1:28), nrow=7, ncol=4,byrow=T),
-       heights=c(1,1,1,0.3,1,1,1),
-       widths=c(1,0.3,1,1,1))
-
-
-for (i in 1:length(combos)){
-  dat2 <- subset(dat,Taxa==as.character(combos[i]))
-  with(subset(dat2,Treatment=="Home"),
-       plot(dydt.mean~predMass.mean,col="black",legend=FALSE,type="p",lty=ifelse(Range.mean == 1,2,1),log="x",
-            xlim=c(0,70),ylim=c(0, 0.19),axes=FALSE,xlab="predMass.mean",ylab="Mass"))  
-  with(subset(dat2,Treatment=="Home"),
-       polygon(x = c(subset(dat2,Treatment=="Home")$predMass.mean, 
-                     rev(subset(dat2,Treatment=="Home")$predMass.mean)), 
-               y = c(subset(dat2,Treatment=="Home")$high,
-                     rev(subset(dat2,Treatment=="Home")$low)),
-               col = alpha("black",0.4), border = NA))
-  par(new=T)
-  with(subset(dat2,Treatment=="Warmed"),
-       plot(dydt.mean~predMass.mean,col="red",legend=FALSE,type="p",lty=ifelse(Range.mean == 1,2,1),log="x",
-            xlim=c(0,70),ylim=c(0,0.19),axes=FALSE,xlab="predMass.mean",ylab="Mass"))  
-  with(subset(dat2,Treatment=="Warmed"),
-       polygon(x = c(subset(dat2,Treatment=="Warmed")$predMass.mean, 
-                     rev(subset(dat2,Treatment=="Warmed")$predMass.mean)), 
-               y = c(subset(dat2,Treatment=="Warmed")$high,
-                     rev(subset(dat2,Treatment=="Warmed")$low)),
-               col = alpha("red",0.4), border = NA))
-  #first plot
-  ifelse(dat2$Taxa %in% c("BRA","PEL","BOT","LONG"),
-         magaxis(side=c(1,2),labels=c(0,1),frame.plot=T,las=1,cex.axis=1.2),
-         ifelse(dat2$Taxa %in% c("CCAM","BCAM","ECAM","FCAM"),
-                magaxis(side=c(1,2),labels=c(1,0),frame.plot=T,las=1,cex.axis=1.2),
-                ifelse(dat2$Taxa %in% c("SMIT","PLAT"),
-                       magaxis(side=c(1,2),labels=c(1,1),frame.plot=T,las=1,cex.axis=1.2),
-                       magaxis(side=c(1,2),labels=c(0,0),frame.plot=T,las=1,cex.axis=1.2))))
-  
-  legend("topleft",legend=dat2$Taxa[1],bty="n",cex=1.3)
-  rect(0.8, 0.02, 1, 0.17 ,col = alpha("black",0.4), border = NA)
-  rect(15, 0.02, 20, 0.17 ,col = alpha("black",0.4), border = NA)
-  
-}
-mtext(expression(RGR~(g~g^-1~day^-1)),side=2,line=3,outer=T,cex=1.5)
-mtext(expression(Total~mass~(g)),side=1,line=3,outer=T,cex=1.5)
-mtext("Narrow",side=3,line=1,outer=T,cex=1, adj=0.08)
-mtext("Wide",side=3,line=1,outer=T,cex=1, adj=0.72)
-text(160,y=0.9,labels="Tropical", xpd=NA, srt=-90, pos=2, cex=1.7)
-text(160,y=0.3,labels="Temperate", xpd=NA, srt=-90, pos=2, cex=1.7)
-
-legend(x=70,y=0.15,legend=c("Warmed","Home"),cex=1.4,
-       xpd=NA,fill=c(alpha("red",0.4),alpha("black",0.4)), border="black",
-       bty="n")
-
-###############################################################################
-
-###################################################################################
-###  RGR points at measurements points OVER MASS, 40 days
-
-#Figure 5: Relative growth rate
-g.trt <- summaryBy(dydt+predMass~Time+Treatment+Location+Range,data=subset(rate,Time<40),FUN=c(mean,standard.error))
-g.trt$combotrt <- as.factor(paste(g.trt$Location,g.trt$Range,g.trt$Treatment,sep="_"))
-g.trt.S<- subset(g.trt, Location == "S")
-g.trt.N<- subset(g.trt, Location == "N")
-
-CI<-1.645 #90% CI #1.96 95% CI
-
-
-NnH<-subset(g.trt, combotrt=="N_narrow_Home")
-NnW<-subset(g.trt, combotrt=="N_narrow_Warmed")
-NwH<-subset(g.trt, combotrt=="N_wide_Home")
-NwW<- subset(g.trt, combotrt=="N_wide_Warmed")
-SnH<-subset(g.trt, combotrt=="S_narrow_Home")
-SnW<-subset(g.trt, combotrt=="S_narrow_Warmed")
-SwH<-subset(g.trt, combotrt=="S_wide_Home")
-SwW<- subset(g.trt, combotrt=="S_wide_Warmed")
-
-NnH$high<- with(NnH,dydt.mean+dydt.standard.error*CI )
-NnH$low<- with(NnH,dydt.mean-dydt.standard.error*CI )
-NnW$high<- with(NnW,dydt.mean+dydt.standard.error*CI )
-NnW$low<- with(NnW,dydt.mean-dydt.standard.error*CI )
-NwH$high<- with(NwH,dydt.mean+dydt.standard.error*CI )
-NwH$low<- with(NwH,dydt.mean-dydt.standard.error*CI )
-NwW$high<- with(NwW,dydt.mean+dydt.standard.error*CI )
-NwW$low<- with(NwW,dydt.mean-dydt.standard.error*CI )
-SnH$high<- with(SnH,dydt.mean+dydt.standard.error*CI )
-SnH$low<- with(SnH,dydt.mean-dydt.standard.error*CI )
-SnW$high<- with(SnW,dydt.mean+dydt.standard.error*CI )
-SnW$low<- with(SnW,dydt.mean-dydt.standard.error*CI )
-SwH$high<- with(SwH,dydt.mean+dydt.standard.error*CI )
-SwH$low<- with(SwH,dydt.mean-dydt.standard.error*CI )
-SwW$high<- with(SwW,dydt.mean+dydt.standard.error*CI )
-SwW$low<- with(SwW,dydt.mean-dydt.standard.error*CI )
-
-windows(11.69,11.69);par(mfrow=c(1,1),mar=c(0,0,0,0),oma=c(6,8,6,6))
-
-plotBy(dydt.mean~predMass.mean,data=NnH,legend=FALSE,
-       yaxs="i",xaxs="i", ylim=c(0.05,0.15),
-       cex.lab=2, axes=FALSE,xlim=c(0.1,40),
-       col="black", pch=19, log="x")
-points(dydt.mean~predMass.mean, data=NnW,col="red", pch=19)
-
-points(dydt.mean~predMass.mean, data=NwH,col="black", pch=15)
-points(dydt.mean~predMass.mean, data=NwW,col="red", pch=15)
-
-points(dydt.mean~predMass.mean,data=SnH, col="black", pch=1)
-points(dydt.mean~predMass.mean, data=SnW,col="red", pch=1)
-
-points(dydt.mean~predMass.mean, data=SwH,col="black", pch=0)
-points(dydt.mean~predMass.mean, data=SwW,col="red", pch=0)
-
-magaxis(side=c(1,2,4),labels=c(1,1,0),frame.plot=T,las=1,cex.axis=1.2)
-mtext(text=expression(RGR~(g~g^-1~day^-1)), outer=T, side=2, line=3.5, cex=1.2)
-mtext(text="Total Mass (g)", side=1, line=3, cex=1.2)
-
-legend("topright", pch=c(19,19,15,15,1,1,0,0), col=c("black","red"), 
-       legend=c("Tropical-Narrow-Home","Tropical-Narrow-Warmed",
-                "Tropical-Wide-Home","Tropical-Wide-Warmed",
-                "Temperate-Narrow-Home","Temperate-Narrow-Warmed",
-                "Temperate-Wide-Home","Temperate-Wide-Warmed"))
-
-
-
-
-
-###############################################################################
-
+# 
+# 
+# #provenance specific version
+# dat<- summaryBy(dydt+Range~Time+Treatment+Taxa,data=gamfits2,FUN=c(mean,standard.error))
+# dat$high<-with(dat,dydt.mean+dydt.standard.error*CI)
+# dat$low<-with(dat,dydt.mean-dydt.standard.error*CI)
+# combostrop<- c("BRA",NA,"CTER","DTER","PEL",NA,"ETER","DCAM","PLAT",NA,
+#                "ECAM","FCAM")
+# combostemp <- c("BOT",NA,"ATER","BTER","LONG",NA,"ACAM","BCAM","SMIT",NA,"CCAM")
+# combos<-c(combostrop,rep(NA,4),combostemp)
+# windows(8.27,11.69)
+# par(mfrow=c(8,8),mar=c(0,0,0,0),oma=c(6,6,3,3))
+# layout(matrix(c(1:28), nrow=7, ncol=4,byrow=T),
+#        heights=c(1,1,1,0.3,1,1,1),
+#        widths=c(1,0.3,1,1,1))
+# 
+# 
+# for (i in 1:length(combos)){
+#   dat2 <- subset(dat,Taxa==as.character(combos[i]))
+#   with(subset(dat2,Treatment=="Home"),
+#   
+#        plot(dydt.mean~Time,col="black",legend=FALSE,type="l",lty=ifelse(Range.mean == 1,2,1),
+#             xlim=c(0,65),ylim=c(0, 0.19),axes=FALSE,xlab="Time",ylab="Mass"))  
+#   with(subset(dat2,Treatment=="Home"),
+#        polygon(x = c(subset(dat2,Treatment=="Home")$Time, 
+#                      rev(subset(dat2,Treatment=="Home")$Time)), 
+#                y = c(subset(dat2,Treatment=="Home")$high,
+#                      rev(subset(dat2,Treatment=="Home")$low)),
+#                col = alpha("black",0.4), border = NA))
+#   par(new=T)
+#   with(subset(dat2,Treatment=="Warmed"),
+#        plot(dydt.mean~Time,col="red",legend=FALSE,type="l",lty=ifelse(Range.mean == 1,2,1),
+#             xlim=c(0,65),ylim=c(0,0.19),axes=FALSE,xlab="Time",ylab="Mass"))  
+#   with(subset(dat2,Treatment=="Warmed"),
+#        polygon(x = c(subset(dat2,Treatment=="Warmed")$Time, 
+#                      rev(subset(dat2,Treatment=="Warmed")$Time)), 
+#                y = c(subset(dat2,Treatment=="Warmed")$high,
+#                      rev(subset(dat2,Treatment=="Warmed")$low)),
+#                col = alpha("red",0.4), border = NA))
+#   #first plot
+#   ifelse(dat2$Taxa %in% c("BRA","PEL","BOT","LONG"),
+#          magaxis(side=c(1,2),labels=c(0,1),frame.plot=T,las=1,cex.axis=1.2),
+#          ifelse(dat2$Taxa %in% c("CCAM","BCAM","ECAM","FCAM"),
+#                 magaxis(side=c(1,2),labels=c(1,0),frame.plot=T,las=1,cex.axis=1.2),
+#                 ifelse(dat2$Taxa %in% c("SMIT","PLAT"),
+#                        magaxis(side=c(1,2),labels=c(1,1),frame.plot=T,las=1,cex.axis=1.2),
+#                        magaxis(side=c(1,2),labels=c(0,0),frame.plot=T,las=1,cex.axis=1.2))))
+#   
+#   legend("topleft",legend=dat2$Taxa[1],bty="n",cex=1.3)
+# }
+# mtext(expression(RGR~(g~g^-1~day^-1)),side=2,line=3,outer=T,cex=1.5)
+# mtext(expression(Time~(days)),side=1,line=3,outer=T,cex=1.5)
+# mtext("Narrow",side=3,line=1,outer=T,cex=1, adj=0.08)
+# mtext("Wide",side=3,line=1,outer=T,cex=1, adj=0.72)
+# text(155,y=0.9,labels="Tropical", xpd=NA, srt=-90, pos=2, cex=1.7)
+# text(155,y=0.3,labels="Temperate", xpd=NA, srt=-90, pos=2, cex=1.7)
+# 
+# legend(x=70,y=0.15,legend=c("Warmed","Home"),cex=1.4,
+#        xpd=NA,fill=c(alpha("red",0.4),alpha("black",0.4)), border="black",
+#        bty="n")
+# 
+# ###################################################################################
+# ###    OVER MASS
+# 
+# #Figure 5: Relative growth rate
+# g.trt <- summaryBy(dydt+predMass~Time+Treatment+Location+Range,data=gamfits2,FUN=c(mean,standard.error))
+# g.trt$combotrt <- as.factor(paste(g.trt$Location,g.trt$Range,g.trt$Treatment,sep="_"))
+# g.trt.S<- subset(g.trt, Location == "S")
+# g.trt.N<- subset(g.trt, Location == "N")
+# 
+# CI<-1.645 #90% CI #1.96 95% CI
+# 
+# windows(11.69,11.69);par(mfrow=c(2,2),mar=c(0,0,0,0),oma=c(6,6,6,6))
+# NnH<-subset(g.trt, combotrt=="N_narrow_Home")
+# NnW<-subset(g.trt, combotrt=="N_narrow_Warmed")
+# NwH<-subset(g.trt, combotrt=="N_wide_Home")
+# NwW<- subset(g.trt, combotrt=="N_wide_Warmed")
+# SnH<-subset(g.trt, combotrt=="S_narrow_Home")
+# SnW<-subset(g.trt, combotrt=="S_narrow_Warmed")
+# SwH<-subset(g.trt, combotrt=="S_wide_Home")
+# SwW<- subset(g.trt, combotrt=="S_wide_Warmed")
+# 
+# NnH$high<- with(NnH,dydt.mean+dydt.standard.error*CI )
+# NnH$low<- with(NnH,dydt.mean-dydt.standard.error*CI )
+# NnW$high<- with(NnW,dydt.mean+dydt.standard.error*CI )
+# NnW$low<- with(NnW,dydt.mean-dydt.standard.error*CI )
+# NwH$high<- with(NwH,dydt.mean+dydt.standard.error*CI )
+# NwH$low<- with(NwH,dydt.mean-dydt.standard.error*CI )
+# NwW$high<- with(NwW,dydt.mean+dydt.standard.error*CI )
+# NwW$low<- with(NwW,dydt.mean-dydt.standard.error*CI )
+# SnH$high<- with(SnH,dydt.mean+dydt.standard.error*CI )
+# SnH$low<- with(SnH,dydt.mean-dydt.standard.error*CI )
+# SnW$high<- with(SnW,dydt.mean+dydt.standard.error*CI )
+# SnW$low<- with(SnW,dydt.mean-dydt.standard.error*CI )
+# SwH$high<- with(SwH,dydt.mean+dydt.standard.error*CI )
+# SwH$low<- with(SwH,dydt.mean-dydt.standard.error*CI )
+# SwW$high<- with(SwW,dydt.mean+dydt.standard.error*CI )
+# SwW$low<- with(SwW,dydt.mean-dydt.standard.error*CI )
+# 
+# xlims<-c(0.1,70)
+# plotBy(dydt.mean~predMass.mean,data=NnH,legend=FALSE,type="l",las=1,yaxs="i",xaxs="i",log="x",
+#        ylim=c(0.02,0.17),lty=2,lwd=2,cex.lab=2, xlim=xlims,axes=FALSE,ylab=expression(Total~mass~(g)),xlab="")
+# lines(dydt.mean~predMass.mean, data=NnW,col="red",xaxt='n', ylab="", type="l",ylim=c(0.02,0.17),lty=2,lwd=2)
+# 
+# polygon(x = c(NnH$predMass.mean, rev(NnH$predMass.mean)), y = c(NnH$high,rev(NnH$low)),col = alpha("black",0.4), border = NA)
+# polygon(x = c(NnW$predMass.mean, rev(NnW$predMass.mean)), y = c(NnW$high,rev(NnW$low)),col = alpha("red",0.4), border = NA)
+# 
+# mtext(text="Narrow", side=3, line=0.5, cex=1.2)
+# legend(4,70, legend=c(expression(Warmed~(+3.5~degree~C)),"Home"),col=c("red","black"),lty=c(1,1), lwd=2,bty="n")
+# magaxis(side=c(1,2,4),labels=c(0,1,0),frame.plot=T,las=1,cex.axis=1.2)
+# legend("topright","a", bty="n", cex=1.2)
+# legend("topleft", legend=c(expression(Warmed~(+3.5~degree~C)),"Home"),pch=22, pt.cex=2, pt.bg=c(alpha("red",1),alpha("black",0.6)),
+#        bty="n",cex=1.2)
+# rect(0.8, 0.02, 1, 0.17 ,col = alpha("black",0.2), border = NA)
+# #comparison at a very small mass
+# rect(19, 0.02, 25, 0.17 ,col = alpha("black",0.2), border = NA)
+# 
+# plotBy(dydt.mean~predMass.mean, data=NwH,col="black",legend=FALSE,yaxs="i",xaxs="i",log="x",
+#        xaxt='n', yaxt='n',ylab="", type="l",ylim=c(0.02,0.17),xlim=xlims,lty=1,lwd=2)
+# lines(dydt.mean~predMass.mean, data=NwW,col="red",
+#       xaxt='n', ylab="", type="l",ylim=c(0.02,0.17),lty=1,lwd=2)
+# polygon(x = c(NwH$predMass.mean, rev(NwH$predMass.mean)), y = c(NwH$high,rev(NwH$low)),col = alpha("black",0.4), border = NA)
+# polygon(x = c(NwW$predMass.mean, rev(NwW$predMass.mean)), y = c(NwW$high,rev(NwW$low)),col = alpha("red",0.4), border = NA)
+# magaxis(side=c(1,2,4),labels=c(0,0,0),frame.plot=T,las=1,cex.axis=1.2)
+# mtext(text="Wide", side=3, line=0.5, cex=1.2)
+# legend("topright","b", bty="n", cex=1.2)
+# rect(0.8, 0.02, 1, 0.17 ,col = alpha("black",0.2), border = NA)
+# rect(19, 0.02, 25, 0.17 ,col = alpha("black",0.2), border = NA)
+# 
+# plotBy(dydt.mean~predMass.mean,data=SnH,legend=FALSE,type="l",las=1,yaxs="i",xaxs="i",log="x",
+#        ylim=c(0.02,0.17),lty=2,lwd=2,cex.lab=2, xlim=xlims,axes=FALSE,xlab="")
+# lines(dydt.mean~predMass.mean, data=SnW,col="red",
+#       xaxt='n', ylab="", type="l",ylim=c(0.02,0.17),lty=2,lwd=2)
+# polygon(x = c(SnH$predMass.mean, rev(SnH$predMass.mean)), y = c(SnH$high,rev(SnH$low)),col = alpha("black",0.4), border = NA)
+# polygon(x = c(SnW$predMass.mean, rev(SnW$predMass.mean)), y = c(SnW$high,rev(SnW$low)),col = alpha("red",0.4), border = NA)
+# #mtext(text="Temperate",side=3, line=-2,at=14,cex=1.5, outer=FALSE)
+# magaxis(side=c(1,2,4),labels=c(1,1,0),frame.plot=T,las=1,cex.axis=1.2)
+# legend("topright","c", bty="n", cex=1.2)
+# rect(0.8, 0.02, 1, 0.17 ,col = alpha("black",0.2), border = NA)
+# rect(19, 0.02, 25, 0.17 ,col = alpha("black",0.2), border = NA)
+# 
+# plotBy(dydt.mean~predMass.mean, data=SwH,col="black",legend=FALSE, yaxt='n',yaxs="i",xaxs="i",log="x",
+#        xaxt='n', ylab="", type="l",ylim=c(0.02,0.17),xlim=xlims,lty=1,lwd=2)
+# lines(dydt.mean~predMass.mean, data=SwW,col="red",
+#       xaxt='n', ylab="", type="l",ylim=c(0.02,0.17),lty=1,lwd=2)
+# polygon(x = c(SwH$predMass.mean, rev(SwH$predMass.mean)), y = c(SwH$high,rev(SwH$low)),col = alpha("black",0.4), border = NA)
+# polygon(x = c(SwW$predMass.mean, rev(SwW$predMass.mean)), y = c(SwW$high,rev(SwW$low)),col = alpha("red",0.4), border = NA)
+# 
+# magaxis(side=c(1,2,4),labels=c(1,0,0),frame.plot=T,las=1,cex.axis=1.2)
+# legend("topright","d", bty="n", cex=1.2)
+# mtext(text=expression(RGR~(g~g^-1~day^-1)), outer=T, side=2, line=3, cex=1.2)
+# mtext(text="Log Total Mass (g)", side=1, line=3, cex=1.2, adj=-0.3)
+# 
+# text(125,y=0.22,labels="Tropical", xpd=NA, srt=-90, pos=2, cex=1.5)
+# text(130,y=0.07,labels="Temperate", xpd=NA, srt=-90, pos=2, cex=1.5)
+# 
+# rect(0.8, 0.02, 1, 0.17 ,col = alpha("black",0.2), border = NA)
+# rect(19, 0.02, 25, 0.17 ,col = alpha("black",0.2), border = NA)
+# 
+#   ###############################################################################
+# 
+# 
+# #provenance specific version
+# dat<- summaryBy(dydt+Range+predMass~Time+Treatment+Taxa,data=gamfits2,FUN=c(mean,standard.error))
+# dat$high<-with(dat,dydt.mean+dydt.standard.error*CI)
+# dat$low<-with(dat,dydt.mean-dydt.standard.error*CI)
+# combostrop<- c("BRA",NA,"CTER","DTER","PEL",NA,"ETER","DCAM","PLAT",NA,
+#                "ECAM","FCAM")
+# combostemp <- c("BOT",NA,"ATER","BTER","LONG",NA,"ACAM","BCAM","SMIT",NA,"CCAM")
+# combos<-c(combostrop,rep(NA,4),combostemp)
+# windows(8.27,11.69)
+# par(mfrow=c(8,8),mar=c(0,0,0,0),oma=c(6,6,3,3))
+# layout(matrix(c(1:28), nrow=7, ncol=4,byrow=T),
+#        heights=c(1,1,1,0.3,1,1,1),
+#        widths=c(1,0.3,1,1,1))
+# 
+# 
+# for (i in 1:length(combos)){
+#   dat2 <- subset(dat,Taxa==as.character(combos[i]))
+#   with(subset(dat2,Treatment=="Home"),
+#        plot(dydt.mean~predMass.mean,col="black",legend=FALSE,type="p",lty=ifelse(Range.mean == 1,2,1),log="x",
+#             xlim=c(0,70),ylim=c(0, 0.19),axes=FALSE,xlab="predMass.mean",ylab="Mass"))  
+#   with(subset(dat2,Treatment=="Home"),
+#        polygon(x = c(subset(dat2,Treatment=="Home")$predMass.mean, 
+#                      rev(subset(dat2,Treatment=="Home")$predMass.mean)), 
+#                y = c(subset(dat2,Treatment=="Home")$high,
+#                      rev(subset(dat2,Treatment=="Home")$low)),
+#                col = alpha("black",0.4), border = NA))
+#   par(new=T)
+#   with(subset(dat2,Treatment=="Warmed"),
+#        plot(dydt.mean~predMass.mean,col="red",legend=FALSE,type="p",lty=ifelse(Range.mean == 1,2,1),log="x",
+#             xlim=c(0,70),ylim=c(0,0.19),axes=FALSE,xlab="predMass.mean",ylab="Mass"))  
+#   with(subset(dat2,Treatment=="Warmed"),
+#        polygon(x = c(subset(dat2,Treatment=="Warmed")$predMass.mean, 
+#                      rev(subset(dat2,Treatment=="Warmed")$predMass.mean)), 
+#                y = c(subset(dat2,Treatment=="Warmed")$high,
+#                      rev(subset(dat2,Treatment=="Warmed")$low)),
+#                col = alpha("red",0.4), border = NA))
+#   #first plot
+#   ifelse(dat2$Taxa %in% c("BRA","PEL","BOT","LONG"),
+#          magaxis(side=c(1,2),labels=c(0,1),frame.plot=T,las=1,cex.axis=1.2),
+#          ifelse(dat2$Taxa %in% c("CCAM","BCAM","ECAM","FCAM"),
+#                 magaxis(side=c(1,2),labels=c(1,0),frame.plot=T,las=1,cex.axis=1.2),
+#                 ifelse(dat2$Taxa %in% c("SMIT","PLAT"),
+#                        magaxis(side=c(1,2),labels=c(1,1),frame.plot=T,las=1,cex.axis=1.2),
+#                        magaxis(side=c(1,2),labels=c(0,0),frame.plot=T,las=1,cex.axis=1.2))))
+#   
+#   legend("topleft",legend=dat2$Taxa[1],bty="n",cex=1.3)
+#   rect(0.8, 0.02, 1, 0.17 ,col = alpha("black",0.4), border = NA)
+#   rect(15, 0.02, 20, 0.17 ,col = alpha("black",0.4), border = NA)
+#   
+# }
+# mtext(expression(RGR~(g~g^-1~day^-1)),side=2,line=3,outer=T,cex=1.5)
+# mtext(expression(Total~mass~(g)),side=1,line=3,outer=T,cex=1.5)
+# mtext("Narrow",side=3,line=1,outer=T,cex=1, adj=0.08)
+# mtext("Wide",side=3,line=1,outer=T,cex=1, adj=0.72)
+# text(160,y=0.9,labels="Tropical", xpd=NA, srt=-90, pos=2, cex=1.7)
+# text(160,y=0.3,labels="Temperate", xpd=NA, srt=-90, pos=2, cex=1.7)
+# 
+# legend(x=70,y=0.15,legend=c("Warmed","Home"),cex=1.4,
+#        xpd=NA,fill=c(alpha("red",0.4),alpha("black",0.4)), border="black",
+#        bty="n")
+# 
+# ###############################################################################
+# 
+# ###################################################################################
+# ###  RGR points at measurements points OVER MASS, 40 days
+# 
+# #Figure 5: Relative growth rate
+# g.trt <- summaryBy(dydt+predMass~Time+Treatment+Location+Range,data=subset(rate,Time<40),FUN=c(mean,standard.error))
+# g.trt$combotrt <- as.factor(paste(g.trt$Location,g.trt$Range,g.trt$Treatment,sep="_"))
+# g.trt.S<- subset(g.trt, Location == "S")
+# g.trt.N<- subset(g.trt, Location == "N")
+# 
+# CI<-1.645 #90% CI #1.96 95% CI
+# 
+# 
+# NnH<-subset(g.trt, combotrt=="N_narrow_Home")
+# NnW<-subset(g.trt, combotrt=="N_narrow_Warmed")
+# NwH<-subset(g.trt, combotrt=="N_wide_Home")
+# NwW<- subset(g.trt, combotrt=="N_wide_Warmed")
+# SnH<-subset(g.trt, combotrt=="S_narrow_Home")
+# SnW<-subset(g.trt, combotrt=="S_narrow_Warmed")
+# SwH<-subset(g.trt, combotrt=="S_wide_Home")
+# SwW<- subset(g.trt, combotrt=="S_wide_Warmed")
+# 
+# NnH$high<- with(NnH,dydt.mean+dydt.standard.error*CI )
+# NnH$low<- with(NnH,dydt.mean-dydt.standard.error*CI )
+# NnW$high<- with(NnW,dydt.mean+dydt.standard.error*CI )
+# NnW$low<- with(NnW,dydt.mean-dydt.standard.error*CI )
+# NwH$high<- with(NwH,dydt.mean+dydt.standard.error*CI )
+# NwH$low<- with(NwH,dydt.mean-dydt.standard.error*CI )
+# NwW$high<- with(NwW,dydt.mean+dydt.standard.error*CI )
+# NwW$low<- with(NwW,dydt.mean-dydt.standard.error*CI )
+# SnH$high<- with(SnH,dydt.mean+dydt.standard.error*CI )
+# SnH$low<- with(SnH,dydt.mean-dydt.standard.error*CI )
+# SnW$high<- with(SnW,dydt.mean+dydt.standard.error*CI )
+# SnW$low<- with(SnW,dydt.mean-dydt.standard.error*CI )
+# SwH$high<- with(SwH,dydt.mean+dydt.standard.error*CI )
+# SwH$low<- with(SwH,dydt.mean-dydt.standard.error*CI )
+# SwW$high<- with(SwW,dydt.mean+dydt.standard.error*CI )
+# SwW$low<- with(SwW,dydt.mean-dydt.standard.error*CI )
+# 
+# windows(11.69,11.69);par(mfrow=c(1,1),mar=c(0,0,0,0),oma=c(6,8,6,6))
+# 
+# plotBy(dydt.mean~predMass.mean,data=NnH,legend=FALSE,
+#        yaxs="i",xaxs="i", ylim=c(0.05,0.15),
+#        cex.lab=2, axes=FALSE,xlim=c(0.1,40),
+#        col="black", pch=19, log="x")
+# points(dydt.mean~predMass.mean, data=NnW,col="red", pch=19)
+# 
+# points(dydt.mean~predMass.mean, data=NwH,col="black", pch=15)
+# points(dydt.mean~predMass.mean, data=NwW,col="red", pch=15)
+# 
+# points(dydt.mean~predMass.mean,data=SnH, col="black", pch=1)
+# points(dydt.mean~predMass.mean, data=SnW,col="red", pch=1)
+# 
+# points(dydt.mean~predMass.mean, data=SwH,col="black", pch=0)
+# points(dydt.mean~predMass.mean, data=SwW,col="red", pch=0)
+# 
+# magaxis(side=c(1,2,4),labels=c(1,1,0),frame.plot=T,las=1,cex.axis=1.2)
+# mtext(text=expression(RGR~(g~g^-1~day^-1)), outer=T, side=2, line=3.5, cex=1.2)
+# mtext(text="Total Mass (g)", side=1, line=3, cex=1.2)
+# 
+# legend("topright", pch=c(19,19,15,15,1,1,0,0), col=c("black","red"), 
+#        legend=c("Tropical-Narrow-Home","Tropical-Narrow-Warmed",
+#                 "Tropical-Wide-Home","Tropical-Wide-Warmed",
+#                 "Temperate-Narrow-Home","Temperate-Narrow-Warmed",
+#                 "Temperate-Wide-Home","Temperate-Wide-Warmed"))
+# 
+# 
+# 
+# 
+# 
+# ###############################################################################
+# 

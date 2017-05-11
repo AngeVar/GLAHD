@@ -7,7 +7,7 @@
 #Leaf mass over Total mass = LMF
 
 fm1LM <- lme(log(Leafmass)~log(Totmass)*Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),
-             data=subset(data2,Date < as.Date("2014-12-17")))#, method="ML")
+             data=data2, method="ML")#)#subset(data2,Date < as.Date("2014-12-17")))#, method="ML")
 plot(fm1LM,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
 plot(fm1LM,log(Leafmass)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
 plot(fm1LM,log(Leafmass)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
@@ -18,13 +18,21 @@ anova(fm1LM)
 #The slope of log(LM)~log(TM) was lower in N and decreased more with warming in the S, -3.4% vs. +0.99% in N
 plot(effect("log(Totmass):Treatment:Location",fm1LM), multiline=T)       # 0.0412
 
+fm2LM <- lme(log(Leafmass)~+log(Totmass)+Treatment+Location+Range+log(Totmass):Treatment+
+               log(Totmass):Location+Treatment:Location+log(Totmass):Range+Treatment:Range+
+               Location:Range+log(Totmass):Treatment:Location,
+             random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),
+             data=data2, method="ML")#)#subset(data2,Date < as.Date("2014-12-17")))#, method="ML")
+anova(fm2LM,fm1LM)
+plot(effect("log(Totmass):Treatment:Location",fm2LM), multiline=T)
+
 #When only looking at 40 day data, there are no significant effects on the slope.
 
 #######################################
 #Leaf area - over Leaf mass = SLA
 #            
 fm2LM <- lme(log(Leafarea)~log(Leafmass)*Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),
-             data=subset(data2,Date < as.Date("2014-12-17")))#, method="ML")
+             data=data2)#subset(data2,Date < as.Date("2014-12-17")))#, method="ML")
 plot(fm2LM,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
 plot(fm2LM,log(Leafarea)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
 plot(fm2LM,log(Leafarea)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
