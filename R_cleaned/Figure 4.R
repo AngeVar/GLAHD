@@ -1,7 +1,8 @@
 #Figure 4: Relative growth rate
 #source("R_cleaned/3. Create_datasets.R")
+#run gamfits_40days.R first
 
-g.trt <- summaryBy(dydt~Time+Treatment+Location+Range,data=gamfits2,FUN=c(mean,standard.error))
+g.trt <- summaryBy(dydt~Time+Treatment+Location+Range,data=gamfits2,FUN=c(mean,standard.error,NROW))
 g.trt$combotrt <- as.factor(paste(g.trt$Location,g.trt$Range,g.trt$Treatment,sep="_"))
 g.trt.S<- subset(g.trt, Location == "S")
 g.trt.N<- subset(g.trt, Location == "N")
@@ -36,7 +37,7 @@ SwW$high<- with(SwW,dydt.mean+dydt.standard.error*CI )
 SwW$low<- with(SwW,dydt.mean-dydt.standard.error*CI )
 
 plotBy(dydt.mean~Time,data=subset(NnH,Time <32),legend=FALSE,type="l",las=1,yaxs="i",xaxs="i",
-       ylim=c(0.01,0.17),lty=2,lwd=2,cex.lab=2, xlim=c(0.01,50),axes=FALSE,
+       ylim=c(0.01,0.17),lty=2,lwd=2,cex.lab=2, xlim=c(0.01,45),axes=FALSE,
        ylab=expression(Total~mass~(g)),
        xlab="")
 lines(dydt.mean~Time, data=subset(NnW,Time <32),col="red",
@@ -50,7 +51,7 @@ legend("topright","a", bty="n", cex=1.5)
 legend("topleft", legend=c(expression(Warmed~(+3.5~degree~C)),"Home"),pch=22, pt.cex=2, pt.bg=c(alpha("red",1),alpha("black",0.6)),
        bty="n",cex=1.2)
 
-plotBy(dydt.mean~Time, data=subset(NwH,Time <32),col="black",legend=FALSE,yaxs="i",xaxs="i", xlim=c(0.01,50),
+plotBy(dydt.mean~Time, data=subset(NwH,Time <32),col="black",legend=FALSE,yaxs="i",xaxs="i", xlim=c(0.01,45),
        xaxt='n', yaxt='n',ylab="", type="l",ylim=c(0.01,0.17),lty=1,lwd=2)
 lines(dydt.mean~Time, data=subset(NwW,Time <32),col="red",
       xaxt='n', ylab="", type="l",ylim=c(0.01,0.2),lty=1,lwd=2)
@@ -61,28 +62,28 @@ mtext(text="Wide", side=3, line=0.5, cex=1.2)
 legend("topright","b", bty="n", cex=1.5)
 
 
-plotBy(dydt.mean~Time,data=subset(SnH,Time <46),legend=FALSE,type="l",las=1,yaxs="i",xaxs="i",
-       ylim=c(0.01,0.17),lty=2,lwd=2,cex.lab=2, xlim=c(0.01,50),axes=FALSE,xlab="")
-lines(dydt.mean~Time, data=subset(SnW,Time <39),col="red",
+plotBy(dydt.mean~Time,data=subset(SnH,Time <40),legend=FALSE,type="l",las=1,yaxs="i",xaxs="i",
+       ylim=c(0.01,0.17),lty=2,lwd=2,cex.lab=2, xlim=c(0.01,45),axes=FALSE,xlab="")
+lines(dydt.mean~Time, data=subset(SnW,Time <32),col="red",
       xaxt='n', ylab="", type="l",ylim=c(0.01,0.2),lty=2,lwd=2)
-polygon(x = c(subset(SnH,Time <46)$Time, rev(subset(SnH,Time <46)$Time)), y = c(subset(SnH,Time <46)$high,rev(subset(SnH,Time <46)$low)),col = alpha("black",0.4), border = NA)
-polygon(x = c(subset(SnW,Time <39)$Time, rev(subset(SnW,Time <39)$Time)), y = c(subset(SnW,Time <39)$high,rev(subset(SnW,Time <39)$low)),col = alpha("red",0.4), border = NA)
+polygon(x = c(subset(SnH,Time <40)$Time, rev(subset(SnH,Time <40)$Time)), y = c(subset(SnH,Time <40)$high,rev(subset(SnH,Time <40)$low)),col = alpha("black",0.4), border = NA)
+polygon(x = c(subset(SnW,Time <32)$Time, rev(subset(SnW,Time <32)$Time)), y = c(subset(SnW,Time <32)$high,rev(subset(SnW,Time <32)$low)),col = alpha("red",0.4), border = NA)
 magaxis(side=c(1,2,4),labels=c(1,1,0),frame.plot=T,las=1,cex.axis=1.2)
 legend("topright","c", bty="n", cex=1.5)
 
-plotBy(dydt.mean~Time, data=subset(SwH,Time <46),col="black",legend=FALSE, yaxt='n',yaxs="i",xaxs="i", xlim=c(0.01,50),
+plotBy(dydt.mean~Time, data=subset(SwH,Time <40),col="black",legend=FALSE, yaxt='n',yaxs="i",xaxs="i", xlim=c(0.01,45),
        xaxt='n', ylab="", type="l",ylim=c(0.01,0.17),lty=1,lwd=2)
-lines(dydt.mean~Time, data=subset(SwW,Time <39),col="red",
+lines(dydt.mean~Time, data=subset(SwW,Time <32),col="red",
       xaxt='n', ylab="", type="l",ylim=c(0.01,0.2),lty=1,lwd=2)
-polygon(x = c(subset(SwH,Time <46)$Time, rev(subset(SwH,Time <46)$Time)), y = c(subset(SwH,Time <46)$high,rev(subset(SwH,Time <46)$low)),col = alpha("black",0.4), border = NA)
-polygon(x = c(subset(SwW,Time <39)$Time, rev(subset(SwW,Time <39)$Time)), y = c(subset(SwW,Time <39)$high,rev(subset(SwW,Time <39)$low)),col = alpha("red",0.4), border = NA)
+polygon(x = c(subset(SwH,Time <40)$Time, rev(subset(SwH,Time <40)$Time)), y = c(subset(SwH,Time <40)$high,rev(subset(SwH,Time <40)$low)),col = alpha("black",0.4), border = NA)
+polygon(x = c(subset(SwW,Time <32)$Time, rev(subset(SwW,Time <32)$Time)), y = c(subset(SwW,Time <32)$high,rev(subset(SwW,Time <32)$low)),col = alpha("red",0.4), border = NA)
 magaxis(side=c(1,2,4),labels=c(1,0,0),frame.plot=T,las=1,cex.axis=1.2)
 legend("topright","d", bty="n", cex=1.5)
 mtext(text=expression(RGR~(g~g^-1~day^-1)), outer=T, side=2, line=3.5, cex=1.2)
 mtext(text="Time (Days)", side=1, line=3, cex=1.2, adj=-0.3)
 
-text(60,y=0.23,labels="Tropical", xpd=NA, srt=-90, pos=2, cex=1.5)
-text(60,y=0.075,labels="Temperate", xpd=NA, srt=-90, pos=2, cex=1.5)
+text(50,y=0.23,labels="Tropical", xpd=NA, srt=-90, pos=2, cex=1.5)
+text(50,y=0.075,labels="Temperate", xpd=NA, srt=-90, pos=2, cex=1.5)
 
 ###############################################################################
 # 

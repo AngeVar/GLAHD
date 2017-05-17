@@ -22,8 +22,8 @@ Library(mgcv)
 dat2 <- return_size_mass(model_flag="complex") # use common slope allometry ("simple") or taxa-specific slope ("complex")
 dat2$Time <- as.numeric(dat2$Date-(min(dat2$Date)-1)) #finds first date and labels it as Time 1 i.e. 07112014 is Day 1
 
-#remove all above 20 g (<6 obs ~28% of the data, <5 obs ~62.3%) 
-dat2.1<-subset(dat2, TotMass <= 20)
+#remove all above 14 g
+dat2.1<-subset(dat2, TotMass <= 14)
 
 #- remove data with fewer than 5 observations through time - is this enough?
 obs <- unname(table(dat2.1$Code)) # get the frequency of observations for each pot
