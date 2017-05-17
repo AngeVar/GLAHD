@@ -17,7 +17,7 @@ enddate<- as.Date("2014-11-22")
 met.hour_sub<- droplevels(subset(met.hour, DateTime_hr > startdate & DateTime_hr < enddate ))
 
 # #- plot hourly data
-colors <- c("black","grey","blue","red")
+colors <- c("black","darkgrey","blue","red")
 windows(20,15)
 par(mfrow=c(3,1), mar=c(2,2,0.3,0.8), oma=c(8,8,2,5))
 size=1.5
