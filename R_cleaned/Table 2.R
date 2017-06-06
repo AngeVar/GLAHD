@@ -562,7 +562,7 @@ hist(fmr$residuals[,1])
 anova(fmr)    
 plot(effect("Treatment",fmr))                    #<.0001 RGR decreased with warming
 plot(effect("Location",fmr))                     #0.0044 RGR lower in N
-plot(effect("Treatment:Range",fmr), multiline = T) #0.0393 warming decreased RGR more in wide than narrow
+plot(effect("Treatment:Range",fmr), multiline = T) #0.0393 warming increased RGR more in wide than narrow
 
 
 #get the smallest maximum mass of each treatment group
@@ -588,3 +588,27 @@ plot(effect("Treatment:Range",fmr))
   effect("Treatment:Location",fmr)[[5]][3,1])*100 #-1.1 % N
 ((effect("Treatment:Location",fmr)[[5]][2,1]-effect("Treatment:Location",fmr)[[5]][1,1])/
   effect("Treatment:Location",fmr)[[5]][1,1])*100 #+17.1% S
+
+#get a middle value as well
+
+summaryBy(predMass~Taxa+Treatment, data=subset(gamfits2, predMass >=6.5 & predMass<=7.5), 
+          FUN=length) #find range that encompasses at least 10 reps of each Treatment combo
+
+RGRm<-droplevels(subset(gamfits2, predMass >=6.5 & predMass<=7.5))
+
+
+fmr <- lme(log(dydt)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=RGRm)#, method="ML")
+plot(fmr,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fmr,log(dydt)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
+plot(fmr,log(dydt)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
+qqnorm(fmr, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
+hist(fmr$residuals[,1])
+anova(fmr)    
+plot(effect("Treatment",fmr))                    #<.0001 RGR increased with warming
+plot(effect("Treatment:Location",fmr))                     #<.0001 RGR increased in S not in N
+plot(effect("Treatment:Range",fmr))              #0.0063 warming increased RGR more in wide than narrow
+
+((exp(effect("Treatment:Location",fmr)[[5]][4,1])-exp(effect("Treatment:Location",fmr)[[5]][3,1]))/
+    exp(effect("Treatment:Location",fmr)[[5]][3,1]))*100 #-5.8 % N
+((exp(effect("Treatment:Location",fmr)[[5]][2,1])-exp(effect("Treatment:Location",fmr)[[5]][1,1]))/
+    exp(effect("Treatment:Location",fmr)[[5]][1,1]))*100 #+18.3% S
