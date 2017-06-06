@@ -6,6 +6,7 @@ berw <- subset (ber, Treatment == "Warmed")
 names(berw)<- c("Time","Range","Location","Treatment.w","predMassWarm","predMass.standard.error.w","predMass.length.w")
 bio <- merge(berh,berw, by=c("Time","Range","Location"))
 
+
 #Confidence intervals using Fieller's theorem (Intuitive Biostatistics H.J. Motulsky 2014 ISBN10: 0199946647)
 alph <- 0.9
 dfs<-bio$predMass.length-1
@@ -20,6 +21,18 @@ bio$SEQ<-(bio$Q/(1-bio$g))*sqrt((1-bio$g)*((SEMA^2)/(A^2))+((SEMB^2)/(B^2)))
 bio$CIQhigh<-(bio$Q/(1-bio$g))+qt(alph,df=bio$predMass.length.w+bio$predMass.length-2)*bio$SEQ
 bio$CIQlow<-(bio$Q/(1-bio$g))-qt(alph,df=bio$predMass.length+bio$predMass.length-2)*bio$SEQ
 
+# ###############
+# #Max enhancement of biomass per taxa
+# ber<- summaryBy(predMass~Time+Treatment+Location, data=gamfits2, FUN=c(mean,standard.error, length), keep.names=T) 
+# berh <- subset(ber, Treatment == "Home")
+# berw <- subset (ber, Treatment == "Warmed")
+# names(berw)<- c("Time","Treatment.w","Location","predMassWarm","predMass.standard.error.w","predMass.length.w")
+# bio <- merge(berh,berw, by=c("Time","Location"))
+# A<-bio$predMassWarm
+# B<-bio$predMass.mean
+# bio$Q<-A/B
+# 
+# bio[ bio$Q %in% tapply(bio$Q, bio$Location, max), ] 
 
 windows(11.69,11.69);par(mfrow=c(2,2),mar=c(0,0,0,0),oma=c(6,6,6,6))
 
