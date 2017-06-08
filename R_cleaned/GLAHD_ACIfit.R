@@ -69,7 +69,22 @@ fits.params$Taxa <- factor(fits.params$Taxa,levels=c("ATER","BTER","ACAM","BCAM"
 fits.params$Pot <- as.numeric(unlist(strsplit(x=as.character(fits.params$Code),split="-"))[seq(from=2,to=nrow(fits.params)*2,by=2)])
 fits.params$Treat <- ifelse(fits.params$Pot < 20, "Home","Warmed")
 
+#
 
+# #---------------------------------------------------------------------
+# #make a big pdf with all of the fits for each curve.
+# pdf(file="C:/Repos/GLAHD/Output/Aci fits.pdf")
+# 
+# for (i in 1:length(fits)){
+#   par(xpd=F)
+#   plot(fits[[i]],xlim=c(0,2000),ylim=c(-2,50))
+#   title(paste("ch.campaign =", fits.params[i,1]),sep="")
+#   par(xpd=T)
+#   legend("topleft",legend=paste("Vcmax=",round(fits.params[i,2],1),",","Jmax=",round(fits.params[i,3],1)),
+#          bty="n")
+# }
+# dev.off()
+# #---------------------------------------------------------------------
 #----------------------------------------------------------------------------------
 #- process Aci fits for statistical analysis
 
