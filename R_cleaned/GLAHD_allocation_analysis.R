@@ -150,8 +150,8 @@ par(mfrow=c(3,2),mar=c(3,0,1.5,0),oma=c(6,10,6,7),cex.axis=1.2)
 
 #LAR
 plotBy(log(Leafarea)~log(Totmass)|Treatment, data=subset(data2,Location == "S"&Totmass<=14), 
-       axes=F, ylim= c(3.5,8.5), xlim=c(-0.5,3),pch=19,cex=2, legend =F)
-legend(-0.5,8, legend=c(expression(Warmed~(+3.5~degree~C)),"Home"),col=c("red","black"),pch=19,bty="n", cex=1.2, pt.cex =2)
+       axes=F, ylim= c(3.5,9), xlim=c(-0.5,3),pch=19,cex=2, legend =F, col=c("black","red"))
+legend(-0.5,8.5, legend=c(expression(Warmed~(+3.5~degree~C)),"Home"),col=c("red","black"),pch=19,bty="n", cex=1.2, pt.cex =2)
 lm1<- lm(log(Leafarea)~log(Totmass), data=subset(data2,Location == "S"& Treatment == "Warmed"&Totmass<=14))
 abline(lm1, col="red",lwd=2)
 abline(lm(log(Leafarea)~log(Totmass), data=subset(data2,Location == "S"& Treatment == "Home"&Totmass<=14)), col="black",
@@ -161,20 +161,20 @@ mtext(text="Temperate", side=3, line=0.5, cex=1.2)
 legend("topright","a", bty="n", cex=1.5)
 
 plotBy(log(Leafarea)~log(Totmass)|Treatment, data=subset(data2,Location == "N"&Totmass<=14), 
-       ylim= c(3.5,8.5), xlim=c(-0.5,3), legend =F,axes=F,pch=19,cex=2)
+       ylim= c(3.5,9), xlim=c(-0.5,3), legend =F,axes=F,pch=19,cex=2, col=c("black","red"))
 magaxis(c(1,4),labels=c(1,1),frame.plot=T,las=1,cex.axis=1.2)
 abline(lm(log(Leafarea)~log(Totmass), data=subset(data2,Location == "N"& Treatment == "Warmed"&Totmass<=14)), col="red",lwd=2)
 abline(lm(log(Leafarea)~log(Totmass), data=subset(data2,Location == "N"& Treatment == "Home"&Totmass<=14)), col="black",lwd=2)
 mtext(text="Tropical", side=3, line=0.5, cex=1.2)
 mtext(text="ln(Leaf area (cm2))",side=2,outer=T,cex=1,adj=0.92,line=2.5)
 mtext(text="ln(Total mass (g))",side=1,outer=T,cex=1,line=-41.5)
-mtext(text="LAR",side=2,outer=T,cex=1.5,adj=0.88,line=5)
+#mtext(text="LAR",side=2,outer=T,cex=1.5,adj=0.88,line=5)
 legend("topright","b", bty="n", cex=1.5)
 
 #SLA
 
 plotBy(log(Leafarea)~log(Leafmass)|Treatment, data=subset(data2,Location == "S"&Totmass<=14), 
-       axes=F, ylim= c(3.5,8.5), xlim=c(-1.5,2.5), legend=F,pch=19,cex=2)
+       axes=F, ylim= c(3.5,9), xlim=c(-1.5,2.5), legend=F,pch=19,cex=2, col=c("black","red"))
 lm1<- lm(log(Leafarea)~log(Leafmass), data=subset(data2,Location == "S"& Treatment == "Warmed"&Totmass<=14))
 abline(lm1, col="red",lwd=2)
 abline(lm(log(Leafarea)~log(Leafmass), data=subset(data2,Location == "S"& Treatment == "Home"&Totmass<=14)), col="black",lwd=2)
@@ -182,18 +182,18 @@ magaxis(c(1,2),labels=c(1,1),frame.plot=T,las=1,cex.axis=1.2)
 legend("topright","c", bty="n", cex=1.5)
 
 plotBy(log(Leafarea)~log(Leafmass)|Treatment, data=subset(data2,Location == "N"&Totmass<=14), 
-       ylim= c(3.5,8.5), xlim=c(-1.5,2.5), legend =F,axes=F,pch=19,cex=2)
+       ylim= c(3.5,9), xlim=c(-1.5,2.5), legend =F,axes=F,pch=19,cex=2, col=c("black","red"))
 magaxis(c(1,4),labels=c(1,1),frame.plot=T,las=1,cex.axis=1.2)
 abline(lm(log(Leafarea)~log(Leafmass), data=subset(data2,Location == "N"& Treatment == "Warmed"&Totmass<=14)), col="red",lwd=2)
 abline(lm(log(Leafarea)~log(Leafmass), data=subset(data2,Location == "N"& Treatment == "Home"&Totmass<=14)), col="black",lwd=2)
 mtext(text="ln(Leaf area (cm2))",side=2,outer=T,cex=1,adj=0.5,line=2.5)
 mtext(text="ln(Total Leaf mass (g))",side=1,outer=T,cex=1,adj=0.5,line=-21)
-mtext(text="SLA",side=2,outer=T,cex=1.5,adj=0.5,line=5)
+#mtext(text="SLA",side=2,outer=T,cex=1.5,adj=0.5,line=5)
 legend("topright","d", bty="n", cex=1.5)
 
 #LMF
 plotBy(log(Leafmass)~log(Totmass)|Treatment, data=subset(data2,Location == "S"&Totmass<=14), 
-       axes=F, ylim= c(-1.2,3), xlim=c(-1,3), legend=F,pch=19,cex=2)
+       axes=F, ylim= c(-1.2,3), xlim=c(-1,3), legend=F,pch=19,cex=2, col=c("black","red"))
 lm1<- lm(log(Leafmass)~log(Totmass), data=subset(data2,Location == "S"& Treatment == "Warmed"&Totmass<=14))
 abline(lm1, col="red",lwd=2)
 abline(lm(log(Leafmass)~log(Totmass), data=subset(data2,Location == "S"& Treatment == "Home"&Totmass<=14)), col="black",lwd=2)
@@ -201,13 +201,13 @@ magaxis(c(1,2),labels=c(1,1),frame.plot=T,las=1,cex.axis=1.2)
 legend("topright","e", bty="n", cex=1.5)
 
 plotBy(log(Leafmass)~log(Totmass)|Treatment, data=subset(data2,Location == "N"&Totmass<=14), 
-       ylim= c(-1.2,3), xlim=c(-1,3), legend =F,axes=F,pch=19,cex=2)
+       ylim= c(-1.2,3), xlim=c(-1,3), legend =F,axes=F,pch=19,cex=2, col=c("black","red"))
 magaxis(c(1,4),labels=c(1,1),frame.plot=T,las=1,cex.axis=1.2)
 abline(lm(log(Leafmass)~log(Totmass), data=subset(data2,Location == "N"& Treatment == "Warmed"&Totmass<=14)), col="red",lwd=2)
 abline(lm(log(Leafmass)~log(Totmass), data=subset(data2,Location == "N"& Treatment == "Home"&Totmass<=14)), col="black",lwd=2)
 mtext(text="ln(Leaf mass (g))",side=2,outer=T,cex=1,adj=0.1,line=2.5)
 mtext(text="ln(Total mass (g))",side=1,outer=T,cex=1,adj=0.5,line=-1)
-mtext(text="LMF",side=2,outer=T,cex=1.5,adj=0.15,line=5)
+#mtext(text="LMF",side=2,outer=T,cex=1.5,adj=0.15,line=5)
 legend("topright","f", bty="n", cex=1.5)
 
 # #RGR in the same way does not show any significant effects with time and treatment.
