@@ -8,7 +8,6 @@ acifits$Jmaxm<-with(acifits, Jmax*SLA/10000)
 acifits$Vcmaxm<-with(acifits, Vcmax*SLA/10000)
 acifits$JtoVm<-with(acifits,Jmaxm/Vcmaxm)
 
-
 ###
 # SMIT really changes things.
 # 
@@ -48,7 +47,6 @@ plot(effect("Range",fm.vcmax))      #- Vcmax higher in wide than narrow
 plot(effect("Treatment:Location",fm.vcmax))      #- warming reduced Vcmax in the south but not in the north. No range interactions
 (exp(4.433354)-exp(4.612889))/(exp(4.612889))    # -16.4 % in Vcmax in S
 (exp(5.164627)-exp(5.195303))/(exp(5.195303))    #  -3%  in Vcmax in N 
-
 
 fm.jmax <- lme(log(Jmax)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=acifits)
 plot(fm.jmax,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
@@ -465,3 +463,72 @@ plot(effect("Treatment:Location",f.AsatSLA))
 plot(effect("Treatment:Range",f.AsatSLA))
 ((206.2998)-(182.5428))/((182.5428))    # +13.0% increase in SLA in Narrow # 
 ((184.1988)-(180.4939))/((180.4939)) #  +2.1% increase in SLA in Wide
+
+
+#-------------------------------------
+
+#test after fit with TPU using Dushan's script
+dg3<-merge(dg2,SLARd, by="Code")            #give SLA to the codes that we have Jmax and Vcmax data for
+dg3$Jmaxm<-with(dg3, Jmax*SLA/10000)
+dg3$Vcmaxm<-with(dg3, Vcmax*SLA/10000)
+dg3$JtoVm<-with(dg3,Jmaxm/Vcmaxm)
+
+#not much difference in vcmax by fitting TPU
+fm.vcmax <- lme(log(Vcmax)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dg3)
+plot(fm.vcmax,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm.vcmax,(Vcmax)~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
+plot(fm.vcmax,(Vcmax)~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
+qqnorm(fm.vcmax, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
+hist(fm.vcmax$residuals[,1])
+anova(fm.vcmax)    
+plot(effect("Range",fm.vcmax))      #- Vcmax higher in wide than narrow
+(exp(4.956607)-exp(4.810580))/(exp(4.810580))    # 15.7% higher in wide
+
+plot(effect("Treatment:Location",fm.vcmax))      #- warming reduced Vcmax in the south but not in the north. No range interactions
+(exp(4.484568)-exp(4.632290))/(exp(4.632290))    # -13.7 % in Vcmax in S
+(exp(5.213920)-exp(5.228832))/(exp(5.228832))    #  -0.15%  in Vcmax in N 
+
+#some missing Jmax values - 1 BOT home, 1 BOT warmed, 1 BRA Home, 1 BTER Home, 1 PLAT home
+#adding TPU limitation tot he model does not change results much. 
+#The main effect of location appears where N>S, but this is trumped by the interaction with treatment anyway.
+fm.jmax <- lme(log(Jmax)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dg3[complete.cases(dg3[, c("Jmax")]), ])
+plot(fm.jmax,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm.jmax,(Jmax)~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
+plot(fm.jmax,(Jmax)~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
+qqnorm(fm.jmax, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
+hist(fm.jmax$residuals[,1])
+anova(fm.jmax)    
+plot(effect("Treatment:Location",fm.jmax))
+(exp(4.978871)-exp(5.210569))/(exp(5.210569))    # -20.6% in Jmax in S
+(exp(5.178931)-exp(5.255176))/(exp(5.255176))    #  -7.3%  in Jmax in N 
+
+#the JV ratio declined with warming in all groups except narrow N
+
+fm.jtov <- lme(log(JtoV)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dg3[complete.cases(dg3[, c("Jmax")]), ])
+plot(fm.jtov,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm.jtov,(JtoV)~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
+plot(fm.jtov,(JtoV)~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
+qqnorm(fm.jtov, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
+hist(fm.jtov$residuals[,1])
+anova(fm.jtov)
+plot(effect("Treatment",fm.jtov))
+(exp(0.2109301)-exp(0.2827220))/(exp(0.2827220))      # -6.9% in Jmax/Vcmax with warming
+plot(effect("Location",fm.jtov))
+(exp(-0.008336661)-exp(0.529045483))/(exp(0.529045483))      # 41.6% lower Jmax/Vcmax in N compared to S
+plot(effect("Treatment:Location:Range",fm.jtov), multiline=T)
+(exp(0.5211215)-exp(0.6297080))/(exp(0.6297080))          #-10.3 % in narrow S
+(exp(0.4679126)-exp(0.5451491))/(exp(0.5451491))          #-7.4 % in wide S
+(exp(-0.010326059)-exp(-0.003742756))/(exp(-0.003742756)) #-0.7 % in narrow N
+(exp(-0.04982495)-exp(0.03365585))/(exp(0.03365585))      #-8 % in wide N
+
+#only 14 replicates had no TPU limitation; ATER(1), BTER(1), CCAM(3), ECAM(1), LONG(3)
+fm.tpu <- lme(log(TPU)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=dg3[complete.cases(dg3[, c("TPU")]), ])
+plot(fm.tpu,resid(.,type="p")~fitted(.) | Treatment,abline=0)   #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm.tpu,(TPU)~fitted(.)|Species,abline=c(0,1))            #predicted vs. fitted for each species
+plot(fm.tpu,(TPU)~fitted(.),abline=c(0,1))                    #overall predicted vs. fitted
+qqnorm(fm.tpu, ~ resid(., type = "p"), abline = c(0, 1))       #qqplot to assess normality of residuals
+hist(fm.tpu$residuals[,1])
+anova(fm.tpu)
+plot(effect("Treatment:Location",fm.tpu))
+(exp(2.250428)-exp(2.455829))/(exp(2.455829))    # -18.6% in TPU in S
+(exp(2.254111)-exp(2.351137))/(exp(2.351137))    #  -9.2%  in TPU in N 
