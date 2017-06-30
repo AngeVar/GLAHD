@@ -64,39 +64,46 @@ legend(x=3.2,y=2.4,legend=c(expression(Warmed~(+3.5~degree~C)),"Home", "Pre-trea
        bty="n")
 
 
-# 
-# #analysis
-# library(smatr)
-# slope.com(y=allom.2$logTM,x=allom.2$logd2h,groups=allom.2$Treat) # returns a p-value of 0.3
-# fit1<- sma(logTM~logd2h*Taxa, data=allom.2)
-# 
-# plot(fit1, which='residual') 
-# plot(fit1, which="qq")
-# 
-# library(smatr)
-# fit1 <- slope.com(y=allom.2$logTM,x=allom.2$logd2h,groups=allom.2$Taxa) # slopes do not differ (p = 0.1)
-# fit2 <- elev.com(y=allom.2$logTM,x=allom.2$logd2h,groups=allom.2$Taxa)  # intercepts DO differ (p < 0.0001)
-# sma(logTM~logd2h+Taxa, data=allom.2)
-# 
-# 
-# ancova.full <- lm(logTM~logd2h*Taxa*Treat,data=allom.2) # most higher order terms not significant
-# ancova.2 <- lm(logTM~logd2h+Taxa+Treat+logd2h:Taxa+logd2h:Treat+Taxa:Treat,data=allom.2) # drop 3-way interaction
-# ancova.3 <- lm(logTM~logd2h+Taxa+Treat+logd2h:Taxa+logd2h:Treat,data=allom.2)#drop Taxa:Treat
-# ancova.4 <- lm(logTM~logd2h+Taxa+Treat+logd2h:Treat,data=allom.2)#drop logd2h:Taxa
-# 
-# #seems like allometires should have taxa specific intercept and treatment specific slopes?
-# 
-# 
-# ancova.5 <- lm(logTM~logd2h+Taxa+logd2h:Treat,data=allom.2) # significance of logd2h:Treat interaction goes away after dropping non-significant terms
-# ancova.6 <- lm(logTM~logd2h+Taxa,data=allom.2)
-# ancova.y <- lm(logTM~logd2h*Taxa+Taxa,data=allom.2)
-# anova(ancova.full)
-# anova(ancova.full,ancova.6) # full ancova has slightly lower AIC score, but is not significantly different than the full ancova.
-# plot(ancova.4) # assumptions are met pretty well. It's not perfect, but it's good.
-# anova(ancova.6)
-# 
-# 
-# layout(matrix(c(1:28), nrow=7, ncol=4,byrow=T),
-# heights=c(1,1,1,0.3,1,1,1),
-# widths=c(1,0.3,1,1,1))
-#  
+
+#analysis
+library(smatr)
+allom.2 <- subset(allom,Treatment!="Pre-treatment")
+slope.com(y=allom.2$logTM,x=allom.2$logd2h,groups=allom.2$Treat) # returns a p-value of 0.3
+fit1<- sma(logTM~logd2h*Taxa, data=allom.2)
+
+plot(fit1, which='residual')
+plot(fit1, which="qq")
+
+fit1 <- slope.com(y=allom.2$logTM,x=allom.2$logd2h,groups=allom.2$Taxa) # slopes do not differ (p = 0.1)
+fit2 <- elev.com(y=allom.2$logTM,x=allom.2$logd2h,groups=allom.2$Taxa)  # intercepts DO differ (p < 0.0001)
+sma(logTM~logd2h+Taxa, data=allom.2)
+
+#look at within-region differences in Taxa
+allom.N<-subset(allom.2, Location =="N")
+slope.com(y=allom.N$logTM,x=allom.N$logd2h,groups=allom.N$Taxa) # slopes do not differ (p = 0.57)
+elev.com(y=allom.N$logTM,x=allom.N$logd2h,groups=allom.N$Taxa)  # intercepts DO differ (p < 0.0001)
+allom.S<-subset(allom.2, Location =="S")
+slope.com(y=allom.S$logTM,x=allom.S$logd2h,groups=allom.S$Taxa) # slopes do not differ (p = 0.06)
+elev.com(y=allom.S$logTM,x=allom.S$logd2h,groups=allom.S$Taxa)  # iStercepts DO differ (p < 0.0001)
+
+#look at wide in each region
+allom.N<-subset(allom.2, Species %in% c("TER","CAM")) #difference between CAM S and TER N
+slope.com(y=allom.N$logTM,x=allom.N$logd2h,groups=allom.N$Taxa) # slopes do not differ (p = 0.57)
+elev.com(y=allom.N$logTM,x=allom.N$logd2h,groups=allom.N$Taxa)  # intercepts DO differ (p < 0.0001)
+
+ancova.full <- lm(logTM~logd2h*Taxa*Treat,data=allom.2) # most higher order terms not significant
+ancova.2 <- lm(logTM~logd2h+Taxa+Treat+logd2h:Taxa+logd2h:Treat+Taxa:Treat,data=allom.2) # drop 3-way interaction
+ancova.3 <- lm(logTM~logd2h+Taxa+Treat+logd2h:Taxa+logd2h:Treat,data=allom.2)#drop Taxa:Treat
+ancova.4 <- lm(logTM~logd2h+Taxa+Treat+logd2h:Treat,data=allom.2)#drop logd2h:Taxa
+
+#seems like allometires should have taxa specific intercept and treatment specific slopes?
+
+
+ancova.5 <- lm(logTM~logd2h+Taxa+logd2h:Treat,data=allom.2) # significance of logd2h:Treat interaction goes away after dropping non-significant terms
+ancova.6 <- lm(logTM~logd2h+Taxa,data=allom.2)
+ancova.y <- lm(logTM~logd2h*Taxa+Taxa,data=allom.2)
+anova(ancova.full)
+anova(ancova.full,ancova.6) # full ancova has slightly lower AIC score, but is not significantly different than the full ancova.
+plot(ancova.4) # assumptions are met pretty well. It's not perfect, but it's good.
+anova(ancova.6)
+
