@@ -76,11 +76,13 @@ magaxis(c(2,4),labels=c(1,0),frame.plot=T,las=1,cex.axis=1.2)
 mtext(text=expression(A["sat"]),side=2,outer=F,cex=1.2,adj=0.5,line=5)
 mtext(text=expression("("*mu*mol~m^-2~s^-1*")"),side=2,outer=F,cex=1,adj=0.5,line=3)
 legend("topright","a", bty="n", cex=1.5)
+mtext(text="Temperate", side=3, line=0.5, cex=1.2)
 
 boxplot(Photo~Treatment*Range,data=subset(asat.tm,Location=="N"),ylim=ylims,
         axes=F,las=2,col=colors)
 magaxis(c(2,4),labels=c(0,0),frame.plot=T,las=1,cex.axis=1.2)
 legend("topright","b", bty="n", cex=1.5)
+mtext(text="Tropical", side=3, line=0.5, cex=1.2)
 
 #Asat mass
 ylims=c(350,700)
