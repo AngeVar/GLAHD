@@ -27,7 +27,7 @@ aci$Treat <- ifelse(aci$Pot < 20, "Home","Warmed")
 aci <- aci[with(aci,order(Code)),]
 
 #- extract the data to fit (exclude lines that I've manually decided to remove from the curve fitting)
-aci.fit <- subset(aci,toFit==1)
+aci.fit <- subset(aci)#,toFit==1)
 aci.fit$PPFD<-aci.fit$PARi
 
 
@@ -85,6 +85,21 @@ fits.params$Treat <- ifelse(fits.params$Pot < 20, "Home","Warmed")
 # }
 # dev.off()
 # #---------------------------------------------------------------------
+
+# #---------------------------------------------------------------------
+# # use Dushan's script to fit TPU limitation
+# source("script_to_AV.R")
+# fg<-makecurves(aci.fit)
+# dg<-makedata(fg)
+# #- merge size totalmass and leafarea data into dataframe with aci values
+# growth <- return_size_mass(model_flag="simple") # use common slope allometry ("simple") or taxa-specific slope ("complex")
+# growth2 <- summaryBy(d2h+TotMass+leafArea~Species+Treatment+Location+Taxa+Code+Range,keep.names=T,data=subset(growth,Date >= as.Date("2014-12-8") & Date <=as.Date("2014-12-20")))
+# dg2 <- merge(dg,growth2,by=c("Code","Taxa"))
+# dg2$JtoV <- with(dg2,Jmax/Vcmax)
+# dg2$Location <- factor(dg2$Location,levels=c("S","N")) # relevel Location so that "S" is the first level and "N" is the second
+# dg2$Sp_RS_EN <- as.factor(with(dg2,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
+# dg2$Prov_Sp_EN <- as.factor(with(dg2,paste(Taxa,Species)))
+
 #----------------------------------------------------------------------------------
 #- process Aci fits for statistical analysis
 
