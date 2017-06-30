@@ -1,7 +1,8 @@
 #Figure 4: Relative growth rate
 #source("R_cleaned/3. Create_datasets.R")
-#run gamfits_40days.R first
+#source("R_cleaned/gamfits_14g.R") # first
 
+#changed all Time <40 to Time<32
 g.trt <- summaryBy(dydt~Time+Treatment+Location+Range,data=gamfits2,FUN=c(mean,standard.error,NROW))
 g.trt$combotrt <- as.factor(paste(g.trt$Location,g.trt$Range,g.trt$Treatment,sep="_"))
 g.trt.S<- subset(g.trt, Location == "S")
@@ -36,54 +37,94 @@ SwH$low<- with(SwH,dydt.mean-dydt.standard.error*CI )
 SwW$high<- with(SwW,dydt.mean+dydt.standard.error*CI )
 SwW$low<- with(SwW,dydt.mean-dydt.standard.error*CI )
 
-plotBy(dydt.mean~Time,data=subset(NnH,Time <32),legend=FALSE,type="l",las=1,yaxs="i",xaxs="i",
-       ylim=c(0.01,0.17),lty=2,lwd=2,cex.lab=2, xlim=c(0.01,45),axes=FALSE,
-       ylab=expression(Total~mass~(g)),
-       xlab="")
-lines(dydt.mean~Time, data=subset(NnW,Time <32),col="red",
-      xaxt='n', ylab="", type="l",ylim=c(0.01,0.2),lty=2,lwd=2)
-polygon(x = c(subset(NnH,Time <32)$Time, rev(subset(NnH,Time <32)$Time)), y = c(subset(NnH,Time <32)$high,rev(subset(NnH,Time <32)$low)),col = alpha("black",0.4), border = NA)
-polygon(x = c(subset(NnW,Time <32)$Time, rev(subset(NnW,Time <32)$Time)), y = c(subset(NnW,Time <32)$high,rev(subset(NnW,Time <32)$low)),col = alpha("red",0.4), border = NA)
+with(subset(NnH,Time<33),
+     plot(dydt.mean~Time,type="l",las=1,yaxs="i",xaxs="i",
+       ylim=c(0.01,0.13),lty=2,lwd=2,cex.lab=2, xlim=c(0.01,34),axes=FALSE,
+       ylab=expression(Total~mass~(g)),xlab=""))
+with(subset(NnW,Time <33),
+     lines(dydt.mean~Time, col="red",xaxt='n', ylab="", type="l",ylim=c(0.01,0.2),lty=2,lwd=2))
+with(subset(NnH, Time %in% unique(rate$Time)),
+     points(dydt.mean~Time, col="black", pch=19,cex=2,
+            panel.first=adderrorbars(x=Time,y=dydt.mean,SE=dydt.standard.error, direction="updown",col="black",las=1)))
+with(subset(NnW, Time %in% unique(rate$Time)),
+     points(dydt.mean~Time, col="red", pch=19,cex=2,
+       panel.first=adderrorbars(x=Time,y=dydt.mean,SE=dydt.standard.error, direction="updown",col="black",las=1)))
+with(subset(NnH,Time <33),
+     polygon(x = c(Time, rev(Time)), y = c(high,rev(low)),col = alpha("black",0.4), border = NA))
+with(subset(NnW,Time <33),
+     polygon(x = c(Time, rev(Time)), y = c(high,rev(low)),col = alpha("red",0.4), border = NA))
 mtext(text="Narrow", side=3, line=0.5, cex=1.2)
-legend(4,70, legend=c(expression(Warmed~(+3.5~degree~C)),"Home"),col=c("red","black"),lty=c(1,1), lwd=2,bty="n")
 magaxis(side=c(1,2,4),labels=c(0,1,0),frame.plot=T,las=1,cex.axis=1.2)
 legend("topright","a", bty="n", cex=1.5)
-legend("topleft", legend=c(expression(Warmed~(+3.5~degree~C)),"Home"),pch=22, pt.cex=2, pt.bg=c(alpha("red",1),alpha("black",0.6)),
-       bty="n",cex=1.2)
 
-plotBy(dydt.mean~Time, data=subset(NwH,Time <32),col="black",legend=FALSE,yaxs="i",xaxs="i", xlim=c(0.01,45),
-       xaxt='n', yaxt='n',ylab="", type="l",ylim=c(0.01,0.17),lty=1,lwd=2)
-lines(dydt.mean~Time, data=subset(NwW,Time <32),col="red",
-      xaxt='n', ylab="", type="l",ylim=c(0.01,0.2),lty=1,lwd=2)
-polygon(x = c(subset(NwH,Time <32)$Time, rev(subset(NwH,Time <32)$Time)), y = c(subset(NwH,Time <32)$high,rev(subset(NwH,Time <32)$low)),col = alpha("black",0.4), border = NA)
-polygon(x = c(subset(NwW,Time <32)$Time, rev(subset(NwW,Time <32)$Time)), y = c(subset(NwW,Time <32)$high,rev(subset(NwW,Time <32)$low)),col = alpha("red",0.4), border = NA)
-magaxis(side=c(1,2,4),labels=c(0,0,0),frame.plot=T,las=1,cex.axis=1.2)
+with(subset(NwH,Time<33),
+     plot(dydt.mean~Time,type="l",las=1,yaxs="i",xaxs="i",
+          ylim=c(0.01,0.13),lty=2,lwd=2,cex.lab=2, xlim=c(0.01,34),axes=FALSE,
+          ylab=expression(Total~mass~(g)),xlab=""))
+with(subset(NwW,Time <33),
+     lines(dydt.mean~Time, col="red",xaxt='n', ylab="", type="l",ylim=c(0.01,0.2),lty=2,lwd=2))
+with(subset(NwH, Time %in% unique(rate$Time)),
+     points(dydt.mean~Time, col="black", pch=19,cex=2,
+            panel.first=adderrorbars(x=Time,y=dydt.mean,SE=dydt.standard.error, direction="updown",col="black",las=1)))
+with(subset(NwW, Time %in% unique(rate$Time)),
+     points(dydt.mean~Time, col="red", pch=19,cex=2,
+            panel.first=adderrorbars(x=Time,y=dydt.mean,SE=dydt.standard.error, direction="updown",col="black",las=1)))
+with(subset(NwH,Time <33),
+     polygon(x = c(Time, rev(Time)), y = c(high,rev(low)),col = alpha("black",0.4), border = NA))
+with(subset(NwW,Time <33),
+     polygon(x = c(Time, rev(Time)), y = c(high,rev(low)),col = alpha("red",0.4), border = NA))
 mtext(text="Wide", side=3, line=0.5, cex=1.2)
+legend(4,70, legend=c(expression(Warmed~(+3.5~degree~C)),"Home"),col=c("red","black"),lty=c(1,1), lwd=2,bty="n")
+magaxis(side=c(1,2,4),labels=c(0,0,0),frame.plot=T,las=1,cex.axis=1.2)
 legend("topright","b", bty="n", cex=1.5)
 
 
-plotBy(dydt.mean~Time,data=subset(SnH,Time <40),legend=FALSE,type="l",las=1,yaxs="i",xaxs="i",
-       ylim=c(0.01,0.17),lty=2,lwd=2,cex.lab=2, xlim=c(0.01,45),axes=FALSE,xlab="")
-lines(dydt.mean~Time, data=subset(SnW,Time <32),col="red",
-      xaxt='n', ylab="", type="l",ylim=c(0.01,0.2),lty=2,lwd=2)
-polygon(x = c(subset(SnH,Time <40)$Time, rev(subset(SnH,Time <40)$Time)), y = c(subset(SnH,Time <40)$high,rev(subset(SnH,Time <40)$low)),col = alpha("black",0.4), border = NA)
-polygon(x = c(subset(SnW,Time <32)$Time, rev(subset(SnW,Time <32)$Time)), y = c(subset(SnW,Time <32)$high,rev(subset(SnW,Time <32)$low)),col = alpha("red",0.4), border = NA)
+with(subset(SnH,Time<33),
+     plot(dydt.mean~Time,type="l",las=1,yaxs="i",xaxs="i",
+          ylim=c(0.01,0.13),lty=2,lwd=2,cex.lab=2, xlim=c(0.01,34),axes=FALSE,
+          ylab=expression(Total~mass~(g)),xlab=""))
+with(subset(SnW,Time <33),
+     lines(dydt.mean~Time, col="red",xaxt='n', ylab="", type="l",ylim=c(0.01,0.2),lty=2,lwd=2))
+with(subset(SnH, Time %in% unique(rate$Time)),
+     points(dydt.mean~Time, col="black", pch=19,cex=2,
+            panel.first=adderrorbars(x=Time,y=dydt.mean,SE=dydt.standard.error, direction="updown",col="black",las=1)))
+with(subset(SnW, Time %in% unique(rate$Time)),
+     points(dydt.mean~Time, col="red", pch=19,cex=2,
+            panel.first=adderrorbars(x=Time,y=dydt.mean,SE=dydt.standard.error, direction="updown",col="black",las=1)))
+with(subset(SnH,Time <33),
+     polygon(x = c(Time, rev(Time)), y = c(high,rev(low)),col = alpha("black",0.4), border = NA))
+with(subset(SnW,Time <33),
+     polygon(x = c(Time, rev(Time)), y = c(high,rev(low)),col = alpha("red",0.4), border = NA))
 magaxis(side=c(1,2,4),labels=c(1,1,0),frame.plot=T,las=1,cex.axis=1.2)
 legend("topright","c", bty="n", cex=1.5)
+legend("bottomleft", legend=c(expression(Warmed~(+3.5~degree~C)),"Home"),pch=22, pt.cex=2, pt.bg=c(alpha("red",1),alpha("black",0.6)),
+       bty="n",cex=1.2)
 
-plotBy(dydt.mean~Time, data=subset(SwH,Time <40),col="black",legend=FALSE, yaxt='n',yaxs="i",xaxs="i", xlim=c(0.01,45),
-       xaxt='n', ylab="", type="l",ylim=c(0.01,0.17),lty=1,lwd=2)
-lines(dydt.mean~Time, data=subset(SwW,Time <32),col="red",
-      xaxt='n', ylab="", type="l",ylim=c(0.01,0.2),lty=1,lwd=2)
-polygon(x = c(subset(SwH,Time <40)$Time, rev(subset(SwH,Time <40)$Time)), y = c(subset(SwH,Time <40)$high,rev(subset(SwH,Time <40)$low)),col = alpha("black",0.4), border = NA)
-polygon(x = c(subset(SwW,Time <32)$Time, rev(subset(SwW,Time <32)$Time)), y = c(subset(SwW,Time <32)$high,rev(subset(SwW,Time <32)$low)),col = alpha("red",0.4), border = NA)
+
+with(subset(SwH,Time<33),
+     plot(dydt.mean~Time,type="l",las=1,yaxs="i",xaxs="i",
+          ylim=c(0.01,0.13),lty=2,lwd=2,cex.lab=2, xlim=c(0.01,34),axes=FALSE,
+          ylab=expression(Total~mass~(g)),xlab=""))
+with(subset(SwW,Time <33),
+     lines(dydt.mean~Time, col="red",xaxt='n', ylab="", type="l",ylim=c(0.01,0.2),lty=2,lwd=2))
+with(subset(SwH, Time %in% unique(rate$Time)),
+     points(dydt.mean~Time, col="black", pch=19,cex=2,
+            panel.first=adderrorbars(x=Time,y=dydt.mean,SE=dydt.standard.error, direction="updown",col="black",las=1)))
+with(subset(SwW, Time %in% unique(rate$Time)),
+     points(dydt.mean~Time, col="red", pch=19,cex=2,
+            panel.first=adderrorbars(x=Time,y=dydt.mean,SE=dydt.standard.error, direction="updown",col="black",las=1)))
+with(subset(SwH,Time <33),
+     polygon(x = c(Time, rev(Time)), y = c(high,rev(low)),col = alpha("black",0.4), border = NA))
+with(subset(SwW,Time <33),
+     polygon(x = c(Time, rev(Time)), y = c(high,rev(low)),col = alpha("red",0.4), border = NA))
 magaxis(side=c(1,2,4),labels=c(1,0,0),frame.plot=T,las=1,cex.axis=1.2)
 legend("topright","d", bty="n", cex=1.5)
+
 mtext(text=expression(RGR~(g~g^-1~day^-1)), outer=T, side=2, line=3.5, cex=1.2)
 mtext(text="Time (Days)", side=1, line=3, cex=1.2, adj=-0.3)
 
-text(50,y=0.23,labels="Tropical", xpd=NA, srt=-90, pos=2, cex=1.5)
-text(50,y=0.075,labels="Temperate", xpd=NA, srt=-90, pos=2, cex=1.5)
+text(38,y=0.165,labels="Tropical", xpd=NA, srt=-90, pos=2, cex=1.5)
+text(38,y=0.055,labels="Temperate", xpd=NA, srt=-90, pos=2, cex=1.5)
 
 ###############################################################################
 # 
