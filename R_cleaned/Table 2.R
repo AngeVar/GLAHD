@@ -6,6 +6,27 @@ source("R_cleaned/3. Create_datasets.R")
 
 # BIOMASS
 
+T1<-subset(gamfits2, Time==1) 
+fm1m1 <- lme(sqrt(predMass)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=T1, method="ML")
+plot(fm1m1,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm1m1,sqrt(predMass)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
+plot(fm1m1,sqrt(predMass)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
+qqnorm(fm1m1, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
+hist(fm1m1$residuals[,1])
+anova(fm1m1)    
+plot(effect("Location",fm1m1))                     #0.07 biomass higher in N
+
+fm1m1.2 <- lme(sqrt(predMass)~Location,
+                random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=T1, method="ML")
+plot(fm1m1.2,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm1m1.2,sqrt(predMass)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
+plot(fm1m1.2,sqrt(predMass)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
+qqnorm(fm1m1.2, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
+hist(fm1m1.2$residuals[,1])
+anova(fm1m1.2)    
+anova(fm1m1.2,fm1m1)  #0.08 biomass higher in N
+
+
 T10<-subset(gamfits2, Time==10) 
 fm1m10 <- lme(sqrt(predMass)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=T10, method="ML")
 plot(fm1m10,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
@@ -100,66 +121,66 @@ anova(fm1m30.2)
 anova(fm1m30.2,fm1m30)
 AIC(fm1m30.2,fm1m30)#Simpler model is a bit better P=0.053
 
-T40<-subset(gamfits2, Time==40) 
-fm1m40 <- lme(log(predMass)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=T40, method="ML")
-plot(fm1m40,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
-plot(fm1m40,log(predMass)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
-plot(fm1m40,log(predMass)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
-qqnorm(fm1m40, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
-hist(fm1m40$residuals[,1])
-anova(fm1m40)    
-plot(effect("Treatment",fm1m40))                    #<.0001 biomass increased with warming
-plot(effect("Location",fm1m40))                     #<.0001 biomass higher in N
-plot(effect("Treatment:Location",fm1m40), multiline = T) #<.0001 warming increased biomass more in S than N
-((exp(effect("Treatment:Location",fm1m40)[[5]][4,1])-exp(effect("Treatment:Location",fm1m40)[[5]][3,1]))/
-  exp(effect("Treatment:Location",fm1m40)[[5]][3,1]))*100 #+1.9 % N
-((exp(effect("Treatment:Location",fm1m40)[[5]][2,1])-exp(effect("Treatment:Location",fm1m40)[[5]][1,1]))/
-  exp(effect("Treatment:Location",fm1m40)[[5]][1,1]))*100 #+75.6% S
-plot(effect("Treatment:Location:Range",fm1m40), multiline = T) #0.08 warming increased biomass more in S wide
-((exp(effect("Treatment:Location:Range",fm1m40)[[5]][8,1])-exp(effect("Treatment:Location:Range",fm1m40)[[5]][7,1]))/
-  exp(effect("Treatment:Location:Range",fm1m40)[[5]][7,1]))*100 #+3.6 % N wide
-((exp(effect("Treatment:Location:Range",fm1m40)[[5]][4,1])-exp(effect("Treatment:Location:Range",fm1m40)[[5]][3,1]))/
-  exp(effect("Treatment:Location:Range",fm1m40)[[5]][3,1]))*100 #-1.13% N narrow
-((exp(effect("Treatment:Location:Range",fm1m40)[[5]][6,1])-exp(effect("Treatment:Location:Range",fm1m40)[[5]][5,1]))/
-  exp(effect("Treatment:Location:Range",fm1m40)[[5]][5,1]))*100 #+96 % S wide
-((exp(effect("Treatment:Location:Range",fm1m40)[[5]][2,1])-exp(effect("Treatment:Location:Range",fm1m40)[[5]][1,1]))/
-  exp(effect("Treatment:Location:Range",fm1m40)[[5]][1,1]))*100 #+44.17% S narrow
-
-fm1m40.2 <- lme(log(predMass)~Treatment+Location+Range+Treatment:Location+Treatment:Range+Location:Range,
-                random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=T40, method="ML")
-plot(fm1m40.2,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
-plot(fm1m40.2,log(predMass)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
-plot(fm1m40.2,log(predMass)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
-qqnorm(fm1m40.2, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
-hist(fm1m40.2$residuals[,1])
-anova(fm1m40.2)    
-anova(fm1m40.2,fm1m40) 
-plot(effect("Treatment:Range",fm1m40.2), multiline = T) #0.0071 warming increased biomass more in S than N
-((exp(effect("Treatment:Range",fm1m40.2)[[5]][4,1])-exp(effect("Treatment:Range",fm1m40.2)[[5]][3,1]))/
-    exp(effect("Treatment:Range",fm1m40.2)[[5]][3,1]))*100 #+45 % Wide
-((exp(effect("Treatment:Range",fm1m40.2)[[5]][2,1])-exp(effect("Treatment:Range",fm1m40.2)[[5]][1,1]))/
-    exp(effect("Treatment:Range",fm1m40.2)[[5]][1,1]))*100 #+20.1% Narrow
-
-plot(effect("Treatment:Location",fm1m40.2), multiline = T) #<.0001 warming increased biomass more in S than N
-((exp(effect("Treatment:Location",fm1m40.2)[[5]][4,1])-exp(effect("Treatment:Location",fm1m40.2)[[5]][3,1]))/
-    exp(effect("Treatment:Location",fm1m40.2)[[5]][3,1]))*100 #+1.5 % N
-((exp(effect("Treatment:Location",fm1m40.2)[[5]][2,1])-exp(effect("Treatment:Location",fm1m40.2)[[5]][1,1]))/
-    exp(effect("Treatment:Location",fm1m40.2)[[5]][1,1]))*100 #+75.1% S
-
-fm1m40.3 <- lme(log(predMass)~Treatment+Location+Range+Treatment:Location,
-                random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=T40, method="ML")
-anova(fm1m40.2,fm1m40.3) #significantly worse 0.0064
-
-fm1m40.4 <- lme(log(predMass)~Treatment+Location+Range+Treatment:Range,
-                random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=T40, method="ML")
-anova(fm1m40.2,fm1m40.4) #significantly worse <.0001
-
-fm1m40.5 <- lme(log(predMass)~Treatment+Location+Range,
-                random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=T40, method="ML")
-anova(fm1m40.5,fm1m40) #significantly worse <.0001
-anova(fm1m40.5,fm1m40.2)#significantly worse <.0001
-anova(fm1m40.5,fm1m40.3)#significantly worse <.0001
-anova(fm1m40.5,fm1m40.4)#significantly worse 0.04
+# T40<-subset(gamfits2, Time==40) 
+# fm1m40 <- lme(log(predMass)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=T40, method="ML")
+# plot(fm1m40,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
+# plot(fm1m40,log(predMass)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
+# plot(fm1m40,log(predMass)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
+# qqnorm(fm1m40, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
+# hist(fm1m40$residuals[,1])
+# anova(fm1m40)    
+# plot(effect("Treatment",fm1m40))                    #<.0001 biomass increased with warming
+# plot(effect("Location",fm1m40))                     #<.0001 biomass higher in N
+# plot(effect("Treatment:Location",fm1m40), multiline = T) #<.0001 warming increased biomass more in S than N
+# ((exp(effect("Treatment:Location",fm1m40)[[5]][4,1])-exp(effect("Treatment:Location",fm1m40)[[5]][3,1]))/
+#   exp(effect("Treatment:Location",fm1m40)[[5]][3,1]))*100 #+1.9 % N
+# ((exp(effect("Treatment:Location",fm1m40)[[5]][2,1])-exp(effect("Treatment:Location",fm1m40)[[5]][1,1]))/
+#   exp(effect("Treatment:Location",fm1m40)[[5]][1,1]))*100 #+75.6% S
+# plot(effect("Treatment:Location:Range",fm1m40), multiline = T) #0.08 warming increased biomass more in S wide
+# ((exp(effect("Treatment:Location:Range",fm1m40)[[5]][8,1])-exp(effect("Treatment:Location:Range",fm1m40)[[5]][7,1]))/
+#   exp(effect("Treatment:Location:Range",fm1m40)[[5]][7,1]))*100 #+3.6 % N wide
+# ((exp(effect("Treatment:Location:Range",fm1m40)[[5]][4,1])-exp(effect("Treatment:Location:Range",fm1m40)[[5]][3,1]))/
+#   exp(effect("Treatment:Location:Range",fm1m40)[[5]][3,1]))*100 #-1.13% N narrow
+# ((exp(effect("Treatment:Location:Range",fm1m40)[[5]][6,1])-exp(effect("Treatment:Location:Range",fm1m40)[[5]][5,1]))/
+#   exp(effect("Treatment:Location:Range",fm1m40)[[5]][5,1]))*100 #+96 % S wide
+# ((exp(effect("Treatment:Location:Range",fm1m40)[[5]][2,1])-exp(effect("Treatment:Location:Range",fm1m40)[[5]][1,1]))/
+#   exp(effect("Treatment:Location:Range",fm1m40)[[5]][1,1]))*100 #+44.17% S narrow
+# 
+# fm1m40.2 <- lme(log(predMass)~Treatment+Location+Range+Treatment:Location+Treatment:Range+Location:Range,
+#                 random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=T40, method="ML")
+# plot(fm1m40.2,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
+# plot(fm1m40.2,log(predMass)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
+# plot(fm1m40.2,log(predMass)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
+# qqnorm(fm1m40.2, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
+# hist(fm1m40.2$residuals[,1])
+# anova(fm1m40.2)    
+# anova(fm1m40.2,fm1m40) 
+# plot(effect("Treatment:Range",fm1m40.2), multiline = T) #0.0071 warming increased biomass more in S than N
+# ((exp(effect("Treatment:Range",fm1m40.2)[[5]][4,1])-exp(effect("Treatment:Range",fm1m40.2)[[5]][3,1]))/
+#     exp(effect("Treatment:Range",fm1m40.2)[[5]][3,1]))*100 #+45 % Wide
+# ((exp(effect("Treatment:Range",fm1m40.2)[[5]][2,1])-exp(effect("Treatment:Range",fm1m40.2)[[5]][1,1]))/
+#     exp(effect("Treatment:Range",fm1m40.2)[[5]][1,1]))*100 #+20.1% Narrow
+# 
+# plot(effect("Treatment:Location",fm1m40.2), multiline = T) #<.0001 warming increased biomass more in S than N
+# ((exp(effect("Treatment:Location",fm1m40.2)[[5]][4,1])-exp(effect("Treatment:Location",fm1m40.2)[[5]][3,1]))/
+#     exp(effect("Treatment:Location",fm1m40.2)[[5]][3,1]))*100 #+1.5 % N
+# ((exp(effect("Treatment:Location",fm1m40.2)[[5]][2,1])-exp(effect("Treatment:Location",fm1m40.2)[[5]][1,1]))/
+#     exp(effect("Treatment:Location",fm1m40.2)[[5]][1,1]))*100 #+75.1% S
+# 
+# fm1m40.3 <- lme(log(predMass)~Treatment+Location+Range+Treatment:Location,
+#                 random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=T40, method="ML")
+# anova(fm1m40.2,fm1m40.3) #significantly worse 0.0064
+# 
+# fm1m40.4 <- lme(log(predMass)~Treatment+Location+Range+Treatment:Range,
+#                 random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=T40, method="ML")
+# anova(fm1m40.2,fm1m40.4) #significantly worse <.0001
+# 
+# fm1m40.5 <- lme(log(predMass)~Treatment+Location+Range,
+#                 random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=T40, method="ML")
+# anova(fm1m40.5,fm1m40) #significantly worse <.0001
+# anova(fm1m40.5,fm1m40.2)#significantly worse <.0001
+# anova(fm1m40.5,fm1m40.3)#significantly worse <.0001
+# anova(fm1m40.5,fm1m40.4)#significantly worse 0.04
 
 # T50<-subset(gamfits2, Time==50) 
 # fm1m50 <- lme((predMass)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=T50, method="ML")
@@ -215,6 +236,15 @@ anova(fm1m40.5,fm1m40.4)#significantly worse 0.04
 
 ###-----------------------------
 #RGR over time
+T1<-subset(gamfits2, Time==1) 
+fm1r1 <- lme((dydt)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=T1, method="ML")
+plot(fm1r1,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
+plot(fm1r1,(dydt)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
+plot(fm1r1,(dydt)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
+qqnorm(fm1r1, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
+hist(fm1r1$residuals[,1])
+anova(fm1r1)    
+
 
 T10<-subset(gamfits2, Time==10) 
 fm1r10 <- lme(sqrt(dydt)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=T10, method="ML")
@@ -544,71 +574,89 @@ plot(effect("Treatment:Range",fm1r40.2), multiline = T) #0.005 warming increased
 # 
 ####-----------------------------------------------------------------------------------
 ## Average RGR at common mass
-
-#get the highest minimum mass of each treatment group
-max(summaryBy(predMass~Taxa+Treatment, data=gamfits2, FUN=c(min))$predMass.min) #DCAM HOME 0.6431564
-
-summaryBy(predMass~Taxa+Treatment, data=subset(gamfits2, predMass > 0.8 & predMass< 0.8+0.2), 
-          FUN=length) #find range that encompasses at least 10 reps of each Treatment combo
-
-RGRm<-droplevels(subset(gamfits2, predMass >0.8 & predMass<0.8+0.2))
-
-fmr <- lme((dydt)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=RGRm)#, method="ML")
+M1<- subset(gampreds2, Mass==8)#2,4,8,12
+fmr <- lme(log(dydt)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=M1)#, method="ML")
 plot(fmr,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
 plot(fmr,(dydt)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
 plot(fmr,(dydt)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
 qqnorm(fmr, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
 hist(fmr$residuals[,1])
-anova(fmr)    
-plot(effect("Treatment",fmr))                    #<.0001 RGR decreased with warming
-plot(effect("Location",fmr))                     #0.0044 RGR lower in N
-plot(effect("Treatment:Range",fmr), multiline = T) #0.0393 warming increased RGR more in wide than narrow
-
-
-#get the smallest maximum mass of each treatment group
-min(summaryBy(predMass~Taxa+Treatment, data=gamfits2, FUN=c(max))$predMass.max) #SMIT HOME 33.0923
-
-summaryBy(predMass~Taxa+Treatment, data=subset(gamfits2, predMass >12 & predMass<14), 
-          FUN=length) #find range that encompasses at least 10 reps of each Treatment combo
-
-RGRm<-droplevels(subset(gamfits2, predMass >12 & predMass<14))
-
-fmr <- lme((dydt)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=RGRm)#, method="ML")
-plot(fmr,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
-plot(fmr,(dydt)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
-plot(fmr,(dydt)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
-qqnorm(fmr, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
-hist(fmr$residuals[,1])
-anova(fmr)    
+anova(fmr)
 plot(effect("Treatment",fmr))                    #<.0001 RGR increased with warming
 plot(effect("Treatment:Location",fmr))                     #<.0001 RGR increased in S not in N
-plot(effect("Treatment:Range",fmr)) 
+plot(effect("Treatment:Range",fmr))
 
 ((effect("Treatment:Location",fmr)[[5]][4,1]-effect("Treatment:Location",fmr)[[5]][3,1])/
   effect("Treatment:Location",fmr)[[5]][3,1])*100 #-1.1 % N
 ((effect("Treatment:Location",fmr)[[5]][2,1]-effect("Treatment:Location",fmr)[[5]][1,1])/
   effect("Treatment:Location",fmr)[[5]][1,1])*100 #+17.1% S
 
-#get a middle value as well
 
-summaryBy(predMass~Taxa+Treatment, data=subset(gamfits2, predMass >=6.5 & predMass<=7.5), 
-          FUN=length) #find range that encompasses at least 10 reps of each Treatment combo
-
-RGRm<-droplevels(subset(gamfits2, predMass >=6.5 & predMass<=7.5))
-
-
-fmr <- lme(log(dydt)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=RGRm)#, method="ML")
-plot(fmr,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
-plot(fmr,log(dydt)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
-plot(fmr,log(dydt)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
-qqnorm(fmr, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
-hist(fmr$residuals[,1])
-anova(fmr)    
-plot(effect("Treatment",fmr))                    #<.0001 RGR increased with warming
-plot(effect("Treatment:Location",fmr))                     #<.0001 RGR increased in S not in N
-plot(effect("Treatment:Range",fmr))              #0.0063 warming increased RGR more in wide than narrow
-
-((exp(effect("Treatment:Location",fmr)[[5]][4,1])-exp(effect("Treatment:Location",fmr)[[5]][3,1]))/
-    exp(effect("Treatment:Location",fmr)[[5]][3,1]))*100 #-5.8 % N
-((exp(effect("Treatment:Location",fmr)[[5]][2,1])-exp(effect("Treatment:Location",fmr)[[5]][1,1]))/
-    exp(effect("Treatment:Location",fmr)[[5]][1,1]))*100 #+18.3% S
+# 
+# #get the highest minimum mass of each treatment group
+# max(summaryBy(predMass~Taxa+Treatment, data=gamfits2, FUN=c(min))$predMass.min) #DCAM HOME 0.6431564
+# 
+# summaryBy(predMass~Taxa+Treatment, data=subset(gamfits2, predMass > 0.8 & predMass< 0.8+0.2), 
+#           FUN=length) #find range that encompasses at least 10 reps of each Treatment combo
+# 
+# RGRm<-droplevels(subset(gamfits2, predMass >0.8 & predMass<0.8+0.2))
+# 
+# fmr <- lme((dydt)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=RGRm)#, method="ML")
+# plot(fmr,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
+# plot(fmr,(dydt)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
+# plot(fmr,(dydt)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
+# qqnorm(fmr, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
+# hist(fmr$residuals[,1])
+# anova(fmr)    
+# plot(effect("Treatment",fmr))                    #<.0001 RGR decreased with warming
+# plot(effect("Location",fmr))                     #0.0044 RGR lower in N
+# plot(effect("Treatment:Range",fmr), multiline = T) #0.0393 warming increased RGR more in wide than narrow
+# 
+# 
+# #get the smallest maximum mass of each treatment group
+# min(summaryBy(predMass~Taxa+Treatment, data=gamfits2, FUN=c(max))$predMass.max) #SMIT HOME 33.0923
+# 
+# summaryBy(predMass~Taxa+Treatment, data=subset(gamfits2, predMass >12 & predMass<14), 
+#           FUN=length) #find range that encompasses at least 10 reps of each Treatment combo
+# 
+# RGRm<-droplevels(subset(gamfits2, predMass >12 & predMass<14))
+# 
+# fmr <- lme((dydt)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=RGRm)#, method="ML")
+# plot(fmr,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
+# plot(fmr,(dydt)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
+# plot(fmr,(dydt)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
+# qqnorm(fmr, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
+# hist(fmr$residuals[,1])
+# anova(fmr)    
+# plot(effect("Treatment",fmr))                    #<.0001 RGR increased with warming
+# plot(effect("Treatment:Location",fmr))                     #<.0001 RGR increased in S not in N
+# plot(effect("Treatment:Range",fmr)) 
+# 
+# ((effect("Treatment:Location",fmr)[[5]][4,1]-effect("Treatment:Location",fmr)[[5]][3,1])/
+#   effect("Treatment:Location",fmr)[[5]][3,1])*100 #-1.1 % N
+# ((effect("Treatment:Location",fmr)[[5]][2,1]-effect("Treatment:Location",fmr)[[5]][1,1])/
+#   effect("Treatment:Location",fmr)[[5]][1,1])*100 #+17.1% S
+# 
+# #get a middle value as well
+# 
+# summaryBy(predMass~Taxa+Treatment, data=subset(gamfits2, predMass >=6.5 & predMass<=7.5), 
+#           FUN=length) #find range that encompasses at least 10 reps of each Treatment combo
+# 
+# RGRm<-droplevels(subset(gamfits2, predMass >=6.5 & predMass<=7.5))
+# 
+# 
+# fmr <- lme(log(dydt)~Treatment*Location*Range,random=list(~1|Sp_RS_EN,~1|Prov_Sp_EN),data=RGRm)#, method="ML")
+# plot(fmr,resid(.,type="p")~fitted(.) | Treatment,abline=0)     #resid vs. fitted for each treatment. Is variance approximately constant?
+# plot(fmr,log(dydt)~fitted(.)|Species,abline=c(0,1))               #predicted vs. fitted for each species
+# plot(fmr,log(dydt)~fitted(.),abline=c(0,1))                       #overall predicted vs. fitted
+# qqnorm(fmr, ~ resid(., type = "p"), abline = c(0, 1))          #qqplot to assess normality of residuals
+# hist(fmr$residuals[,1])
+# anova(fmr)    
+# plot(effect("Treatment",fmr))                    #<.0001 RGR increased with warming
+# plot(effect("Treatment:Location",fmr))                     #<.0001 RGR increased in S not in N
+# plot(effect("Treatment:Range",fmr))              #0.0063 warming increased RGR more in wide than narrow
+# 
+# ((exp(effect("Treatment:Location",fmr)[[5]][4,1])-exp(effect("Treatment:Location",fmr)[[5]][3,1]))/
+#     exp(effect("Treatment:Location",fmr)[[5]][3,1]))*100 #-5.8 % N
+# ((exp(effect("Treatment:Location",fmr)[[5]][2,1])-exp(effect("Treatment:Location",fmr)[[5]][1,1]))/
+#     exp(effect("Treatment:Location",fmr)[[5]][1,1]))*100 #+18.3% S
