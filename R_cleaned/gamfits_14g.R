@@ -41,10 +41,12 @@ dat3$lnTotMass <- log(dat3$TotMass)
 #-------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------
 #- fit gam model to each plant one at a time, predict the derivatives
+pdf("Output/gam14g.pdf")
 growth.l <- split(dat3,dat3$Code)
 log3fits <- output <- data.out <- list()
-kgam=5 #change k?
+kgam=4 #change k?
 gamfits <- list()
+gampreds<-list()
 for(i in 1:length(growth.l)){
   tofit <- growth.l[[i]]
   
@@ -52,8 +54,8 @@ for(i in 1:length(growth.l)){
   g <- gam(lnTotMass ~ s(Time, k=kgam), data=tofit)
   
   #- plot fit
-    # smoothplot(Time, lnTotMass, data=tofit, kgam=kgam)
-    # title(main=tofit$Code[1])
+  smoothplot(Time, lnTotMass, data=tofit, kgam=kgam)
+  title(main=tofit$Code[1])
   
   #- create a vector of "dates" on which to estimate the derivative 
   dates <- seq(min(tofit$Time), max(tofit$Time), by=1)
@@ -71,12 +73,44 @@ for(i in 1:length(growth.l)){
   
   #- put mass into the dataframe
   gamfits[[i]]$predMass <- X0
+  
+  ############################
+  # create a vector of "masses" on which to estimate the time
+  mass <- log(c(1, 2, 4, 8, 12))
+  
+  #Get times
+  times<-approx(x = g$fitted.values, y = tofit$Time, xout = mass)$y
+  #plot estimates
+  points((times), mass, col = "blue", lwd = 5)
+  
+  #- extract the derivative at predicted times
+  fd2 <- derivSimulCI(g, samples = 10000, n=length(times))
+  dydt2 <- fd2[[1]]$deriv[,1]
+  
+  #- put derivatives into a list of dataframes
+  gampreds[[i]] <- data.frame(Code=tofit$Code[1],Time=times,dydt=dydt2, Mass=exp(mass))
+  
 }
-
+dev.off()
 #- merge dataframes, combine with treatment key
 gamfits.df <- do.call(rbind,gamfits)
 key <- unique(subset(dat3,select=c("Code","Species","Treatment","Location","Taxa","Range")))
 gamfits2 <- merge(gamfits.df,key,by=c("Code"),all.x=T)
 gamfits2$AGR <- gamfits2$dydt*gamfits2$predMass
+gampreds.df<-do.call(rbind,gampreds)
+gampreds2 <- merge(gampreds.df,key,by=c("Code"),all.x=T)
+
+gamfits2$Location <- factor(gamfits2$Location,levels=c("S","N")) # relevel Location so that "S" is the first level and "N" is the second
+gamfits2$Sp_RS_EN <- as.factor(with(gamfits2,paste(Species,Range)))   # use "explicit nesting" to create error terms of species:rangesize and prov:species:rangesize
+gamfits2$Prov_Sp_EN <- as.factor(with(gamfits2,paste(Taxa,Species)))
+gamfits2$Sp_Loc_EN <- as.factor(with(gamfits2,paste(Species,Location)))
+
+gampreds2$Location <- factor(gampreds2$Location,levels=c("S","N")) 
+gampreds2$Sp_RS_EN <- as.factor(with(gampreds2,paste(Species,Range)))   
+gampreds2$Prov_Sp_EN <- as.factor(with(gampreds2,paste(Taxa,Species)))
+gampreds2$Sp_Loc_EN <- as.factor(with(gampreds2,paste(Species,Location)))
+
+
+
 #-------------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------------
