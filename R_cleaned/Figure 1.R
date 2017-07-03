@@ -17,7 +17,7 @@ library(rgeos)
 
 #load file
 
-biodat <- getData("worldclim", var="bio", res=2.5, path="C:/Repos/GLAHD/Data/Climate/T data")
+biodat <- raster::getData('worldclim', var='bio', res=2.5, path="C:/Repos/GLAHD/Data/Climate/T data")
 biodat1<-subset(biodat,1) #mean annual T
 #biodat5 <- subset(biodat,5)#mean max T of warmest month
 #biodat6<-subset(biodat,6) #mean min T of coldest month
@@ -91,93 +91,110 @@ xbox <- xrange + c(-2, 11)
 ybox <- yrange + c(-2, 2)
 subset <- !is.na(outline$x)
 
-windows(7.79,11.69);par(mfrow=c(4,2),mar=c(1.5,0,0,0),oma=c(6,6,6,4))
-#windows(5.845,11.69);par(mfrow=c(4,2),mar=c(1.5,0,0,0),oma=c(6,6,2,1))
+#######################################################
+windows(9,5)
+par(mfrow=c(2,5),mar=c(1.5,0,0,0),oma=c(6,6,6,4))
+layout(matrix(c(1:10), nrow=2, ncol=5,byrow=T),
+       heights=c(1,1,1,0.01,1),
+       widths=c(1,1,1,0.01,1))
+#windows(7.79,11.69);par(mfrow=c(2,4),mar=c(1.5,0,0,0),oma=c(6,6,6,4))
 xlims<-c(130,154)
 ylims<-c(-40,-11)
-plot(biodat.oz10/10, xlim=xlims, ylim=ylims,legend=F, xaxt='n', 
-     col="white")
-plot(tpol,col=alpha("red",0.8),border=alpha("red",0.8),xlim=xlims, ylim=ylims, add=T)
-mtext(text="E. tereticornis",3,cex=0.8,font=3)
+##############
+plot(biodat.oz10/10,xlim=xlims,ylim=ylims,legend=F,xaxt='n',col="white")
+plot(brpol2,col=alpha("red",0.8),border=alpha("red",0.8),xlim=xlims, ylim=ylims, add=T)
+mtext("E. platyphylla",3,cex=0.8,font=3) 
 polypath(c(outline$x[subset], NA, c(xbox, rev(xbox))),
          c(outline$y[subset], NA, rep(ybox, each=2)),
-         col="white", rule="evenodd")
+         col="white", rule="evenodd", box=F)
 box()
-points(x=ter$lon,y=ter$lat,col="black", bg="black",cex=1.5,pch=21)
+points(x=pla$lon,y=pla$lat,col="black", bg="black",cex=2,pch=21)
 legend("topright","a", bty='n', cex=1.2)
-##############
-plot(biodat.oz10/10, xlim=xlims, ylim=ylims,legend=F, xaxt='n', yaxt='n',col="white")
-plot(cpol,col=alpha("red",0.8),border=alpha("red",0.8),xlim=xlims, ylim=ylims, add=T)
-mtext(text="E. camaldulensis",3, cex=0.8,font=3)
-polypath(c(outline$x[subset], NA, c(xbox, rev(xbox))),
-         c(outline$y[subset], NA, rep(ybox, each=2)),
-         col="white", rule="evenodd", box=F)
-box()
-points(x=cam$lon,y=cam$lat,col="black", bg="black",cex=1.5,pch=21)
-legend("topright","b", bty='n', cex=1.2)
-###############
-plot(biodat.oz10/10,xlim=xlims, ylim=ylims,legend=F, xaxt='n',col="white")
-plot(bpol2,col=alpha("red",0.8),border=alpha("red",0.8),xlim=xlims, ylim=ylims, add=T)
-mtext("E. botryoides",3,cex=0.8,font=3)
-polypath(c(outline$x[subset], NA, c(xbox, rev(xbox))),
-         c(outline$y[subset], NA, rep(ybox, each=2)),
-         col="white", rule="evenodd", box=F)
-box()
-points(x=bot$lon,y=bot$lat,col="black", bg="black",cex=1.5,pch=21)
-legend("topright","c", bty='n', cex=1.2)
-##############
-plot(biodat.oz10/10,xlim=xlims, ylim=ylims,legend=F, xaxt='n', yaxt='n',col="white")
-plot(plpol2,col=alpha("red",0.8),border=alpha("red",0.8),xlim=xlims, ylim=ylims, add=T)
-mtext("E. platyphylla",3,cex=0.8,font=3)
-polypath(c(outline$x[subset], NA, c(xbox, rev(xbox))),
-         c(outline$y[subset], NA, rep(ybox, each=2)),
-         col="white", rule="evenodd", box=F)
-box()
-points(x=pla$lon,y=pla$lat,col="black", bg="black",cex=1.5,pch=21)
-legend("topright","d", bty='n', cex=1.2)
-#######################
-plot(biodat.oz10/10,xlim=xlims,ylim=ylims,legend=F, xaxt='n',col="white")
-plot(spol2,col=alpha("red",0.8),border=alpha("red",0.8),xlim=xlims, ylim=ylims, add=T)
-mtext("E. smithii",3,cex=0.8,font=3) 
-polypath(c(outline$x[subset], NA, c(xbox, rev(xbox))),
-         c(outline$y[subset], NA, rep(ybox, each=2)),
-         col="white", rule="evenodd", box=F)
-box()
-points(x=smi$lon,y=smi$lat,col="black", bg="black",cex=1.5,pch=21)
-legend("topright","e", bty='n', cex=1.2)
-#######################
-plot(biodat.oz10/10,xlim=xlims,ylim=ylims,legend=F,  xaxt='n',yaxt='n',col="white")
+###################
+plot(biodat.oz10/10,xlim=xlims,ylim=ylims,legend=F,xaxt='n',yaxt='n',col="white")
 plot(pepol2,col=alpha("red",0.8),border=alpha("red",0.8),xlim=xlims, ylim=ylims, add=T)
 mtext("E. pellita",3,cex=0.8,font=3) 
 polypath(c(outline$x[subset], NA, c(xbox, rev(xbox))),
          c(outline$y[subset], NA, rep(ybox, each=2)),
-         col="white", rule="evenodd", box=F)
+         col="white", rule="evenodd", xlim=xlims,ylim=ylims,box=F)
 box()
-points(x=pel$lon,y=pel$lat,col="black", bg="black",cex=1.5,pch=21)
-legend("topright","f", bty='n', cex=1.2)
+points(x=pel$lon,y=pel$lat,col="black", bg="black",cex=2,pch=21)
+legend("topright","b", bty='n', cex=1.2)
 ###################
-plot(biodat.oz10/10,xlim=xlims,ylim=ylims,legend=F, col="white")
-plot(lpol2,col=alpha("red",0.8),border=alpha("red",0.8),xlim=xlims, ylim=ylims, add=T)
-mtext("E. longiflora",3,cex=0.8,font=3) 
-polypath(c(outline$x[subset], NA, c(xbox, rev(xbox))),
-         c(outline$y[subset], NA, rep(ybox, each=2)),
-         col="white", rule="evenodd", box=F)
-box()
-points(x=lon$lon,y=lon$lat,col="black", bg="black",cex=1.5,pch=21)
-legend("topright","g", bty='n', cex=1.2)
-#####################
-plot(biodat.oz10/10,xlim=xlims,ylim=ylims,legend=F, yaxt='n',col="white", bty='n')
+
+plot(biodat.oz10/10,xlim=xlims,ylim=ylims,legend=F,xaxt='n', yaxt='n',col="white", bty='n')
 plot(brpol2,col=alpha("red",0.8),border=alpha("red",0.8),xlim=xlims, ylim=ylims, add=T)
 mtext("E. brassiana",3,cex=0.8,font=3) 
 polypath(c(outline$x[subset], NA, c(xbox, rev(xbox))),
          c(outline$y[subset], NA, rep(ybox, each=2)),
          col="white", rule="evenodd", box=F)
 box()
-points(x=144.1304,y=-14.51,col="black", bg="black",cex=1.5,pch=21)
+points(x=144.1304,y=-14.51,col="black", bg="black",cex=2,pch=21)
+legend("topright","c", bty='n', cex=1.2)
+#####################
+plot(NA)
+
+##############
+plot(biodat.oz10/10, xlim=xlims, ylim=ylims,legend=F, xaxt='n', col="white")
+plot(cpol,col=alpha("red",0.8),border=alpha("red",0.8),xlim=xlims, ylim=ylims, add=T)
+mtext(text="E. camaldulensis",3, cex=0.8,font=3)
+polypath(c(outline$x[subset], NA, c(xbox, rev(xbox))),
+         c(outline$y[subset], NA, rep(ybox, each=2)),
+         col="white", rule="evenodd", box=F)
+box()
+points(x=cam$lon,y=cam$lat,col="black", bg="black",cex=2,pch=21)
+legend("topright","d", bty='n', cex=1.2)
+###############
+plot(biodat.oz10/10,xlim=xlims, ylim=ylims,legend=F, col="white")
+plot(bpol2,col=alpha("red",0.8),border=alpha("red",0.8),xlim=xlims, ylim=ylims, add=T)
+mtext("E. botryoides",3,cex=0.8,font=3)
+polypath(c(outline$x[subset], NA, c(xbox, rev(xbox))),
+         c(outline$y[subset], NA, rep(ybox, each=2)),
+         col="white", rule="evenodd", box=F)
+box()
+points(x=bot$lon,y=bot$lat,col="black", bg="black",cex=2,pch=21)
+legend("topright","e", bty='n', cex=1.2)
+
+#######################
+plot(biodat.oz10/10,xlim=xlims,ylim=ylims,legend=F, yaxt='n',col="white")
+plot(spol2,col=alpha("red",0.8),border=alpha("red",0.8),xlim=xlims, ylim=ylims, add=T)
+mtext("E. smithii",3,cex=0.8,font=3) 
+polypath(c(outline$x[subset], NA, c(xbox, rev(xbox))),
+         c(outline$y[subset], NA, rep(ybox, each=2)),
+         col="white", rule="evenodd", box=F)
+box()
+points(x=smi$lon,y=smi$lat,col="black", bg="black",cex=2,pch=21)
+legend("topright","f", bty='n', cex=1.2)
+#######################
+
+plot(biodat.oz10/10,xlim=xlims,ylim=ylims,legend=F, yaxt='n',col="white")
+plot(lpol2,col=alpha("red",0.8),border=alpha("red",0.8),xlim=xlims, ylim=ylims, add=T)
+mtext("E. longiflora",3,cex=0.8,font=3) 
+polypath(c(outline$x[subset], NA, c(xbox, rev(xbox))),
+         c(outline$y[subset], NA, rep(ybox, each=2)),
+         col="white", rule="evenodd", box=F)
+box()
+points(x=lon$lon,y=lon$lat,col="black", bg="black",cex=2,pch=21)
+legend("topright","g", bty='n', cex=1.2)
+#######################
+plot(NA)
+##################
+plot(biodat.oz10/10, xlim=xlims, ylim=ylims,legend=F, col="white")
+plot(tpol,col=alpha("red",0.8),border=alpha("red",0.8),xlim=xlims, ylim=ylims, add=T)
+mtext(text="E. tereticornis",3,cex=0.8,font=3)
+polypath(c(outline$x[subset], NA, c(xbox, rev(xbox))),
+         c(outline$y[subset], NA, rep(ybox, each=2)),
+         col="white", rule="evenodd")
+box()
+points(x=ter$lon,y=ter$lat,col="black", bg="black",cex=2,pch=21)
 legend("topright","h", bty='n', cex=1.2)
+
 mtext("Latitude", side=2, outer=T, line=3)
 mtext("Longitude", side=1, outer=T, line=2, at=0.45)
-
+mtext("Narrow", side=3, outer=T, line=2, at=0.3)
+mtext("Wide", side=3, outer=T, line=2, at=0.9)
+text(100,y=0,labels="Tropical", xpd=NA, srt=-90, pos=2, cex=1.7)
+text(100,y=-35,labels="Temperate", xpd=NA, srt=-90, pos=2, cex=1.7)
 ##################################
 
 
