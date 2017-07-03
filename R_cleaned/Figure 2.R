@@ -90,9 +90,10 @@ points(predMass.mean~Time, data=subset(rate.m, Location =="N" & Range=="narrow" 
 polygon(x = c(subset(NnH, predMass.mean <15)$Time, rev(subset(NnH, predMass.mean <15)$Time)), y = c(subset(NnH, predMass.mean <15)$high,rev(subset(NnH, predMass.mean <15)$low)),col = alpha("black",0.4), border = NA)
 polygon(x = c(subset(NnW, predMass.mean <15)$Time, rev(subset(NnW, predMass.mean <15)$Time)), y = c(subset(NnW, predMass.mean <15)$high,rev(subset(NnW, predMass.mean <15)$low)),col = alpha("red",0.4), border = NA)
 mtext(text="Narrow", side=3, line=0.5, cex=1.2)
-legend("topleft", legend=c(expression(Warmed~(+3.5~degree~C)),"Home"),col=c("red","black"),lty=c(1,1), lwd=2,bty="n", cex=1.2)
+legend("topleft", legend=c(expression(Warmed~(+3.5~degree~C)),"Home"),col=c("red","black"),lty=c(1,1), lwd=5,bty="n", cex=1.2)
 magaxis(side=c(1,2,4),labels=c(0,1,0),frame.plot=T,las=1,cex.axis=1.2, log="y", logpretty=T)
 legend("topright","a", bty="n", cex=1.5)
+arrows(-5,15,-1.3,15, length=0.1, xpd=NA)
 
 plotBy(predMass.mean~Time, data=NwH,col="darkgrey",legend=FALSE,ylim=c(0.2,130),xlim=c(0,60),
        xaxt='n', yaxt='n',ylab="", type="l",log="y",lty=1,lwd=2)
@@ -173,6 +174,7 @@ polygon(x = c(subset(SnH,Time <47)$Time, rev(subset(SnH,Time <47)$Time)), y = c(
 polygon(x = c(subset(SnW,Time <40)$Time, rev(subset(SnW,Time <40)$Time)), y = c(subset(SnW,Time <40)$high,rev(subset(SnW,Time <40)$low)),col = alpha("red",0.4), border = NA)
 magaxis(side=c(1,2,4),labels=c(1,1,0),frame.plot=T,las=1,cex.axis=1.2,log="y", logpretty=T)
 legend("topright","c", bty="n", cex=1.5)
+arrows(-6,15,-2.2,15, length=0.1, xpd=NA)
 
 plotBy(predMass.mean~Time, data=SwH,col="darkgrey",legend=FALSE, yaxt='n',ylim=c(0.2,130),#yaxs="i",xaxs="i",
        xaxt='n', ylab="", type="l",log="y",lty=1,lwd=2,xlim=c(0,60))
