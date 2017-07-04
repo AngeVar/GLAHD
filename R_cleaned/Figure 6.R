@@ -77,6 +77,9 @@ mtext(text=expression(A["sat"]),side=2,outer=F,cex=1.2,adj=0.5,line=5)
 mtext(text=expression("("*mu*mol~m^-2~s^-1*")"),side=2,outer=F,cex=1,adj=0.5,line=3)
 legend("topright","a", bty="n", cex=1.5)
 mtext(text="Temperate", side=3, line=0.5, cex=1.2)
+legend("topleft", legend=c(expression(Warmed~(+3.5~degree~C)),"Home"),pch=22, pt.cex=2, 
+       pt.bg=c(alpha("red",0.6),alpha("black",0.6)),
+       bty="n",cex=1.5)
 
 boxplot(Photo~Treatment*Range,data=subset(asat.tm,Location=="N"),ylim=ylims,
         axes=F,las=2,col=colors)
