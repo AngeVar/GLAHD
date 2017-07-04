@@ -25,10 +25,10 @@ dat2$Time <- as.numeric(dat2$Date-(min(dat2$Date)-1)) #finds first date and labe
 #remove all above 14 g
 dat2.1<-subset(dat2, TotMass <= 14)
 
-#- remove data with fewer than 5 observations through time - is this enough?
+#- remove data with fewer than 4 observations through time - is this enough?
 obs <- unname(table(dat2.1$Code)) # get the frequency of observations for each pot
 names <- names(table(dat2.1$Code))# get the associated name of each pot
-keeps <- names[which(obs>=5)]    # return a vector of pot names with more than n observations
+keeps <- names[which(obs>=4)]    # return a vector of pot names with more than n observations
 dat3 <- subset(dat2.1,Code %in% keeps) # subset dataframe
 dat3$Code <- factor(dat3$Code)
 dat3$lnTotMass <- log(dat3$TotMass)
@@ -44,17 +44,17 @@ dat3$lnTotMass <- log(dat3$TotMass)
 pdf("Output/gam14g.pdf")
 growth.l <- split(dat3,dat3$Code)
 log3fits <- output <- data.out <- list()
-kgam=4 #change k?
+#kgam=5 #change k?
 gamfits <- list()
 gampreds<-list()
 for(i in 1:length(growth.l)){
   tofit <- growth.l[[i]]
   
   #- fit the gam
-  g <- gam(lnTotMass ~ s(Time, k=kgam), data=tofit)
+  g <- gam(lnTotMass ~ s(Time, k=nrow(tofit)), data=tofit)
   
   #- plot fit
-  smoothplot(Time, lnTotMass, data=tofit, kgam=kgam)
+  smoothplot(Time, lnTotMass, data=tofit, kgam=nrow(tofit))
   title(main=tofit$Code[1])
   
   #- create a vector of "dates" on which to estimate the derivative 
