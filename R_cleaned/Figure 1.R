@@ -102,7 +102,7 @@ xlims<-c(130,154)
 ylims<-c(-40,-11)
 ##############
 plot(biodat.oz10/10,xlim=xlims,ylim=ylims,legend=F,xaxt='n',col="white")
-plot(brpol2,col=alpha("red",0.8),border=alpha("red",0.8),xlim=xlims, ylim=ylims, add=T)
+plot(plpol2,col=alpha("red",0.8),border=alpha("red",0.8),xlim=xlims, ylim=ylims, add=T)
 mtext("E. platyphylla",3,cex=0.8,font=3) 
 polypath(c(outline$x[subset], NA, c(xbox, rev(xbox))),
          c(outline$y[subset], NA, rep(ybox, each=2)),
@@ -192,9 +192,9 @@ legend("topright","h", bty='n', cex=1.2)
 mtext("Latitude", side=2, outer=T, line=3)
 mtext("Longitude", side=1, outer=T, line=2, at=0.45)
 mtext("Narrow", side=3, outer=T, line=2, at=0.3)
-mtext("Wide", side=3, outer=T, line=2, at=0.9)
-text(100,y=0,labels="Tropical", xpd=NA, srt=-90, pos=2, cex=1.7)
-text(100,y=-35,labels="Temperate", xpd=NA, srt=-90, pos=2, cex=1.7)
+mtext("Wide", side=3, outer=T, line=2, at=0.89)
+text(97,y=0,labels="Tropical", xpd=NA, srt=-90, pos=2, cex=1.7)
+text(97,y=-32,labels="Temperate", xpd=NA, srt=-90, pos=2, cex=1.7)
 ##################################
 
 
